@@ -1,0 +1,241 @@
+<html>
+<head>
+<title>MainActivity.java</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.ln { color: rgb(0,0,0); font-weight: normal; font-style: normal; }
+.s0 { color: rgb(0,0,128); font-weight: bold; }
+.s1 { }
+.s2 { color: rgb(0,0,255); }
+.s3 { color: rgb(128,128,128); font-style: italic; }
+.s4 { color: rgb(0,128,0); font-weight: bold; }
+</style>
+</head>
+<BODY BGCOLOR="#ffffff">
+<TABLE CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#C0C0C0" >
+<TR><TD><CENTER>
+<FONT FACE="Arial, Helvetica" COLOR="#000000">
+MainActivity.java</FONT>
+</center></TD></TR></TABLE>
+<pre>
+
+<span class="s0">package </span><span class="s1">com.example.scott.bluetooth; 
+ 
+</span><span class="s0">import </span><span class="s1">android.bluetooth.BluetoothClass; 
+</span><span class="s0">import </span><span class="s1">android.bluetooth.BluetoothDevice; 
+</span><span class="s0">import </span><span class="s1">android.content.Context; 
+</span><span class="s0">import </span><span class="s1">android.content.Intent; 
+</span><span class="s0">import </span><span class="s1">android.hardware.Sensor; 
+</span><span class="s0">import </span><span class="s1">android.hardware.SensorEvent; 
+</span><span class="s0">import </span><span class="s1">android.hardware.SensorEventListener; 
+</span><span class="s0">import </span><span class="s1">android.hardware.SensorManager; 
+</span><span class="s0">import </span><span class="s1">android.os.Parcel; 
+</span><span class="s0">import </span><span class="s1">android.os.ParcelUuid; 
+</span><span class="s0">import </span><span class="s1">android.support.v7.app.ActionBarActivity; 
+</span><span class="s0">import </span><span class="s1">android.os.Bundle; 
+</span><span class="s0">import </span><span class="s1">android.view.KeyEvent; 
+</span><span class="s0">import </span><span class="s1">android.view.Menu; 
+</span><span class="s0">import </span><span class="s1">android.view.MenuItem; 
+</span><span class="s0">import </span><span class="s1">android.bluetooth.BluetoothAdapter; 
+</span><span class="s0">import </span><span class="s1">android.widget.ArrayAdapter; 
+</span><span class="s0">import </span><span class="s1">android.widget.TextView; 
+ 
+</span><span class="s0">import </span><span class="s1">java.util.Set; 
+</span><span class="s0">import </span><span class="s1">java.util.UUID; 
+ 
+ 
+</span><span class="s0">public class </span><span class="s1">MainActivity </span><span class="s0">extends </span><span class="s1">ActionBarActivity </span><span class="s0">implements </span><span class="s1">SensorEventListener { 
+ 
+    </span><span class="s0">private final static int </span><span class="s1">REQUEST_ENABLE_BT = </span><span class="s2">1</span><span class="s1">; 
+    </span><span class="s0">private </span><span class="s1">TextView myText = </span><span class="s0">null</span><span class="s1">; 
+    </span><span class="s0">public </span><span class="s1">BluetoothAdapter mBluetoothAdapter = </span><span class="s0">null</span><span class="s1">; 
+    </span><span class="s3">//private BluetoothThread btThread;</span><span class="s1"> 
+    </span><span class="s0">private </span><span class="s1">SensorManager senSensorManager; 
+    </span><span class="s0">private </span><span class="s1">Sensor senAccelerometer; 
+    </span><span class="s0">private long </span><span class="s1">lastUpdate = </span><span class="s2">0</span><span class="s1">; 
+    </span><span class="s0">private float </span><span class="s1">last_x, last_y, last_z; 
+    </span><span class="s0">private static final int </span><span class="s1">MOTION_THRESHOLD = </span><span class="s2">100</span><span class="s1">; </span><span class="s3">//Can be adjusted if necessary</span><span class="s1"> 
+    </span><span class="s0">private boolean </span><span class="s1">screenOn = </span><span class="s0">true</span><span class="s1">; 
+ 
+    @Override 
+    </span><span class="s0">protected void </span><span class="s1">onCreate(Bundle savedInstanceState) { 
+        </span><span class="s0">super</span><span class="s1">.onCreate(savedInstanceState); 
+        setContentView(R.layout.activity_main); 
+        myText = </span><span class="s0">new </span><span class="s1">TextView(</span><span class="s0">this</span><span class="s1">); 
+        myText.setText(</span><span class="s4">&quot;Start&quot;</span><span class="s1">); 
+        setContentView(myText); 
+        setUpBluetooth(); 
+        setUpAccelerometer(); 
+    } 
+ 
+    </span><span class="s0">private void </span><span class="s1">setUpAccelerometer() { </span><span class="s3">//Set up accelerometer stuff</span><span class="s1"> 
+        senSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE); 
+        senAccelerometer = senSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER); 
+        senSensorManager.registerListener(</span><span class="s0">this</span><span class="s1">, senAccelerometer, SensorManager.SENSOR_DELAY_NORMAL); 
+    } 
+ 
+    </span><span class="s0">private void </span><span class="s1">setUpBluetooth() { </span><span class="s3">//This method checks that the clicker exists and is paired</span><span class="s1"> 
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter(); 
+        </span><span class="s0">if </span><span class="s1">(!mBluetoothAdapter.isEnabled()) { </span><span class="s3">//Ask to enable bluetooth if it's not</span><span class="s1"> 
+            Intent enableBtIntent = </span><span class="s0">new </span><span class="s1">Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE); 
+            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT); 
+        } 
+ 
+        Set&lt;BluetoothDevice&gt; pairedDevices = mBluetoothAdapter.getBondedDevices(); 
+        </span><span class="s0">if </span><span class="s1">(pairedDevices.size() &lt; </span><span class="s2">1</span><span class="s1">) { 
+            myText.setText(</span><span class="s4">&quot;No Devices&quot;</span><span class="s1">); 
+            setContentView(myText); 
+            </span><span class="s0">return</span><span class="s1">; 
+        } 
+        BluetoothDevice clicker = </span><span class="s0">null</span><span class="s1">; 
+        </span><span class="s0">for </span><span class="s1">(BluetoothDevice bd : pairedDevices) { </span><span class="s3">//Check list of devices for the clicker</span><span class="s1"> 
+            </span><span class="s0">if </span><span class="s1">(bd.getBluetoothClass().getMajorDeviceClass() == BluetoothClass.Device.Major.PERIPHERAL 
+                    &amp;&amp; bd.getName().equals(</span><span class="s4">&quot;POP Multimedia&quot;</span><span class="s1">)) 
+                clicker = bd; 
+        } 
+        mBluetoothAdapter.cancelDiscovery(); 
+        </span><span class="s0">if </span><span class="s1">(clicker != </span><span class="s0">null</span><span class="s1">) { </span><span class="s3">//This stuff was me trying to use the actual bluetooth API</span><span class="s1"> 
+</span><span class="s3">//            UUID myUUID = null;</span><span class="s1"> 
+</span><span class="s3">//            ParcelUuid[] UUIDs = clicker.getUuids();</span><span class="s1"> 
+</span><span class="s3">//            if (UUIDs.length &lt; 1) {</span><span class="s1"> 
+</span><span class="s3">//                myText.setText(&quot;No UUIDs&quot;);</span><span class="s1"> 
+</span><span class="s3">//                setContentView(myText);</span><span class="s1"> 
+</span><span class="s3">//                return;</span><span class="s1"> 
+</span><span class="s3">//            } else {</span><span class="s1"> 
+</span><span class="s3">//                myUUID = UUIDs[0].getUuid();</span><span class="s1"> 
+</span><span class="s3">//                //btThread = new BluetoothThread(clicker, this);</span><span class="s1"> 
+</span><span class="s3">//                //btThread.run();</span><span class="s1"> 
+</span><span class="s3">//            }</span><span class="s1"> 
+        } 
+        </span><span class="s0">else </span><span class="s1">{ 
+            myText.setText(</span><span class="s4">&quot;Clicker not found&quot;</span><span class="s1">); 
+            setContentView(myText); 
+        } 
+    } 
+ 
+    </span><span class="s0">public void </span><span class="s1">bluetoothUpdate(String text) { 
+        myText.setText(myText.getText() + </span><span class="s4">&quot;</span><span class="s0">\n</span><span class="s4">&quot; </span><span class="s1">+ text); 
+        setContentView(myText); 
+    } 
+ 
+    @Override 
+    </span><span class="s0">public boolean </span><span class="s1">dispatchKeyEvent(KeyEvent event) { 
+        </span><span class="s0">int </span><span class="s1">keyCode = event.getKeyCode(); 
+        </span><span class="s0">if </span><span class="s1">(event.getAction() == KeyEvent.ACTION_UP) { 
+            </span><span class="s0">switch </span><span class="s1">(keyCode) { 
+                </span><span class="s0">case </span><span class="s1">KeyEvent.KEYCODE_VOLUME_UP: 
+                    bluetoothUpdate(</span><span class="s4">&quot;Volume Up pressed&quot;</span><span class="s1">); 
+                    </span><span class="s0">return true</span><span class="s1">; 
+                </span><span class="s0">case </span><span class="s1">KeyEvent.KEYCODE_VOLUME_DOWN: 
+                    bluetoothUpdate(</span><span class="s4">&quot;Volume Down pressed&quot;</span><span class="s1">); 
+                    </span><span class="s0">return true</span><span class="s1">; 
+                </span><span class="s0">case </span><span class="s1">KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE: 
+                    bluetoothUpdate(</span><span class="s4">&quot;Play/Pause pressed&quot;</span><span class="s1">); 
+                    </span><span class="s0">return true</span><span class="s1">; 
+                </span><span class="s0">case </span><span class="s1">KeyEvent.KEYCODE_MEDIA_NEXT: 
+                    bluetoothUpdate(</span><span class="s4">&quot;Media Next pressed&quot;</span><span class="s1">); 
+                    </span><span class="s0">return true</span><span class="s1">; 
+                </span><span class="s0">case </span><span class="s1">KeyEvent.KEYCODE_MEDIA_PREVIOUS: 
+                    bluetoothUpdate(</span><span class="s4">&quot;Media Previous pressed&quot;</span><span class="s1">); 
+                    </span><span class="s0">return true</span><span class="s1">; 
+                </span><span class="s0">default</span><span class="s1">: 
+                    </span><span class="s0">return super</span><span class="s1">.dispatchKeyEvent(event); 
+            } 
+        } </span><span class="s0">else </span><span class="s1">{ </span><span class="s3">//We only want to act on one of key up/down</span><span class="s1"> 
+            </span><span class="s0">switch </span><span class="s1">(keyCode) { 
+                </span><span class="s0">case </span><span class="s1">KeyEvent.KEYCODE_VOLUME_UP: 
+                </span><span class="s0">case </span><span class="s1">KeyEvent.KEYCODE_VOLUME_DOWN: 
+                </span><span class="s0">case </span><span class="s1">KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE: 
+                </span><span class="s0">case </span><span class="s1">KeyEvent.KEYCODE_MEDIA_NEXT: 
+                </span><span class="s0">case </span><span class="s1">KeyEvent.KEYCODE_MEDIA_PREVIOUS: 
+                    </span><span class="s0">return true</span><span class="s1">; 
+                </span><span class="s0">default</span><span class="s1">: 
+                    </span><span class="s0">return super</span><span class="s1">.dispatchKeyEvent(event); 
+            } 
+        } 
+    } 
+ 
+    </span><span class="s0">public void </span><span class="s1">onSensorChanged(SensorEvent event) { </span><span class="s3">//This code borrowed from StackOverflow</span><span class="s1"> 
+        </span><span class="s3">//Basically it detects whether the phone is moving using accelerometer data</span><span class="s1"> 
+        Sensor mySensor = event.sensor; 
+        </span><span class="s0">if </span><span class="s1">(mySensor.getType() == Sensor.TYPE_ACCELEROMETER) { 
+            </span><span class="s0">float </span><span class="s1">x = event.values[</span><span class="s2">0</span><span class="s1">]; 
+            </span><span class="s0">float </span><span class="s1">y = event.values[</span><span class="s2">1</span><span class="s1">]; 
+            </span><span class="s0">float </span><span class="s1">z = event.values[</span><span class="s2">2</span><span class="s1">]; 
+ 
+            </span><span class="s0">long </span><span class="s1">curTime = System.currentTimeMillis(); 
+ 
+            </span><span class="s0">if </span><span class="s1">((curTime - lastUpdate) &gt; </span><span class="s2">100</span><span class="s1">) { 
+                </span><span class="s0">long </span><span class="s1">diffTime = (curTime - lastUpdate); 
+                lastUpdate = curTime; 
+ 
+                </span><span class="s0">float </span><span class="s1">speed = Math.abs(x + y + z - last_x - last_y - last_z) / diffTime * </span><span class="s2">10000</span><span class="s1">; 
+                </span><span class="s0">if </span><span class="s1">(speed &gt; MOTION_THRESHOLD) { 
+                    blankScreen(</span><span class="s0">true</span><span class="s1">); 
+                } </span><span class="s0">else </span><span class="s1">{ 
+                    blankScreen(</span><span class="s0">false</span><span class="s1">); 
+                } 
+ 
+                last_x = x; 
+                last_y = y; 
+                last_z = z; 
+            } 
+        } 
+    } 
+ 
+    </span><span class="s0">public void </span><span class="s1">onAccuracyChanged(Sensor s, </span><span class="s0">int </span><span class="s1">accuracy) { 
+        </span><span class="s3">//This method intentionally left blank</span><span class="s1"> 
+    } 
+ 
+    </span><span class="s0">private void </span><span class="s1">blankScreen(</span><span class="s0">boolean </span><span class="s1">inMotion) { 
+        </span><span class="s0">if </span><span class="s1">(inMotion &amp;&amp; screenOn) { 
+            </span><span class="s3">//Turn off screen. Right now I just write a message saying to.</span><span class="s1"> 
+            bluetoothUpdate(</span><span class="s4">&quot;Turn off screen&quot;</span><span class="s1">); 
+            screenOn = </span><span class="s0">false</span><span class="s1">; 
+        } </span><span class="s0">else if</span><span class="s1">(!inMotion &amp;&amp; !screenOn) { 
+            </span><span class="s3">//Turn on screen. Just a message at the moment.</span><span class="s1"> 
+            bluetoothUpdate(</span><span class="s4">&quot;Turn on screen&quot;</span><span class="s1">); 
+            screenOn = </span><span class="s0">true</span><span class="s1">; 
+        } 
+    } 
+ 
+    </span><span class="s0">protected void </span><span class="s1">onPause() { 
+        </span><span class="s0">super</span><span class="s1">.onPause(); 
+        senSensorManager.unregisterListener(</span><span class="s0">this</span><span class="s1">); 
+    } 
+ 
+    </span><span class="s0">protected void </span><span class="s1">onResume() { 
+        </span><span class="s0">super</span><span class="s1">.onResume(); 
+        senSensorManager.registerListener(</span><span class="s0">this</span><span class="s1">, senAccelerometer, SensorManager.SENSOR_DELAY_NORMAL); 
+    } 
+ 
+    @Override 
+    </span><span class="s0">public boolean </span><span class="s1">onCreateOptionsMenu(Menu menu) { 
+        </span><span class="s3">// Inflate the menu; this adds items to the action bar if it is present.</span><span class="s1"> 
+        getMenuInflater().inflate(R.menu.menu_main, menu); 
+        </span><span class="s0">return true</span><span class="s1">; 
+    } 
+ 
+    @Override 
+    </span><span class="s0">public boolean </span><span class="s1">onOptionsItemSelected(MenuItem item) { 
+        </span><span class="s3">// Handle action bar item clicks here. The action bar will</span><span class="s1"> 
+        </span><span class="s3">// automatically handle clicks on the Home/Up button, so long</span><span class="s1"> 
+        </span><span class="s3">// as you specify a parent activity in AndroidManifest.xml.</span><span class="s1"> 
+        </span><span class="s0">int </span><span class="s1">id = item.getItemId(); 
+ 
+        </span><span class="s3">//noinspection SimplifiableIfStatement</span><span class="s1"> 
+        </span><span class="s0">if </span><span class="s1">(id == R.id.action_settings) { 
+            </span><span class="s0">return true</span><span class="s1">; 
+        } 
+ 
+        </span><span class="s0">return super</span><span class="s1">.onOptionsItemSelected(item); 
+    } 
+ 
+    </span><span class="s0">protected void </span><span class="s1">onStop() { 
+        </span><span class="s0">super</span><span class="s1">.onStop(); 
+        </span><span class="s3">//btThread.cancel();</span><span class="s1"> 
+    } 
+} 
+</span></pre>
+</body>
+</html>

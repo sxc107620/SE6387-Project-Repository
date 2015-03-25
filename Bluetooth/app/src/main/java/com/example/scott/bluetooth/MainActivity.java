@@ -1,5 +1,7 @@
 package com.example.scott.bluetooth;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.bluetooth.BluetoothClass;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
@@ -16,14 +18,19 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.bluetooth.BluetoothAdapter;
+import android.view.View;
+import android.view.Window;
+import android.webkit.WebSettings;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+import android.webkit.WebView;
+import android.widget.EditText;
 
 import java.util.Set;
 import java.util.UUID;
 
 
-public class MainActivity extends ActionBarActivity implements SensorEventListener {
+public class MainActivity extends Activity implements SensorEventListener {
 
     private final static int REQUEST_ENABLE_BT = 1;
     private TextView myText = null;
@@ -36,16 +43,25 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
     private static final int MOTION_THRESHOLD = 100; //Can be adjusted if necessary
     private boolean screenOn = true;
 
+    WebView myBrowser;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        myText = new TextView(this);
-        myText.setText("Start");
-        setContentView(myText);
+        /*myText = new TextView(this);
+        myText.setText("Start");*/
+        //setContentView(myText);
         setUpBluetooth();
         setUpAccelerometer();
+
+
+        myBrowser = (WebView)findViewById(R.id.mybrowser);
+        myBrowser.getSettings().setJavaScriptEnabled(true);
+
+        myBrowser.loadUrl("file:///android_asset/index.html");
     }
+
 
     private void setUpAccelerometer() { //Set up accelerometer stuff
         senSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
@@ -62,8 +78,8 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
 
         Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
         if (pairedDevices.size() < 1) {
-            myText.setText("No Devices");
-            setContentView(myText);
+            /*myText.setText("No Devices");
+            setContentView(myText);*/
             return;
         }
         BluetoothDevice clicker = null;
@@ -93,8 +109,8 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
     }
 
     public void bluetoothUpdate(String text) {
-        myText.setText(myText.getText() + "\n" + text);
-        setContentView(myText);
+        /*myText.setText(myText.getText() + "\n" + text);
+        setContentView(myText);*/
     }
 
     @Override
@@ -103,13 +119,16 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         if (event.getAction() == KeyEvent.ACTION_UP) {
             switch (keyCode) {
                 case KeyEvent.KEYCODE_VOLUME_UP:
-                    bluetoothUpdate("Volume Up pressed");
+                    //bluetoothUpdate("Volume Up pressed");
+                    myBrowser.loadUrl("javascript:inc()");
                     return true;
                 case KeyEvent.KEYCODE_VOLUME_DOWN:
-                    bluetoothUpdate("Volume Down pressed");
+                    //bluetoothUpdate("Volume Down pressed");
+                    myBrowser.loadUrl("javascript:dec()");
                     return true;
                 case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
-                    bluetoothUpdate("Play/Pause pressed");
+                    //bluetoothUpdate("Play/Pause pressed");
+                    myBrowser.loadUrl("javascript:res()");
                     return true;
                 case KeyEvent.KEYCODE_MEDIA_NEXT:
                     bluetoothUpdate("Media Next pressed");
@@ -169,11 +188,13 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
     private void blankScreen(boolean inMotion) {
         if (inMotion && screenOn) {
             //Turn off screen. Right now I just write a message saying to.
-            bluetoothUpdate("Turn off screen");
+            //bluetoothUpdate("Turn off screen");
+            myBrowser.loadUrl("javascript:screenOff()");
             screenOn = false;
         } else if(!inMotion && !screenOn) {
             //Turn on screen. Just a message at the moment.
-            bluetoothUpdate("Turn on screen");
+            //bluetoothUpdate("Turn on screen");
+            myBrowser.loadUrl("javascript:screenOn()");
             screenOn = true;
         }
     }
