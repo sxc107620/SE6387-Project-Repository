@@ -71,6 +71,10 @@ function screenOn() {
 	$("#count").show();
 }
 
-function capacityUpdate(cap) {
-  AndroidFunction.currentCapacity(cap);
+function capacityUpdate(toast) {
+  AndroidFunction.currentCapacity(toast);
+ }
+ 
+ function test() {
+	 $("#x").html("access");
  }

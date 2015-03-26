@@ -58,7 +58,7 @@ public class MainActivity extends Activity implements SensorEventListener {
 
 
         myBrowser = (WebView)findViewById(R.id.mybrowser);
-        final MyJavaScriptInterface myJavaScriptInterface = new MyJavaScriptInterface();
+        final MyJavaScriptInterface myJavaScriptInterface = new MyJavaScriptInterface(this);
 
         myBrowser.addJavascriptInterface(myJavaScriptInterface, "AndroidFunction");
         myBrowser.getSettings().setJavaScriptEnabled(true);
@@ -67,10 +67,14 @@ public class MainActivity extends Activity implements SensorEventListener {
     }
 
     public class MyJavaScriptInterface {
+        Context mContext;
+
+        MyJavaScriptInterface(Context c) {
+            mContext = c;
+        }
 
         @JavascriptInterface
         public void currentCapacity(String cap) {
-            String.valueOf(cap);
             //Database connection goes here, variable cap has the current capacity
         }
 
