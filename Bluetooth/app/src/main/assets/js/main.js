@@ -42,6 +42,7 @@ function inc() {
 		if (capacity != 8) {
 			clock.increment();
 			capacity++;
+			capacityUpdate(capacity);
 		}
 	}
 }
@@ -51,6 +52,7 @@ function dec() {
 		if (capacity != 0) {
 			clock.decrement();
 			capacity--;
+			capacityUpdate(capacity);
 		}
 	}
 }
@@ -58,6 +60,7 @@ function dec() {
 function res() {
 	clock.reset();
 	capacity = 0;
+	capacityUpdate(capacity);
 }
 
 function screenOff() {
@@ -67,3 +70,7 @@ function screenOff() {
 function screenOn() {
 	$("#count").show();
 }
+
+function capacityUpdate(cap) {
+  AndroidFunction.currentCapacity(cap);
+ }

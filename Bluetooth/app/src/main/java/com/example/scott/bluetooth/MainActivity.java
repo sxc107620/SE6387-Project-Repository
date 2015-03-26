@@ -20,6 +20,7 @@ import android.view.MenuItem;
 import android.bluetooth.BluetoothAdapter;
 import android.view.View;
 import android.view.Window;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebSettings;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
@@ -57,9 +58,23 @@ public class MainActivity extends Activity implements SensorEventListener {
 
 
         myBrowser = (WebView)findViewById(R.id.mybrowser);
+        final MyJavaScriptInterface myJavaScriptInterface = new MyJavaScriptInterface();
+
+        myBrowser.addJavascriptInterface(myJavaScriptInterface, "AndroidFunction");
         myBrowser.getSettings().setJavaScriptEnabled(true);
 
         myBrowser.loadUrl("file:///android_asset/index.html");
+    }
+
+    public class MyJavaScriptInterface {
+
+        @JavascriptInterface
+        public void currentCapacity(String cap) {
+            String.valueOf(cap);
+            //Database connection goes here, variable cap has the current capacity
+        }
+
+
     }
 
 
