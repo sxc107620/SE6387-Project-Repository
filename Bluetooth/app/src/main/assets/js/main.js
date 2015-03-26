@@ -75,6 +75,3 @@ function capacityUpdate(toast) {
   AndroidFunction.currentCapacity(toast);
  }
  
- function test() {
-	 $("#x").html("access");
- }
