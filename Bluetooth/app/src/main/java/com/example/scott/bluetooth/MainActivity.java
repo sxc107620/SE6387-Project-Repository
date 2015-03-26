@@ -2,14 +2,19 @@ package com.example.scott.bluetooth;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothClass;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Parcel;
 import android.os.ParcelUuid;
 import android.support.v7.app.ActionBarActivity;
@@ -26,25 +31,22 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import android.webkit.WebView;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import java.util.Set;
 import java.util.UUID;
 
 
-public class MainActivity extends Activity implements SensorEventListener {
+public class MainActivity extends Activity implements LocationListener {
 
     private final static int REQUEST_ENABLE_BT = 1;
-    private TextView myText = null;
-    public BluetoothAdapter mBluetoothAdapter = null;
-    //private BluetoothThread btThread;
-    private SensorManager senSensorManager;
-    private Sensor senAccelerometer;
-    private long lastUpdate = 0;
-    private float last_x, last_y, last_z;
-    private static final int MOTION_THRESHOLD = 100; //Can be adjusted if necessary
     private boolean screenOn = true;
 
-    WebView myBrowser;
+    private LocationManager locMgr;
+    private Location lastLoc = null;
+
+    private WebView myBrowser;
+    private TextView myText = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,8 +56,7 @@ public class MainActivity extends Activity implements SensorEventListener {
         myText.setText("Start");*/
         //setContentView(myText);
         setUpBluetooth();
-        setUpAccelerometer();
-
+        setUpGPS();
 
         myBrowser = (WebView)findViewById(R.id.mybrowser);
         final MyJavaScriptInterface myJavaScriptInterface = new MyJavaScriptInterface(this);
@@ -64,6 +65,74 @@ public class MainActivity extends Activity implements SensorEventListener {
         myBrowser.getSettings().setJavaScriptEnabled(true);
 
         myBrowser.loadUrl("file:///android_asset/index.html");
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        if(lastLoc == null) {
+            lastLoc = location;
+            return;
+        }
+        if((Math.abs(lastLoc.distanceTo(location)) > 0.5)) { //Moved at least 0.5 meters in the last two seconds - In motion
+            lastLoc = location;
+            blankScreen(true);
+        }
+        else {
+            lastLoc = location;
+            blankScreen(false);
+        }
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Your GPS seems to be disabled. Press Yes to enable it (GPS required for core functionality)")
+                .setCancelable(false)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+                        startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+                        dialog.cancel();
+                    }
+                });
+        final AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+    private void setUpGPS() {
+        locMgr = (LocationManager) getSystemService( Context.LOCATION_SERVICE );
+        if ( !locMgr.isProviderEnabled( LocationManager.GPS_PROVIDER ) ) {
+            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage("Your GPS seems to be disabled. Press Yes to enable it (GPS required for core functionality)")
+                    .setCancelable(false)
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+                            startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                        }
+                    })
+                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+                            dialog.cancel();
+                        }
+                    });
+            final AlertDialog alert = builder.create();
+            alert.show();
+        }
+        locMgr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 0, this);
+        lastLoc = locMgr.getLastKnownLocation(LocationManager.GPS_PROVIDER);
     }
 
     public class MyJavaScriptInterface {
@@ -81,15 +150,8 @@ public class MainActivity extends Activity implements SensorEventListener {
 
     }
 
-
-    private void setUpAccelerometer() { //Set up accelerometer stuff
-        senSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        senAccelerometer = senSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        senSensorManager.registerListener(this, senAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
-    }
-
     private void setUpBluetooth() { //This method checks that the clicker exists and is paired
-        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        final BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (!mBluetoothAdapter.isEnabled()) { //Ask to enable bluetooth if it's not
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
@@ -172,47 +234,13 @@ public class MainActivity extends Activity implements SensorEventListener {
         }
     }
 
-    public void onSensorChanged(SensorEvent event) { //This code borrowed from StackOverflow
-        //Basically it detects whether the phone is moving using accelerometer data
-        Sensor mySensor = event.sensor;
-        if (mySensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            float x = event.values[0];
-            float y = event.values[1];
-            float z = event.values[2];
-
-            long curTime = System.currentTimeMillis();
-
-            if ((curTime - lastUpdate) > 100) {
-                long diffTime = (curTime - lastUpdate);
-                lastUpdate = curTime;
-
-                float speed = Math.abs(x + y + z - last_x - last_y - last_z) / diffTime * 10000;
-                if (speed > MOTION_THRESHOLD) {
-                    blankScreen(true);
-                } else {
-                    blankScreen(false);
-                }
-
-                last_x = x;
-                last_y = y;
-                last_z = z;
-            }
-        }
-    }
-
-    public void onAccuracyChanged(Sensor s, int accuracy) {
-        //This method intentionally left blank
-    }
-
     private void blankScreen(boolean inMotion) {
         if (inMotion && screenOn) {
-            //Turn off screen. Right now I just write a message saying to.
-            //bluetoothUpdate("Turn off screen");
+            //Turn off screen
             myBrowser.loadUrl("javascript:screenOff()");
             screenOn = false;
         } else if(!inMotion && !screenOn) {
-            //Turn on screen. Just a message at the moment.
-            //bluetoothUpdate("Turn on screen");
+            //Turn on screen.
             myBrowser.loadUrl("javascript:screenOn()");
             screenOn = true;
         }
@@ -220,12 +248,18 @@ public class MainActivity extends Activity implements SensorEventListener {
 
     protected void onPause() {
         super.onPause();
-        senSensorManager.unregisterListener(this);
+        locMgr.removeUpdates(this);
     }
 
     protected void onResume() {
         super.onResume();
-        senSensorManager.registerListener(this, senAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+        locMgr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 0, this);
+    }
+
+    protected void onStop() {
+        super.onStop();
+        locMgr.removeUpdates(this);
+        //btThread.cancel();
     }
 
     @Override
@@ -248,10 +282,5 @@ public class MainActivity extends Activity implements SensorEventListener {
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    protected void onStop() {
-        super.onStop();
-        //btThread.cancel();
     }
 }
