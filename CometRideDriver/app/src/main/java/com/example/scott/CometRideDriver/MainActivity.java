@@ -1,6 +1,5 @@
-package com.example.scott.bluetooth;
+package com.example.scott.CometRideDriver;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothClass;
@@ -8,33 +7,20 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.Parcel;
-import android.os.ParcelUuid;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.bluetooth.BluetoothAdapter;
-import android.view.View;
-import android.view.Window;
 import android.webkit.JavascriptInterface;
-import android.webkit.WebSettings;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import android.webkit.WebView;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import java.util.Set;
-import java.util.UUID;
 
 
 public class MainActivity extends Activity implements LocationListener {
@@ -44,9 +30,13 @@ public class MainActivity extends Activity implements LocationListener {
 
     private LocationManager locMgr;
     private Location lastLoc = null;
+    private int currentRiders = 0;
+    private int totalRiders = 0;
 
     private WebView myBrowser;
     private TextView myText = null;
+
+    private UpdaterThread updater = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +55,9 @@ public class MainActivity extends Activity implements LocationListener {
         myBrowser.getSettings().setJavaScriptEnabled(true);
 
         myBrowser.loadUrl("file:///android_asset/index.html");
+
+        updater = new UpdaterThread(this);
+        updater.start();
     }
 
     @Override
@@ -145,6 +138,7 @@ public class MainActivity extends Activity implements LocationListener {
         @JavascriptInterface
         public void currentCapacity(String cap) {
             //Database connection goes here, variable cap has the current capacity
+            currentRiders = Integer.parseInt(cap);
         }
 
 
@@ -189,9 +183,13 @@ public class MainActivity extends Activity implements LocationListener {
         }
     }
 
-    public void bluetoothUpdate(String text) {
-        /*myText.setText(myText.getText() + "\n" + text);
-        setContentView(myText);*/
+    //This is a debug/output function for me to test things with
+    public void bluetoothUpdate(final String text) {
+        this.runOnUiThread(new Runnable() {
+            public void run() {
+                Toast.makeText(getApplicationContext(), text, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
@@ -259,6 +257,7 @@ public class MainActivity extends Activity implements LocationListener {
     protected void onStop() {
         super.onStop();
         locMgr.removeUpdates(this);
+        updater.interrupt();
         //btThread.cancel();
     }
 
@@ -282,5 +281,13 @@ public class MainActivity extends Activity implements LocationListener {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public int getCurrentRiders() {
+        return currentRiders;
+    }
+
+    public Location getLocation() {
+        return lastLoc;
     }
 }
