@@ -2,6 +2,7 @@ package com.example.scott.CometRideDriver;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.bluetooth.BluetoothClass;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
@@ -15,7 +16,9 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.bluetooth.BluetoothAdapter;
+import android.view.View;
 import android.webkit.JavascriptInterface;
+import android.widget.Button;
 import android.widget.TextView;
 import android.webkit.WebView;
 import android.widget.Toast;
@@ -37,11 +40,13 @@ public class MainActivity extends Activity implements LocationListener {
     private TextView myText = null;
 
     private UpdaterThread updater = null;
+    private boolean loggedIn = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Toast.makeText(this, "Login Successful. Welcome to CometRide", Toast.LENGTH_SHORT).show();
         /*myText = new TextView(this);
         myText.setText("Start");*/
         //setContentView(myText);
@@ -58,6 +63,10 @@ public class MainActivity extends Activity implements LocationListener {
 
         updater = new UpdaterThread(this);
         updater.start();
+    }
+
+    public void login(boolean code) {
+        loggedIn = code;
     }
 
     @Override

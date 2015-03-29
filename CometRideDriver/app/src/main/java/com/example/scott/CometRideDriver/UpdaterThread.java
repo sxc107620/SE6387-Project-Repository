@@ -18,7 +18,7 @@ public class UpdaterThread extends Thread {
     public void run() {
         while(true) {
             int numRiders = ourActivity.getCurrentRiders();
-            ourActivity.bluetoothUpdate(numRiders + " at " + Calendar.getInstance().get(Calendar.SECOND));
+            //ourActivity.bluetoothUpdate(numRiders + " at " + Calendar.getInstance().get(Calendar.SECOND));
             Location currentLoc = ourActivity.getLocation();
             //sendInfoToServer(numRiders, currentLoc);
             try {
