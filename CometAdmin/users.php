@@ -18,7 +18,7 @@
 			newUser($_REQUEST['uname'], md5($_REQUEST['p']), $_REQUEST['mail'], $_REQUEST['t']);
 		}
 		if(isset($_REQUEST['n']) && $_REQUEST['n']!="") {
-			newShuttle($_REQUEST['n'],  $_REQUEST['shuttle']);
+			newShuttle($_REQUEST['n'],  $_REQUEST['t']);
 		}
 		if(isset($_REQUEST['status']) && $_REQUEST['status']!="") {
 			deleteUser($_REQUEST['e'], $_REQUEST['status']);
