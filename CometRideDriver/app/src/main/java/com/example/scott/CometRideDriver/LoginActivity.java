@@ -26,10 +26,6 @@ public class LoginActivity extends ActionBarActivity implements View.OnClickList
         btnLoginDialog.performClick();
     }
 
-    private void createAndShowLoginDialog() {
-
-    }
-
     private boolean validateLogin(String user, String pass) {
         return true;
     }
