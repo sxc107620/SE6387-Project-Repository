@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 29, 2015 at 01:49 AM
+-- Generation Time: Mar 30, 2015 at 05:25 AM
 -- Server version: 5.6.14
 -- PHP Version: 5.5.6
 
@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS `routes` (
   `routeid` int(11) NOT NULL AUTO_INCREMENT,
   `rname` varchar(50) NOT NULL,
   `color` varchar(10) NOT NULL,
+  `focus` varchar(40) NOT NULL,
   `waypoints` varchar(400) NOT NULL,
   PRIMARY KEY (`routeid`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=5 ;
@@ -38,11 +39,11 @@ CREATE TABLE IF NOT EXISTS `routes` (
 -- Dumping data for table `routes`
 --
 
-INSERT INTO `routes` (`routeid`, `rname`, `color`, `waypoints`) VALUES
-(1, 'McDermott Library Route', 'Dark Blue', ''),
-(2, 'University Commons Route', 'Purple', ''),
-(3, 'University Village Phase 1 Route', 'Orange', ''),
-(4, 'Rutford Avenue North-South Route', 'Green', '');
+INSERT INTO `routes` (`routeid`, `rname`, `color`, `focus`, `waypoints`) VALUES
+(1, 'McDermott Library Route', 'Dark Blue', '', ''),
+(2, 'University Commons Route', 'Purple', '', ''),
+(3, 'University Village Phase 1 Route', 'Orange', '', ''),
+(4, 'Rutford Avenue North-South Route', 'Green', '', '');
 
 -- --------------------------------------------------------
 
@@ -61,7 +62,7 @@ CREATE TABLE IF NOT EXISTS `shuttles` (
   `routeid` int(11) DEFAULT NULL,
   `totalpassengers` int(11) DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=7 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=8 ;
 
 --
 -- Dumping data for table `shuttles`
@@ -72,7 +73,7 @@ INSERT INTO `shuttles` (`id`, `number`, `status`, `latitude`, `longitude`, `type
 (3, 201, 'off-duty', NULL, NULL, '9-seater', NULL, NULL, 0),
 (4, 301, 'off-duty', NULL, NULL, '7-seater', NULL, NULL, 0),
 (5, 401, 'off-duty', NULL, NULL, '7-seater', NULL, NULL, 0),
-(6, 501, 'off-duty', NULL, NULL, '9-seater', NULL, NULL, 0);
+(7, 501, 'off-duty', NULL, NULL, '9-seater', NULL, NULL, 0);
 
 -- --------------------------------------------------------
 

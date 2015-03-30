@@ -668,6 +668,9 @@ Date Time Widget
 	$("#driverList a").sort(asc_sort).appendTo('#driverList');
 	$("#cabList a").sort(asc_sort).appendTo('#cabList');
 	
+	//tooltip
+	$('[data-toggle="tooltip"]').tooltip();
+	
 	
 	//load details in modal box - admin, driver
 	$('#modalDetails').on('show.bs.modal', function(e) {
@@ -809,6 +812,174 @@ Date Time Widget
 	function asc_sort(a, b){
 		return ($(b).text()) < ($(a).text()) ? 1 : -1;    
 	}
+	
+	//Google Map
+	var directionsDisplay;
+	var directionsService = new google.maps.DirectionsService();
+	map= new Array();
+	var editMap;
+	var rowCount = $("#routeCount").data('count');
+
+	function initialize() {
+	  directionsDisplay = new google.maps.DirectionsRenderer();
+	  var chicago = new google.maps.LatLng(41.850033, -87.6500523);
+	  var mapOptions = {
+		zoom: 6,
+		center: chicago
+	  }
+	  
+	  for(i=0; i<rowCount; i++) {
+	  map[i] = new google.maps.Map(document.getElementById(i+'_Map'), mapOptions);
+	  //directionsDisplay.setMap(map);
+	  }
+	}
+	
+	function mapEditor() {
+		var UTD = new google.maps.LatLng(32.98594891, -96.7509511);
+		var mapOptions = {
+			zoom: 17,
+			center: UTD,
+			panControl: true, //enable pan Control
+            zoomControl: true, //enable zoom control
+            zoomControlOptions: {
+            style: google.maps.ZoomControlStyle.SMALL //zoom control size
+			},
+            scaleControl: true, // enable scale control
+            mapTypeId: google.maps.MapTypeId.ROADMAP // google map type
+		}
+            
+		editMap = new google.maps.Map(document.getElementById('editMap'), mapOptions);
+	}
+	
+	$('.mapTabs').on('shown.bs.tab', function(e) {
+		initialize();
+    });
+	
+	
+	$('#modalCreateRoute').on('show.bs.modal', function(e) {
+		setTimeout( function(){google.maps.event.trigger(editMap, "resize");} , 400);
+	});
+	
+	$("#drag").click(function(e) {
+		google.maps.event.clearListeners(editMap, 'click');
+		editMap.setOptions({ draggableCursor: 'url(http://maps.google.com/mapfiles/openhand.cur), move' });
+	});
+	undo = new Array();
+	redo = new Array();
+	$("#line").click(function(e) {
+		google.maps.event.clearListeners(editMap, 'click');
+		editMap.setOptions({ draggableCursor: 'crosshair' });
+		list = new Array();
+		google.maps.event.addListener(editMap, "click", function(event) {
+			var lat = event.latLng.lat();
+			var lng = event.latLng.lng();
+			list.push(lat+","+lng);
+			if(list.length > 1) drawLine(list[list.length-2], list[list.length-1]);
+		});
+	});
+	
+	$("#curve").click(function(e) {
+		google.maps.event.clearListeners(editMap, 'click');
+		editMap.setOptions({ draggableCursor: 'crosshair' });
+		list = new Array();
+		google.maps.event.addListener(editMap, "click", function(event) {
+			var lat = event.latLng.lat();
+			var lng = event.latLng.lng();
+			list.push(lat+","+lng);
+			if(list.length > 1) drawCurve(list[list.length-2], list[list.length-1]);
+		});
+	});
+	
+	$("#undo").click(function(e) {
+		if(undo.length != 0) {
+			linePath = undo.pop();
+			redo.push(linePath);
+			linePath.setMap(null);
+		}
+	});
+	
+	$("#redo").click(function(e) {
+		if(redo.length != 0) {
+			linePath = redo.pop();
+			undo.push(linePath);
+			linePath.setMap(editMap);
+		}
+	});
+	
+	$("#clear").click(function(e) {
+		mapEditor();
+	});
+
+	$("#marker").click(function(e) {
+		google.maps.event.clearListeners(editMap, 'click');
+		editMap.setOptions({ draggableCursor: 'crosshair' });
+		google.maps.event.addListener(editMap, 'click', function(event) {
+			var marker = new google.maps.Marker({
+				position: event.latLng, //map Coordinates where user right clicked
+				map: editMap,
+				draggable:true, //set marker draggable 
+				animation: google.maps.Animation.DROP, //bounce animation
+				icon: "img/map/pin_green.png" //custom pin icon
+			});
+		});
+	});
+	
+	function drawLine(from, to) {
+		undo.push(from);
+		from = from.split(',');
+		to = to.split(',');
+		var lineCoordinates = [
+			new google.maps.LatLng(parseFloat(from[0]), parseFloat(from[1])),
+			new google.maps.LatLng(parseFloat(to[0]), parseFloat(to[1]))
+		];
+		var linePath = new google.maps.Polyline({
+			path: lineCoordinates,
+			geodesic: true,
+			strokeColor: '#FF0000',
+			strokeOpacity: 1.0,
+			editable: true,
+			strokeWeight: 2
+		});
+		undo.push(linePath);
+		temp = undo.pop();
+		undo.pop();
+		undo.push(temp);
+		linePath.setMap(editMap);
+	}
+	
+	function drawCurve(from, to) {
+		from = from.split(',');
+		to = to.split(',');
+		var path = new google.maps.MVCArray();
+		var service = new google.maps.DirectionsService();
+		var poly = new google.maps.Polyline({
+			map: editMap,
+			geodesic: true,
+			strokeColor: '#FF0000',
+			strokeOpacity: 1.0,
+			editable: true,
+			strokeWeight: 2
+		});
+		var src = new google.maps.LatLng(parseFloat(from[0]), parseFloat(from[1]));
+        var des = new google.maps.LatLng(parseFloat(to[0]), parseFloat(to[1]));
+		console.log(src);
+		console.log(des);
+		service.route({
+			origin: src,
+			destination: des,
+			travelMode: google.maps.DirectionsTravelMode.WALKING
+		}, function (result, status) {
+			if (status == google.maps.DirectionsStatus.OK) {
+				for (var i = 0, len = result.routes[0].overview_path.length; i < len; i++) {
+					path.push(result.routes[0].overview_path[i]);
+				}
+				poly.setPath(path);
+			}
+		});
+	}
+	
+	google.maps.event.addDomListener(window, 'load', initialize);
+	google.maps.event.addDomListener(window, 'load', mapEditor);
 })();
 
 

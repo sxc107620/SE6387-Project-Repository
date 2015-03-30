@@ -8,8 +8,11 @@
     </head>
     <body id="skin-blur-violate">
 	<?php
-				session_start();
-				if(isset($_SESSION['uName'])) {
+		session_start();
+		if(isset($_SESSION['uName'])) {
+			include ("./php/includes/settings.inc.php");        // database settings
+			include ("./php/includes/connectdb.inc.php"); 
+			include ("./php/includes/sql.php");
 		?>
         <header id="header" class="media">
             <?php
@@ -22,6 +25,13 @@
 		
         
         <section id="main" class="p-relative" role="main">
+		
+			<!-- Modal Default -->
+			<div class="modal fade" id="modalCreateRoute" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+				<?php
+					include ("modal_box_map.php"); 
+				?>
+			</div>
             
             <!-- Sidebar -->
             <aside id="sidebar">
@@ -46,13 +56,40 @@
                 <?php
 					include ("breadcrumb.php"); 
 				?>
-                
+                <?php
+					$routeList = getRoutes();
+					$colums = $routeList[0];
+					$rows = (count($routeList)-1)/$colums;
+				?>
                 <article id="paragraph" class="block-area">
-                    <h3 class="block-title">Paragraph</h3>
-                    <p>Pellentesque lacinia sagittis libero et feugiat. Etiam volutpat adipiscing tortor non luctus. Vivamus venenatis vitae metus et aliquet. Praesent vitae justo purus. In hendrerit lorem nisl, ac lacinia urna aliquet non. Quisque nisi tellus, rhoncus quis est sit amet, lacinia euismod nunc. Aenean nec nibh velit. Fusce quis ante in nisl molestie fringilla. Nunc vitae ante id magna feugiat condimentum. Maecenas sit amet urna massa.</p>
-                    <p>Integer eu lectus sollicitudin, hendrerit est ac, sollicitudin nisl. Quisque viverra sodales lectus nec ultrices. Fusce elit dolor, dignissim a nunc id, varius suscipit turpis. Cras porttitor turpis vitae leo accumsan molestie. Morbi vitae luctus leo. Sed nec scelerisque magna, et adipiscing est. Proin lobortis lectus eu sem ullamcorper, commodo malesuada quam fringilla. Curabitur ac nunc dui. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Fusce sagittis enim eu est lacinia, ut egestas ligula imperdiet.</p>
-                    <br>
-                </article> 
+                    <h3 class="block-title" id="routeCount" data-count=<?php echo $rows; ?>>Route Lists</h3>
+                    <div class="tab-container tile media">
+                        <ul class="tab pull-left tab-vertical nav nav-tabs" style="height: auto;">
+							<?php
+							for($i = 0; $i < $rows; $i++) {
+								if($i == 0) $active = "class='active'"; else $active = "";
+								echo "<li ".$active." ><a class='mapTabs' href='#".$i."'>".$routeList[$colums*$i+2]."</a></li>";
+							}
+							?>
+                        </ul>
+                          
+                        <div class="tab-content media-body">
+							<?php
+							for($i = 0; $i < $rows; $i++) {
+								$dataAttr = "data-rid='".$routeList[$colums*$i+1]."' data-rname='".$routeList[$colums*$i+2]."' data-color='".$routeList[$colums*$i+3]."' data-focus='".$routeList[$colums*$i+4]."' data-waypoints='".$routeList[$colums*$i+5]."' ";
+								if($i == 0) $active = "active"; else $active = "";
+								echo "<div class='tab-pane $active' id='".$i."'>";
+								echo "<p>The ".$routeList[$colums*$i+2]." route with its save boarding points:</p>";
+								echo "<div id='".$i."_Map' class='routeMap' ".$dataAttr."></div>";
+								echo "<a href='#modalCreateRoute' data-toggle='modal' class='btn pull-right'>Create New Route</a>";
+								echo "</div>";
+							} 
+							?>
+                        </div>
+                        
+                    </div>
+					<br>
+                </article>
                 <hr class="whiter m-t-20 m-b-20" />
             </section>
         </section>
@@ -78,22 +115,8 @@
         <!-- Bootstrap -->
         <script src="js/bootstrap.min.js"></script>
         
-        <!-- Charts -->
-        <script src="js/charts/jquery.flot.js"></script> <!-- Flot Main -->
-        <script src="js/charts/jquery.flot.time.js"></script> <!-- Flot sub -->
-        <script src="js/charts/jquery.flot.animator.min.js"></script> <!-- Flot sub -->
-        <script src="js/charts/jquery.flot.resize.min.js"></script> <!-- Flot sub - for repaint when resizing the screen -->
-        <script src="js/charts/jquery.flot.orderBar.js"></script> <!-- Flot Bar chart -->
-        <script src="js/charts/jquery.flot.pie.min.js"></script> <!-- Flot Pie chart -->
- 
-        <script src="js/sparkline.min.js"></script> <!-- Sparkline - Tiny charts -->
-        <script src="js/easypiechart.js"></script> <!-- EasyPieChart - Animated Pie Charts -->
-        <script src="js/charts.js"></script> <!-- All the above chart related functions -->
-        
         <!-- Map -->
-        <script src="js/maps/jvectormap.min.js"></script> <!-- jVectorMap main library -->
-        <script src="js/maps/usa.js"></script> <!-- USA Map for jVectorMap -->
-        <script src="js/maps/world.js"></script> <!-- World Map for jVectorMap -->
+        <script src="http://maps.googleapis.com/maps/api/js"></script>
         
         <!-- UX -->
         <script src="js/scroll.min.js"></script> <!-- Custom Scrollbar -->
