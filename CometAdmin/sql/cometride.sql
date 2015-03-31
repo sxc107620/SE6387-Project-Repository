@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 30, 2015 at 05:25 AM
+-- Generation Time: Mar 31, 2015 at 05:40 PM
 -- Server version: 5.6.14
 -- PHP Version: 5.5.6
 
@@ -30,20 +30,22 @@ CREATE TABLE IF NOT EXISTS `routes` (
   `routeid` int(11) NOT NULL AUTO_INCREMENT,
   `rname` varchar(50) NOT NULL,
   `color` varchar(10) NOT NULL,
-  `focus` varchar(40) NOT NULL,
-  `waypoints` varchar(400) NOT NULL,
+  `savepoints` varchar(40) NOT NULL,
+  `lines` varchar(400) NOT NULL,
+  `curves` varchar(400) NOT NULL,
   PRIMARY KEY (`routeid`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=5 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=6 ;
 
 --
 -- Dumping data for table `routes`
 --
 
-INSERT INTO `routes` (`routeid`, `rname`, `color`, `focus`, `waypoints`) VALUES
-(1, 'McDermott Library Route', 'Dark Blue', '', ''),
-(2, 'University Commons Route', 'Purple', '', ''),
-(3, 'University Village Phase 1 Route', 'Orange', '', ''),
-(4, 'Rutford Avenue North-South Route', 'Green', '', '');
+INSERT INTO `routes` (`routeid`, `rname`, `color`, `savepoints`, `lines`, `curves`) VALUES
+(1, 'McDermott Library Route', '0039a6', '', 'e~ihEzynmQMX?xCnBFDcBDM', 'moihEpunmQeDCuB?eAZ??WJc@HM?UFAZAFO`@?JjBdAJCHEBc@Cy@UiAe@N[@QmAEY??Me@oA{Bq@f@CBs@oAQa@Oi@KmAESEGOE_@@m@?s@CG@??_@FDD?^C^?PFTR`@f@~@b@v@B@V^Vd@r@zAn@rABDLBHClA_ARQBOCQOi@_@s@e@o@^[TZ??^l@f@rATbB'),
+(2, 'University Commons Route', '773dbc', '', '', 'goihEvjomQA|GA`@G?k@@??qKCyKCqC?AjE???b@BVA~@mBA??sAA??O@EFAJ?z@A~A@VDDb@@??xBB??p@?DcG?YBUDkB@qA??Ag@hA@bD?bPBrA@~BA@{CDA??FKB_A?sA??OA'),
+(3, 'University Village Phase 1 Route', 'ff33ff', '', '', 'goihEvjomQEnc@??\\?JEJOJOB@PBVJFB??f@RTB`@?b@NFHNX@B??\\f@h@TPDHADM?O???sC@uA???]II_@Mm@Mq@EWEOG??y@UYAWHOFWVORe@KEA@{R@o@?yBHEFQ?]???kBKA'),
+(4, 'University Village Phase 1 Route 2', 'ff9900', '', '', 'goihEvjomQAjKAlKAlAG?{AAqBA}A?eF?CxF??`B@??zC?A{EAQ???MN?R??L?Pd@?ZBHDP?^An@Eb@AHR?hBAN??d@??eD?C@gP@{CLMBK???gCOA'),
+(5, 'Rutford Avenue North-South Route', '005710', '', 'gyhhEzuomQIg@gFCsAD?a@_A??f@', 'cyhhExuomQdD@nBAZAJG@A??AoDCGGAuB???S@CH?\\@jA?h@cD?K???aKHqGEi@?O???uLAyKC}KA?B@pHC?kC?A??}A??lC@');
 
 -- --------------------------------------------------------
 

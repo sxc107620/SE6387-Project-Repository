@@ -76,7 +76,7 @@
                         <div class="tab-content media-body">
 							<?php
 							for($i = 0; $i < $rows; $i++) {
-								$dataAttr = "data-rid='".$routeList[$colums*$i+1]."' data-rname='".$routeList[$colums*$i+2]."' data-color='".$routeList[$colums*$i+3]."' data-focus='".$routeList[$colums*$i+4]."' data-waypoints='".$routeList[$colums*$i+5]."' ";
+								$dataAttr = "data-rid='".$routeList[$colums*$i+1]."' data-rname='".$routeList[$colums*$i+2]."' data-color='".$routeList[$colums*$i+3]."' data-savepoints='".$routeList[$colums*$i+4]."' data-lines='".$routeList[$colums*$i+5]."' data-curves='".$routeList[$colums*$i+6]."' ";
 								if($i == 0) $active = "active"; else $active = "";
 								echo "<div class='tab-pane $active' id='".$i."'>";
 								echo "<p>The ".$routeList[$colums*$i+2]." route with its save boarding points:</p>";
@@ -116,7 +116,8 @@
         <script src="js/bootstrap.min.js"></script>
         
         <!-- Map -->
-        <script src="http://maps.googleapis.com/maps/api/js"></script>
+        <script src="http://maps.googleapis.com/maps/api/js?v=3&sensor=false&libraries=geometry"></script>
+		<script type="text/javascript" src="js/cycle.js"></script>
         
         <!-- UX -->
         <script src="js/scroll.min.js"></script> <!-- Custom Scrollbar -->

@@ -819,18 +819,54 @@ Date Time Widget
 	map= new Array();
 	var editMap;
 	var rowCount = $("#routeCount").data('count');
+	undo = new Array();
+	redo = new Array();
+	loadCurve = new Array();
+	var encodeStringCurve;
+	var encodeStringLine;
+	var poly;
 
 	function initialize() {
-	  directionsDisplay = new google.maps.DirectionsRenderer();
-	  var chicago = new google.maps.LatLng(41.850033, -87.6500523);
-	  var mapOptions = {
-		zoom: 6,
-		center: chicago
-	  }
+		var mapOptions = {
+			panControl: true, //enable pan Control
+            zoomControl: true, //enable zoom control
+            scaleControl: true, // enable scale control
+            mapTypeId: google.maps.MapTypeId.ROADMAP // google map type
+		}
 	  
 	  for(i=0; i<rowCount; i++) {
 	  map[i] = new google.maps.Map(document.getElementById(i+'_Map'), mapOptions);
-	  //directionsDisplay.setMap(map);
+	  lines = $("#"+i+"_Map").data('lines');
+	  curves = $("#"+i+"_Map").data('curves');
+	  color = "#"+$("#"+i+"_Map").data('color');
+	  
+		
+	  if (typeof lines != 'undefined') {
+			var linePath = new google.maps.Polyline({
+				path: google.maps.geometry.encoding.decodePath(lines),
+				geodesic: true,
+				strokeColor: color,
+				strokeOpacity: 1.0,
+				strokeWeight: 2,
+				map: map[i]
+			});
+		}
+		if (typeof curves != 'undefined') {
+			var curvePath = new google.maps.Polyline({
+				path: google.maps.geometry.encoding.decodePath(curves),
+				geodesic: true,
+				strokeColor: color,
+				strokeOpacity: 1.0,
+				strokeWeight: 2,
+				map: map[i]
+			});
+			var bounds = new google.maps.LatLngBounds();
+			var points = curvePath.getPath().getArray();
+			for (var n = 0; n < points.length ; n++){
+				bounds.extend(points[n]);
+			}
+			map[i].fitBounds(bounds);
+		}
 	  }
 	}
 	
@@ -841,14 +877,15 @@ Date Time Widget
 			center: UTD,
 			panControl: true, //enable pan Control
             zoomControl: true, //enable zoom control
-            zoomControlOptions: {
-            style: google.maps.ZoomControlStyle.SMALL //zoom control size
-			},
             scaleControl: true, // enable scale control
+			mapTypeControlOptions:{ 
+	        		style: google.maps.MapTypeControlStyle.DROPDOWN_MENU
+	        },
             mapTypeId: google.maps.MapTypeId.ROADMAP // google map type
 		}
             
 		editMap = new google.maps.Map(document.getElementById('editMap'), mapOptions);
+		
 	}
 	
 	$('.mapTabs').on('shown.bs.tab', function(e) {
@@ -864,18 +901,21 @@ Date Time Widget
 		google.maps.event.clearListeners(editMap, 'click');
 		editMap.setOptions({ draggableCursor: 'url(http://maps.google.com/mapfiles/openhand.cur), move' });
 	});
-	undo = new Array();
-	redo = new Array();
+	
+
+		
 	$("#line").click(function(e) {
 		google.maps.event.clearListeners(editMap, 'click');
 		editMap.setOptions({ draggableCursor: 'crosshair' });
 		list = new Array();
-		google.maps.event.addListener(editMap, "click", function(event) {
-			var lat = event.latLng.lat();
-			var lng = event.latLng.lng();
-			list.push(lat+","+lng);
-			if(list.length > 1) drawLine(list[list.length-2], list[list.length-1]);
-		});
+		poly = new google.maps.Polyline({
+			map: editMap,
+			geodesic: true,
+			strokeColor: '#FF0000',
+			strokeOpacity: 1.0,
+			strokeWeight: 2
+	});
+		google.maps.event.addListener(editMap, "click", drawLine);
 	});
 	
 	$("#curve").click(function(e) {
@@ -888,6 +928,31 @@ Date Time Widget
 			list.push(lat+","+lng);
 			if(list.length > 1) drawCurve(list[list.length-2], list[list.length-1]);
 		});
+	});
+	
+	$("#eraser").click(function(e) {
+		if (typeof encodeStringCurve != 'undefined') {
+			var curvePath = new google.maps.Polyline({
+				path: google.maps.geometry.encoding.decodePath(encodeStringCurve),
+				geodesic: true,
+				strokeColor: '#FF0000',
+				strokeOpacity: 1.0,
+				strokeWeight: 2,
+				map: editMap
+			});
+			console.log(encodeStringCurve);
+		}
+		if (typeof encodeStringLine != 'undefined') {
+			var linePath = new google.maps.Polyline({
+				path: google.maps.geometry.encoding.decodePath(encodeStringLine),
+				geodesic: true,
+				strokeColor: '#FF0000',
+				strokeOpacity: 1.0,
+				strokeWeight: 2,
+				map: editMap
+			});
+			console.log(encodeStringLine);
+		}
 	});
 	
 	$("#undo").click(function(e) {
@@ -924,27 +989,10 @@ Date Time Widget
 		});
 	});
 	
-	function drawLine(from, to) {
-		undo.push(from);
-		from = from.split(',');
-		to = to.split(',');
-		var lineCoordinates = [
-			new google.maps.LatLng(parseFloat(from[0]), parseFloat(from[1])),
-			new google.maps.LatLng(parseFloat(to[0]), parseFloat(to[1]))
-		];
-		var linePath = new google.maps.Polyline({
-			path: lineCoordinates,
-			geodesic: true,
-			strokeColor: '#FF0000',
-			strokeOpacity: 1.0,
-			editable: true,
-			strokeWeight: 2
-		});
-		undo.push(linePath);
-		temp = undo.pop();
-		undo.pop();
-		undo.push(temp);
-		linePath.setMap(editMap);
+	function drawLine(event) {
+	var path = poly.getPath();
+	path.push(event.latLng);
+	encodeStringLine = google.maps.geometry.encoding.encodePath(path);
 	}
 	
 	function drawCurve(from, to) {
@@ -957,29 +1005,27 @@ Date Time Widget
 			geodesic: true,
 			strokeColor: '#FF0000',
 			strokeOpacity: 1.0,
-			editable: true,
 			strokeWeight: 2
-		});
+	});
 		var src = new google.maps.LatLng(parseFloat(from[0]), parseFloat(from[1]));
         var des = new google.maps.LatLng(parseFloat(to[0]), parseFloat(to[1]));
-		console.log(src);
-		console.log(des);
 		service.route({
 			origin: src,
 			destination: des,
-			travelMode: google.maps.DirectionsTravelMode.WALKING
+			travelMode: google.maps.DirectionsTravelMode.DRIVING
 		}, function (result, status) {
 			if (status == google.maps.DirectionsStatus.OK) {
 				for (var i = 0, len = result.routes[0].overview_path.length; i < len; i++) {
 					path.push(result.routes[0].overview_path[i]);
+					loadCurve.push(result.routes[0].overview_path[i]);
 				}
+				encodeStringCurve = google.maps.geometry.encoding.encodePath(loadCurve);
 				poly.setPath(path);
 			}
+			
 		});
 	}
 	
 	google.maps.event.addDomListener(window, 'load', initialize);
 	google.maps.event.addDomListener(window, 'load', mapEditor);
 })();
-
-
