@@ -18,48 +18,34 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
+import java.net.Socket;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.UnknownHostException;
 
 public class LoginActivity extends ActionBarActivity implements View.OnClickListener {
 
     private Button btnLoginDialog;
-    private OutputStream toServer;
-    private InputStream fromServer;
-    private URL serverURL;
-    private URLConnection serverConn;
+
+    public UpdaterThread updater;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        connectToServer();
+        updater = new UpdaterThread(this);
+        updater.start();
         btnLoginDialog = (Button) findViewById(R.id.btnLoginDialog);
         btnLoginDialog.setOnClickListener(this);
-        btnLoginDialog.performClick();
+        //btnLoginDialog.performClick();
     }
 
-    private boolean validateLogin(String user, String pass) {
-        //Security stuff (Hashing?)
-        //Send stuff to server
-        return true;
+    public void bluetoothUpdate(final String text) {
+        this.runOnUiThread(new Runnable() {
+            public void run() {
+                Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG).show();
+            }
+        });
     }
-
-    private void connectToServer() {
-        int response = -1;
-        try {
-            serverURL = new URL("Server Location");
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        try {
-            serverConn = serverURL.openConnection();
-            fromServer = serverConn.getInputStream();
-            toServer = serverConn.getOutputStream();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -81,6 +67,20 @@ public class LoginActivity extends ActionBarActivity implements View.OnClickList
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void loginResponse(boolean status) {
+        if(status) {
+            Intent myIntent=new Intent(LoginActivity.this,MainActivity.class);
+            startActivity(myIntent);
+        }
+        else {
+            this.runOnUiThread(new Runnable() {
+                public void run() {
+                    Toast.makeText(LoginActivity.this,"Invalid credentials", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
     }
 
     @Override
@@ -106,17 +106,10 @@ public class LoginActivity extends ActionBarActivity implements View.OnClickList
                     String password = txtPassword.getText().toString().trim();
                     if(username.length() > 0 && password.length() > 0)
                     {
-                        boolean validated = validateLogin(username, password);
-                        if(validated) {
-                            //Dismiss and switch to Main Activity
-                            login.dismiss();
-                            Intent myIntent=new Intent(LoginActivity.this,MainActivity.class);
-                            startActivity(myIntent);
-                            LoginActivity.this.finish();
-                        }
-                        else {
-                            Toast.makeText(LoginActivity.this,"Invalid credentials", Toast.LENGTH_SHORT).show();
-                        }
+                        updater.setUsername(username);
+                        updater.setPassword(password);
+                        updater.setLoginReady();
+                        login.dismiss();
                     }
                     else {
                         Toast.makeText(LoginActivity.this,"Please enter Username and Password", Toast.LENGTH_LONG).show();

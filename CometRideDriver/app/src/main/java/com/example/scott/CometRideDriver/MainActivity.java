@@ -60,8 +60,8 @@ public class MainActivity extends Activity implements LocationListener {
 
         myBrowser.loadUrl("file:///android_asset/index.html");
 
-        updater = new UpdaterThread(this);
-        updater.start();
+        //updater = new UpdaterThread(this);
+        //updater.start();
     }
 
     public void login(boolean code) {
