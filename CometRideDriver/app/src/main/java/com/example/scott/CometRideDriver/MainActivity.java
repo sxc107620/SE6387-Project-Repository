@@ -35,6 +35,7 @@ public class MainActivity extends Activity implements LocationListener {
     private Location lastLoc = null;
     private int currentRiders = 0;
     private int totalRiders = 0;
+    boolean status = true; //Start on duty
 
     private WebView myBrowser;
     private TextView myText = null;
@@ -199,6 +200,10 @@ public class MainActivity extends Activity implements LocationListener {
                 Toast.makeText(getApplicationContext(), text, Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    public boolean getStatus() {
+        return status;
     }
 
     @Override

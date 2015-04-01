@@ -14,20 +14,50 @@ import android.widget.Toast;
 
 import com.example.scott.CometRideDriver.R;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+
 public class LoginActivity extends ActionBarActivity implements View.OnClickListener {
 
     private Button btnLoginDialog;
+    private OutputStream toServer;
+    private InputStream fromServer;
+    private URL serverURL;
+    private URLConnection serverConn;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        connectToServer();
         btnLoginDialog = (Button) findViewById(R.id.btnLoginDialog);
         btnLoginDialog.setOnClickListener(this);
         btnLoginDialog.performClick();
     }
 
     private boolean validateLogin(String user, String pass) {
+        //Security stuff (Hashing?)
+        //Send stuff to server
         return true;
+    }
+
+    private void connectToServer() {
+        int response = -1;
+        try {
+            serverURL = new URL("Server Location");
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        try {
+            serverConn = serverURL.openConnection();
+            fromServer = serverConn.getInputStream();
+            toServer = serverConn.getOutputStream();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 
