@@ -91,3 +91,65 @@
 .toolMarker {
 	background-image: url(../img/map/marker.png);
 }
+
+.bootstrap-colorpalette {
+    padding-left:4px;
+    padding-right:4px;
+    white-space: normal;
+    line-height:1;
+}
+
+.bootstrap-colorpalette div {
+    line-height:0;
+}
+
+.bootstrap-colorpalette .btn-color {
+    width: 17px;
+    height: 17px;
+    border: 1px solid #fff;
+    margin: 0;
+    padding: 0;
+}
+
+.bootstrap-colorpalette .btn-color:hover {
+    border: 1px solid #000;
+}
+
+.palette {
+  position: absolute;
+  min-width: 144px;
+  top: 100%;
+  left: 63%;
+  z-index: 1000;
+  display: none;
+  min-width: 146px;
+  padding: 5px 0;
+  margin: 2px 0 0;
+  list-style: none;
+  background: rgba(3, 0, 0, 0.38);
+  border: 1px solid #ccc;
+  border: 1px solid rgba(0,0,0,0.2);
+  -webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  border-radius: 6px;
+  -webkit-box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+  -moz-box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+  box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+  -webkit-background-clip: padding-box;
+  -moz-background-clip: padding;
+  background-clip: padding-box;
+}
+
+.w100 {
+	width: 100%;
+}
+
+.w88 {
+	width: 87%;
+	float: left;
+}
+
+.left {
+	float: left !important;
+	line-height: 23px;
+}

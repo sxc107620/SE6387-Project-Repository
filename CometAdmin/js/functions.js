@@ -671,6 +671,9 @@ Date Time Widget
 	//tooltip
 	$('[data-toggle="tooltip"]').tooltip();
 	
+	//pageName
+	pageName = location.pathname.split('/').slice(-1)[0];
+	
 	
 	//load details in modal box - admin, driver
 	$('#modalDetails').on('show.bs.modal', function(e) {
@@ -809,6 +812,48 @@ Date Time Widget
 		});
 	});
 	
+	$("#openEditor").click(function(e) {
+		cList = Array();
+		nList = Array();
+		errorList = '';
+		selectedColor = $("#selected-color").val();
+		name = $("#newRoute").val();
+		$(".tab-pane div").each(function() {
+			cList.push($(this).data('color'));
+			nList.push($(this).data('rname'));
+		});
+		if(jQuery.inArray(selectedColor, cList)!==-1) errorList = errorList + "<li>Color is already taken by a different route</li>";
+		if(jQuery.inArray(name, nList)!==-1) errorList = errorList + "<li>Route name exists</li>";
+		if(selectedColor.length == 0 || name.length == 0) errorList = errorList + "<li>Please fill all the boxes</li>";
+			if(errorList != '') {
+				$('.errorMessage').html("<div class='alert alert-danger' role='alert'><button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;</button> <strong><ul>"+errorList+"</ul></strong><br/></div>");
+			} else {
+				$('#modalCreateRouteDialog').modal('hide');
+				$('#modalCreateRoute').modal('show');
+			}
+	});
+	
+	$("#saveMap").click(function(e) {
+		selectedColor = $("#selected-color").val();
+		name = $("#newRoute").val();
+		$.post("routes.php",{ n: name, s: selectedColor, l: encodeStringLine, c: encodeStringCurve }, function(){
+			location.reload();
+		});
+	});
+	
+	$('#modalConfirm').on('show.bs.modal', function(e) {
+		$(e.currentTarget).find('.modal-title').html("Confirmation Box");
+		$(e.currentTarget).find('.modal-body').html("Are you sure that you want to delete this route?");
+		$(e.currentTarget).find('.modal-footer').html("<input type='submit' class='btn btn-sm' id='deleteRoute' value='Yes' /> <button type='button' class='btn btn-sm' data-dismiss='modal'>No</button></form>");	
+	});
+	
+	$(document).on( "click", "#deleteRoute", function() {
+		id = $(".tab-pane.active div").data('rid');
+		$.post("routes.php",{ i: id }, function(){
+			location.reload();
+		});
+	});
+	
 	function asc_sort(a, b){
 		return ($(b).text()) < ($(a).text()) ? 1 : -1;    
 	}
@@ -838,7 +883,7 @@ Date Time Widget
 	  map[i] = new google.maps.Map(document.getElementById(i+'_Map'), mapOptions);
 	  lines = $("#"+i+"_Map").data('lines');
 	  curves = $("#"+i+"_Map").data('curves');
-	  color = "#"+$("#"+i+"_Map").data('color');
+	  color = $("#"+i+"_Map").data('color');
 	  
 		
 	  if (typeof lines != 'undefined') {
@@ -867,6 +912,10 @@ Date Time Widget
 			}
 			map[i].fitBounds(bounds);
 		}
+		google.maps.event.addListener(map[i], "rightclick", function(event) {
+
+			console.log(event.latLng.lat()+", "+event.latLng.lng());
+		});
 	  }
 	}
 	
@@ -905,13 +954,14 @@ Date Time Widget
 
 		
 	$("#line").click(function(e) {
+		selectedColor = $("#selected-color").val();
 		google.maps.event.clearListeners(editMap, 'click');
 		editMap.setOptions({ draggableCursor: 'crosshair' });
 		list = new Array();
 		poly = new google.maps.Polyline({
 			map: editMap,
 			geodesic: true,
-			strokeColor: '#FF0000',
+			strokeColor: selectedColor,
 			strokeOpacity: 1.0,
 			strokeWeight: 2
 	});
@@ -935,7 +985,7 @@ Date Time Widget
 			var curvePath = new google.maps.Polyline({
 				path: google.maps.geometry.encoding.decodePath(encodeStringCurve),
 				geodesic: true,
-				strokeColor: '#FF0000',
+				strokeColor: selectedColor,
 				strokeOpacity: 1.0,
 				strokeWeight: 2,
 				map: editMap
@@ -996,6 +1046,7 @@ Date Time Widget
 	}
 	
 	function drawCurve(from, to) {
+		selectedColor = $("#selected-color").val();
 		from = from.split(',');
 		to = to.split(',');
 		var path = new google.maps.MVCArray();
@@ -1003,7 +1054,7 @@ Date Time Widget
 		var poly = new google.maps.Polyline({
 			map: editMap,
 			geodesic: true,
-			strokeColor: '#FF0000',
+			strokeColor: selectedColor,
 			strokeOpacity: 1.0,
 			strokeWeight: 2
 	});
@@ -1027,5 +1078,5 @@ Date Time Widget
 	}
 	
 	google.maps.event.addDomListener(window, 'load', initialize);
-	google.maps.event.addDomListener(window, 'load', mapEditor);
+	if(pageName == "route.php") google.maps.event.addDomListener(window, 'load', mapEditor);
 })();

@@ -4,8 +4,6 @@
 			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
 			<h4 class="modal-title">Map Editor</h4>
 		</div>
-		<div class="errorMessage">
-		</div>
 		<div class="modal-body">
 			<div class="toolBar">
 				<div class="toolIcon">
@@ -38,7 +36,7 @@
 			<div id="editMap" class='routeMapEdit'></div>
 		</div>
 		<div class="modal-footer">
-			<button type="button" class="btn btn-sm">Save</button>
+			<button type="button" class="btn btn-sm" id="saveMap">Save</button>
 			<button type="button" class="btn btn-sm" data-dismiss="modal">Close</button>
 		</div>
 	</div>

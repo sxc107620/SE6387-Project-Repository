@@ -8,8 +8,17 @@
     </head>
     <body id="skin-blur-violate">
 	<?php
-				session_start();
-				if(isset($_SESSION['uName'])) {
+		session_start();
+		if(isset($_SESSION['uName'])) {
+			include ("./php/includes/settings.inc.php");        // database settings
+			include ("./php/includes/connectdb.inc.php"); 
+			include ("./php/includes/sql.php");
+			if(isset($_REQUEST['n']) && $_REQUEST['n']!="") {
+				newRoute($_REQUEST['n'],  $_REQUEST['s'], $_REQUEST['l'],  $_REQUEST['c']);
+			}
+			if(isset($_REQUEST['i']) && $_REQUEST['i']!="") {
+				deleteRoute($_REQUEST['i']);
+			}
 		?>
         <header id="header" class="media">
             <?php
@@ -46,13 +55,39 @@
                 <?php
 					include ("breadcrumb.php"); 
 				?>
-                
+                <?php
+					$routeList = getRoutes();
+					$colums = $routeList[0];
+					$rows = (count($routeList)-1)/$colums;
+				?>
                 <article id="paragraph" class="block-area">
-                    <h3 class="block-title">Paragraph</h3>
-                    <p>Pellentesque lacinia sagittis libero et feugiat. Etiam volutpat adipiscing tortor non luctus. Vivamus venenatis vitae metus et aliquet. Praesent vitae justo purus. In hendrerit lorem nisl, ac lacinia urna aliquet non. Quisque nisi tellus, rhoncus quis est sit amet, lacinia euismod nunc. Aenean nec nibh velit. Fusce quis ante in nisl molestie fringilla. Nunc vitae ante id magna feugiat condimentum. Maecenas sit amet urna massa.</p>
-                    <p>Integer eu lectus sollicitudin, hendrerit est ac, sollicitudin nisl. Quisque viverra sodales lectus nec ultrices. Fusce elit dolor, dignissim a nunc id, varius suscipit turpis. Cras porttitor turpis vitae leo accumsan molestie. Morbi vitae luctus leo. Sed nec scelerisque magna, et adipiscing est. Proin lobortis lectus eu sem ullamcorper, commodo malesuada quam fringilla. Curabitur ac nunc dui. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Fusce sagittis enim eu est lacinia, ut egestas ligula imperdiet.</p>
-                    <br>
-                </article> 
+                    <h3 class="block-title" id="routeCount" data-count=<?php echo $rows; ?>>Track cabs by route</h3>
+                    <div class="tab-container tile media">
+                        <ul class="tab pull-left tab-vertical nav nav-tabs" style="height: auto;">
+							<?php
+							for($i = 0; $i < $rows; $i++) {
+								if($i == 0) $active = "class='active'"; else $active = "";
+								echo "<li ".$active." ><a class='mapTabs' href='#".$i."'>".$routeList[$colums*$i+2]."</a></li>";
+							}
+							?>
+                        </ul>
+                          
+                        <div class="tab-content media-body">
+							<?php
+							for($i = 0; $i < $rows; $i++) {
+								$dataAttr = "data-rid='".$routeList[$colums*$i+1]."' data-rname='".$routeList[$colums*$i+2]."' data-color='".$routeList[$colums*$i+3]."' data-savepoints='".$routeList[$colums*$i+4]."' data-lines='".$routeList[$colums*$i+5]."' data-curves='".$routeList[$colums*$i+6]."' ";
+								if($i == 0) $active = "active"; else $active = "";
+								echo "<div class='tab-pane $active' id='".$i."'>";
+								echo "<p>The ".$routeList[$colums*$i+2]." route with current cabs:</p>";
+								echo "<div id='".$i."_Map' class='routeMap' ".$dataAttr."></div>";
+								echo "</div>";
+							} 
+							?>
+                        </div>
+                        
+                    </div>
+					<br>
+                </article>
                 <hr class="whiter m-t-20 m-b-20" />
             </section>
         </section>
@@ -69,41 +104,8 @@
 				}
 		?>
         
-        <!-- Javascript Libraries -->
-        <!-- jQuery -->
-        <script src="js/jquery.min.js"></script> <!-- jQuery Library -->
-        <script src="js/jquery-ui.min.js"></script> <!-- jQuery UI -->
-        <script src="js/jquery.easing.1.3.js"></script> <!-- jQuery Easing - Requirred for Lightbox -->
-        
-        <!-- Bootstrap -->
-        <script src="js/bootstrap.min.js"></script>
-        
-        <!-- Charts -->
-        <script src="js/charts/jquery.flot.js"></script> <!-- Flot Main -->
-        <script src="js/charts/jquery.flot.time.js"></script> <!-- Flot sub -->
-        <script src="js/charts/jquery.flot.animator.min.js"></script> <!-- Flot sub -->
-        <script src="js/charts/jquery.flot.resize.min.js"></script> <!-- Flot sub - for repaint when resizing the screen -->
-        <script src="js/charts/jquery.flot.orderBar.js"></script> <!-- Flot Bar chart -->
-        <script src="js/charts/jquery.flot.pie.min.js"></script> <!-- Flot Pie chart -->
- 
-        <script src="js/sparkline.min.js"></script> <!-- Sparkline - Tiny charts -->
-        <script src="js/easypiechart.js"></script> <!-- EasyPieChart - Animated Pie Charts -->
-        <script src="js/charts.js"></script> <!-- All the above chart related functions -->
-        
-        <!-- Map -->
-        <script src="js/maps/jvectormap.min.js"></script> <!-- jVectorMap main library -->
-        <script src="js/maps/usa.js"></script> <!-- USA Map for jVectorMap -->
-        <script src="js/maps/world.js"></script> <!-- World Map for jVectorMap -->
-        
-        <!-- UX -->
-        <script src="js/scroll.min.js"></script> <!-- Custom Scrollbar -->
-        
-        <!-- Other -->
-        <script src="js/calendar.min.js"></script> <!-- Calendar -->
-        <script src="js/feeds.min.js"></script> <!-- News Feeds -->
-        
-        
-        <!-- All JS functions -->
-        <script src="js/functions.js"></script>
+        <?php
+			include ("js.php"); 
+		?>
     </body>
 </html>

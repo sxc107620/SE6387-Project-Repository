@@ -106,18 +106,9 @@ if(isset($_POST['submit'])){
             </form>
         </section>                      
         
-        <!-- Javascript Libraries -->
-        <!-- jQuery -->
-        <script src="js/jquery.min.js"></script> <!-- jQuery Library -->
-        
-        <!-- Bootstrap -->
-        <script src="js/bootstrap.min.js"></script>
-        
-        <!--  Form Related -->
-        <script src="js/icheck.js"></script> <!-- Custom Checkbox + Radio -->
-        
-        <!-- All JS functions -->
-        <script src="js/functions.js"></script>
+        <?php
+				include ("js.php"); 
+		?>
     </body>
 
 <!-- Mirrored from 192.185.228.226/projects/sa/1-0-3/login.html by HTTrack Website Copier/3.x [XR&CO'2013], Wed, 04 Feb 2015 02:50:11 GMT -->

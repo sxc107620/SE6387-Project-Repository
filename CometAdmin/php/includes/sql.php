@@ -82,4 +82,12 @@
 		}
 		return $result;
 	}
+	
+	function newRoute($name, $color, $line, $curve) {
+		mysql_query("INSERT INTO `routes` (`rname`, `color`, `lines`, `curves`) VALUES ( '$name', '$color', '$line', '$curve')");
+	}
+	
+	function deleteRoute($id) {
+		mysql_query('DELETE FROM `routes` WHERE `routeid` = "'.$id.'"');
+	}
 ?>

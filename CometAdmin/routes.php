@@ -13,6 +13,12 @@
 			include ("./php/includes/settings.inc.php");        // database settings
 			include ("./php/includes/connectdb.inc.php"); 
 			include ("./php/includes/sql.php");
+			if(isset($_REQUEST['n']) && $_REQUEST['n']!="") {
+				newRoute($_REQUEST['n'],  $_REQUEST['s'], $_REQUEST['l'],  $_REQUEST['c']);
+			}
+			if(isset($_REQUEST['i']) && $_REQUEST['i']!="") {
+				deleteRoute($_REQUEST['i']);
+			}
 		?>
         <header id="header" class="media">
             <?php
@@ -30,6 +36,18 @@
 			<div class="modal fade" id="modalCreateRoute" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
 				<?php
 					include ("modal_box_map.php"); 
+				?>
+			</div>
+			
+			<div class="modal fade" id="modalCreateRouteDialog" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+				<?php
+					include ("modal_box_map_dialog.php"); 
+				?>
+			</div>
+			
+			<div class="modal fade" id="modalConfirm" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+				<?php
+					include ("modal_box.php"); 
 				?>
 			</div>
             
@@ -81,7 +99,8 @@
 								echo "<div class='tab-pane $active' id='".$i."'>";
 								echo "<p>The ".$routeList[$colums*$i+2]." route with its save boarding points:</p>";
 								echo "<div id='".$i."_Map' class='routeMap' ".$dataAttr."></div>";
-								echo "<a href='#modalCreateRoute' data-toggle='modal' class='btn pull-right'>Create New Route</a>";
+								echo "<a href='#modalCreateRouteDialog' data-toggle='modal' class='btn pull-right'>Create New Route</a>";
+								echo "<a href='#modalConfirm' data-toggle='modal' class='btn pull-right'>Delete Route</a>";
 								echo "</div>";
 							} 
 							?>
@@ -106,28 +125,8 @@
 				}
 		?>
         
-        <!-- Javascript Libraries -->
-        <!-- jQuery -->
-        <script src="js/jquery.min.js"></script> <!-- jQuery Library -->
-        <script src="js/jquery-ui.min.js"></script> <!-- jQuery UI -->
-        <script src="js/jquery.easing.1.3.js"></script> <!-- jQuery Easing - Requirred for Lightbox -->
-        
-        <!-- Bootstrap -->
-        <script src="js/bootstrap.min.js"></script>
-        
-        <!-- Map -->
-        <script src="http://maps.googleapis.com/maps/api/js?v=3&sensor=false&libraries=geometry"></script>
-		<script type="text/javascript" src="js/cycle.js"></script>
-        
-        <!-- UX -->
-        <script src="js/scroll.min.js"></script> <!-- Custom Scrollbar -->
-        
-        <!-- Other -->
-        <script src="js/calendar.min.js"></script> <!-- Calendar -->
-        <script src="js/feeds.min.js"></script> <!-- News Feeds -->
-        
-        
-        <!-- All JS functions -->
-        <script src="js/functions.js"></script>
+        <?php
+			include ("js.php"); 
+		?>
     </body>
 </html>
