@@ -2,7 +2,7 @@ package com.example.scott.CometRideDriver;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothClass;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
@@ -15,12 +15,9 @@ import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.bluetooth.BluetoothAdapter;
-import android.view.View;
 import android.webkit.JavascriptInterface;
-import android.widget.Button;
-import android.widget.TextView;
 import android.webkit.WebView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.Set;
@@ -34,6 +31,7 @@ public class MainActivity extends Activity implements LocationListener {
     private LocationManager locMgr;
     private Location lastLoc = null;
     private int currentRiders = 0;
+    private int driverStatus = 0;
     private int totalRiders = 0;
     boolean status = true; //Start on duty
 
@@ -149,6 +147,11 @@ public class MainActivity extends Activity implements LocationListener {
         public void currentCapacity(String cap) {
             //Database connection goes here, variable cap has the current capacity
             currentRiders = Integer.parseInt(cap);
+        }
+
+        public void currentStatus(String stat) {
+            //Database connection goes here, Driver status is received here
+            driverStatus = Integer.parseInt(stat);
         }
 
 

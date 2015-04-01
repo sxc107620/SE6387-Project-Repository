@@ -33,7 +33,11 @@ var capacity = 0;
 			$("#count").hide();
 			clock.reset();
 			capacity = 0;
-		} else $("#count").show();
+			statusUpdate(0);
+		} else {
+			$("#count").show();
+			statusUpdate(1);
+		}
 	});
 
 
@@ -73,5 +77,9 @@ function screenOn() {
 
 function capacityUpdate(toast) {
   AndroidFunction.currentCapacity(toast);
- }
+}
+
+function statusUpdate(toast) {
+  AndroidFunction.currentStatus(toast);
+}
  
