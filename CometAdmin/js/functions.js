@@ -1068,16 +1068,13 @@ Date Time Widget
 			markers.splice(i, 1);
 			ponits.removeAt(i);
 			encodeStringPoints = google.maps.geometry.encoding.encodePath(ponits);
-			console.log(encodeStringPoints);
         });
 		
 		google.maps.event.addListener(marker, 'dragend', function() {
 			for (var i = 0, I = markers.length; i < I && markers[i] != marker; ++i);
 			ponits.setAt(i, marker.getPosition());
 			encodeStringPoints = google.maps.geometry.encoding.encodePath(ponits);
-			console.log(encodeStringPoints);
         });
-		console.log(encodeStringPoints);
 	}
 	
 	function drawLine(event) {
@@ -1118,6 +1115,22 @@ Date Time Widget
 		});
 	}
 	
+	function sse() {
+		var image = 'img/car.png';
+		if(typeof(EventSource) !== "undefined") {
+			var source = new EventSource("./php/includes/sse.php");
+			source.onmessage = function(event) {
+				var obj = jQuery.parseJSON(event.data);
+				shuttle = new google.maps.LatLng(obj.Latitude, obj.Longitude);
+				var marker = new google.maps.Marker({
+					position: shuttle,
+					icon: image
+				});
+				marker.setMap(map[(obj.Route)-1]);
+			};
+		} 
+	}
+	
 	
 	if(pageName == "routes.php") {
 		google.maps.event.addDomListener(window, 'load', initialize);
@@ -1126,6 +1139,7 @@ Date Time Widget
 	
 	if(pageName == "track.php") {
 		google.maps.event.addDomListener(window, 'load', tracker);
+		sse();
 	}
 	
 })();

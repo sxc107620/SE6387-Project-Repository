@@ -13,7 +13,6 @@
 			include ("./php/includes/settings.inc.php");        // database settings
 			include ("./php/includes/connectdb.inc.php"); 
 			include ("./php/includes/sql.php");
-			
 		?>
         <header id="header" class="media">
             <?php
