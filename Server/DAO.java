@@ -29,17 +29,8 @@ public class DAO
             ResultSet rs = preparedStatement.getResultSet();
             while (rs.next())
             {
-		MessageDigest md = MessageDigest.getInstance("MD5");
-		md.update(pwd.getBytes());
-		byte[] digest = md.digest();
-		StringBuffer sb = new StringBuffer();
-		for (byte b : digest) {
-			sb.append(String.format("%02x", b & 0xff));
-		}
-
-		String md5_pass = sb.toString();
                 String password = rs.getString("upass");
-                if (password.equals(md5_pass)) {
+                if (password.equals(pwd)) {
                     closeConnection(con);
                     return true;
                 }
@@ -49,10 +40,6 @@ public class DAO
         {
         	e.printStackTrace();
         }
-	catch(NoSuchAlgorithmException e)
-	{
-		e.printStackTrace();
-	}
         closeConnection(con);
         return false;
     }

@@ -7,11 +7,12 @@ public class Server {
 	private int port;
 	private boolean keepGoing;
 	private static int uniqueId;
-
+	public static DAO Database;
 	public static void main(String[] args) {
 		// start server on port 1500 unless a PortNumber is specified
                 int portNumber = 1500;
-                switch(args.length) {
+                Database = new DAO();
+		switch(args.length) {
                         case 1:
                                 try {
                                         portNumber = Integer.parseInt(args[0]);
@@ -127,14 +128,33 @@ public class Server {
 		while(keepGoing) {
 				// read a String (which is an object)
 				try {
-					str = in.readLine().toString();
-					System.out.print("Line received: ");
+					str = in.readLine();
 				}
 				catch (IOException e) {
 						System.out.println("Exception reading Streams: " + e);
 						break;
 				}
-				System.out.println(str);
+			if(str.equalsIgnoreCase("login")) {
+				try {
+					String username = in.readLine();
+					String password = in.readLine();
+					System.out.println("User: " + username + " Pass: " + password);
+					boolean result = Database.authenticate(username, password);
+					if(result) {
+						out.write("true\n");
+					}
+					else {
+						out.write("false\n");
+					}
+					out.flush();
+				}
+				catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			else {
+				//System.out.println(str);
+			}	
 		}
 		remove(id);
 		close();
