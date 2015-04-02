@@ -14,7 +14,10 @@
 			include ("./php/includes/connectdb.inc.php"); 
 			include ("./php/includes/sql.php");
 			if(isset($_REQUEST['n']) && $_REQUEST['n']!="") {
-				newRoute($_REQUEST['n'],  $_REQUEST['s'], $_REQUEST['l'],  $_REQUEST['c']);
+				$points = str_replace("\\", "\\\\", $_REQUEST['p']); 
+				$line = str_replace("\\", "\\\\", $_REQUEST['l']); 
+				$curve = str_replace("\\", "\\\\", $_REQUEST['c']); 
+				newRoute($_REQUEST['n'],  $_REQUEST['s'], $points, $line,  $curve);
 			}
 			if(isset($_REQUEST['i']) && $_REQUEST['i']!="") {
 				deleteRoute($_REQUEST['i']);

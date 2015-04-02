@@ -110,6 +110,4 @@ if(isset($_POST['submit'])){
 				include ("js.php"); 
 		?>
     </body>
-
-<!-- Mirrored from 192.185.228.226/projects/sa/1-0-3/login.html by HTTrack Website Copier/3.x [XR&CO'2013], Wed, 04 Feb 2015 02:50:11 GMT -->
 </html>

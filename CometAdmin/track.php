@@ -13,12 +13,7 @@
 			include ("./php/includes/settings.inc.php");        // database settings
 			include ("./php/includes/connectdb.inc.php"); 
 			include ("./php/includes/sql.php");
-			if(isset($_REQUEST['n']) && $_REQUEST['n']!="") {
-				newRoute($_REQUEST['n'],  $_REQUEST['s'], $_REQUEST['l'],  $_REQUEST['c']);
-			}
-			if(isset($_REQUEST['i']) && $_REQUEST['i']!="") {
-				deleteRoute($_REQUEST['i']);
-			}
+			
 		?>
         <header id="header" class="media">
             <?php

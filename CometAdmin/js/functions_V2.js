@@ -671,9 +671,6 @@ Date Time Widget
 	//tooltip
 	$('[data-toggle="tooltip"]').tooltip();
 	
-	//pageName
-	pageName = location.pathname.split('/').slice(-1)[0];
-	
 	
 	//load details in modal box - admin, driver
 	$('#modalDetails').on('show.bs.modal', function(e) {
@@ -812,48 +809,6 @@ Date Time Widget
 		});
 	});
 	
-	$("#openEditor").click(function(e) {
-		cList = Array();
-		nList = Array();
-		errorList = '';
-		selectedColor = $("#selected-color").val();
-		name = $("#newRoute").val();
-		$(".tab-pane div").each(function() {
-			cList.push($(this).data('color'));
-			nList.push($(this).data('rname'));
-		});
-		if(jQuery.inArray(selectedColor, cList)!==-1) errorList = errorList + "<li>Color is already taken by a different route</li>";
-		if(jQuery.inArray(name, nList)!==-1) errorList = errorList + "<li>Route name exists</li>";
-		if(selectedColor.length == 0 || name.length == 0) errorList = errorList + "<li>Please fill all the boxes</li>";
-			if(errorList != '') {
-				$('.errorMessage').html("<div class='alert alert-danger' role='alert'><button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;</button> <strong><ul>"+errorList+"</ul></strong><br/></div>");
-			} else {
-				$('#modalCreateRouteDialog').modal('hide');
-				$('#modalCreateRoute').modal('show');
-			}
-	});
-	
-	$("#saveMap").click(function(e) {
-		selectedColor = $("#selected-color").val();
-		name = $("#newRoute").val();
-		$.post("routes.php",{ n: name, s: selectedColor, p: encodeStringPoints, l: encodeStringLine, c: encodeStringCurve }, function(){
-			location.reload();
-		});
-	});
-	
-	$('#modalConfirm').on('show.bs.modal', function(e) {
-		$(e.currentTarget).find('.modal-title').html("Confirmation Box");
-		$(e.currentTarget).find('.modal-body').html("Are you sure that you want to delete this route?");
-		$(e.currentTarget).find('.modal-footer').html("<input type='submit' class='btn btn-sm' id='deleteRoute' value='Yes' /> <button type='button' class='btn btn-sm' data-dismiss='modal'>No</button></form>");	
-	});
-	
-	$(document).on( "click", "#deleteRoute", function() {
-		id = $(".tab-pane.active div").data('rid');
-		$.post("routes.php",{ i: id }, function(){
-			location.reload();
-		});
-	});
-	
 	function asc_sort(a, b){
 		return ($(b).text()) < ($(a).text()) ? 1 : -1;    
 	}
@@ -864,76 +819,19 @@ Date Time Widget
 	map= new Array();
 	var editMap;
 	var rowCount = $("#routeCount").data('count');
-	undo = new Array();
-	redo = new Array();
-	loadCurve = new Array();
-	var encodeStringCurve;
-	var encodeStringLine;
-	var encodeStringPoints;
-	var poly;
-	
-	function plotter() {
-		var mapOptions = {
-			panControl: true, //enable pan Control
-            zoomControl: true, //enable zoom control
-            scaleControl: true, // enable scale control
-            mapTypeId: google.maps.MapTypeId.ROADMAP // google map type
-		}
+
+	function initialize() {
+	  directionsDisplay = new google.maps.DirectionsRenderer();
+	  var chicago = new google.maps.LatLng(41.850033, -87.6500523);
+	  var mapOptions = {
+		zoom: 6,
+		center: chicago
+	  }
 	  
 	  for(i=0; i<rowCount; i++) {
 	  map[i] = new google.maps.Map(document.getElementById(i+'_Map'), mapOptions);
-	  lines = $("#"+i+"_Map").data('lines');
-	  curves = $("#"+i+"_Map").data('curves');
-	  savepoints = $("#"+i+"_Map").data('savepoints');
-	  color = $("#"+i+"_Map").data('color');
-	  
-		if (savepoints.length != 0) {
-			points = [];
-			points = google.maps.geometry.encoding.decodePath(savepoints);
-			for(j=0; j<points.length; j++) {
-				var marker = new google.maps.Marker({
-					position: points[j],
-					map: map[i],
-					animation: google.maps.Animation.DROP, //bounce animation
-					icon: "img/map/pin_green.png" //custom pin icon
-				});
-			}
-		}
-		if (lines.length != 0) {
-			var linePath = new google.maps.Polyline({
-				path: google.maps.geometry.encoding.decodePath(lines),
-				geodesic: true,
-				strokeColor: color,
-				strokeOpacity: 1.0,
-				strokeWeight: 2,
-				map: map[i]
-			});
-		}
-		if (curves.length != 0) {
-			var curvePath = new google.maps.Polyline({
-				path: google.maps.geometry.encoding.decodePath(curves),
-				geodesic: true,
-				strokeColor: color,
-				strokeOpacity: 1.0,
-				strokeWeight: 2,
-				map: map[i]
-			});
-			var bounds = new google.maps.LatLngBounds();
-			var points = curvePath.getPath().getArray();
-			for (var n = 0; n < points.length ; n++){
-				bounds.extend(points[n]);
-			}
-			map[i].fitBounds(bounds);
-		}
+	  //directionsDisplay.setMap(map);
 	  }
-	}
-
-	function initialize() {
-		plotter();
-	}
-	
-	function tracker() {
-		plotter();
 	}
 	
 	function mapEditor() {
@@ -951,7 +849,6 @@ Date Time Widget
 		}
             
 		editMap = new google.maps.Map(document.getElementById('editMap'), mapOptions);
-		
 	}
 	
 	$('.mapTabs').on('shown.bs.tab', function(e) {
@@ -967,22 +864,19 @@ Date Time Widget
 		google.maps.event.clearListeners(editMap, 'click');
 		editMap.setOptions({ draggableCursor: 'url(http://maps.google.com/mapfiles/openhand.cur), move' });
 	});
-	
-
-		
+	undo = new Array();
+	redo = new Array();
+	load = new Array();
 	$("#line").click(function(e) {
-		selectedColor = $("#selected-color").val();
 		google.maps.event.clearListeners(editMap, 'click');
 		editMap.setOptions({ draggableCursor: 'crosshair' });
 		list = new Array();
-		poly = new google.maps.Polyline({
-			map: editMap,
-			geodesic: true,
-			strokeColor: selectedColor,
-			strokeOpacity: 1.0,
-			strokeWeight: 2
+		google.maps.event.addListener(editMap, "click", function(event) {
+			var lat = event.latLng.lat();
+			var lng = event.latLng.lng();
+			list.push(lat+","+lng);
+			if(list.length > 1) drawLine(list[list.length-2], list[list.length-1]);
 		});
-		google.maps.event.addListener(editMap, "click", drawLine);
 	});
 	
 	$("#curve").click(function(e) {
@@ -998,27 +892,22 @@ Date Time Widget
 	});
 	
 	$("#eraser").click(function(e) {
-		if (typeof encodeStringCurve != 'undefined') {
-			var curvePath = new google.maps.Polyline({
-				path: google.maps.geometry.encoding.decodePath(encodeStringCurve),
-				geodesic: true,
-				strokeColor: selectedColor,
-				strokeOpacity: 1.0,
-				strokeWeight: 2,
-				map: editMap
-			});
-			console.log(encodeStringCurve);
-		}
-		if (typeof encodeStringLine != 'undefined') {
-			var linePath = new google.maps.Polyline({
-				path: google.maps.geometry.encoding.decodePath(encodeStringLine),
-				geodesic: true,
-				strokeColor: '#FF0000',
-				strokeOpacity: 1.0,
-				strokeWeight: 2,
-				map: editMap
-			});
-			console.log(encodeStringLine);
+		while(load.length != 0) {
+			if(load.pop() == "line") {
+				loadMap = load.pop();
+				Path = load.pop();
+				//console.log(JSON.stringify(loadMap));
+				Path.setMap(editMap);
+			} else {
+				pathD = load.pop();
+				polyD = load.pop();
+				obj = cycle.retrocycle(JSON.parse(pathD));
+				/*for(i = 0; i<obj.j.length; i++) {
+				obj.j[i] = new google.maps.LatLng(obj.j[i].k, obj.j[i].D);
+				}*/
+				console.log(obj);
+				polyD.setPath(obj);
+			}
 		}
 	});
 	
@@ -1045,49 +934,44 @@ Date Time Widget
 	$("#marker").click(function(e) {
 		google.maps.event.clearListeners(editMap, 'click');
 		editMap.setOptions({ draggableCursor: 'crosshair' });
-		google.maps.event.addListener(editMap, 'click', addSavePoints);
+		google.maps.event.addListener(editMap, 'click', function(event) {
+			var marker = new google.maps.Marker({
+				position: event.latLng, //map Coordinates where user right clicked
+				map: editMap,
+				draggable:true, //set marker draggable 
+				animation: google.maps.Animation.DROP, //bounce animation
+				icon: "img/map/pin_green.png" //custom pin icon
+			});
+		});
 	});
 	
-	var markers = [];
-	var ponits = new google.maps.MVCArray;
-	function addSavePoints(event) {
-		ponits.push(event.latLng);
-        encodeStringPoints = google.maps.geometry.encoding.encodePath(ponits);
-		var marker = new google.maps.Marker({
-			position: event.latLng, //map Coordinates where user right clicked
-			map: editMap,
-			draggable:true, //set marker draggable 
-			animation: google.maps.Animation.DROP, //bounce animation
-			icon: "img/map/pin_green.png" //custom pin icon
+	function drawLine(from, to) {
+		undo.push(from);
+		from = from.split(',');
+		to = to.split(',');
+		var lineCoordinates = [
+			new google.maps.LatLng(parseFloat(from[0]), parseFloat(from[1])),
+			new google.maps.LatLng(parseFloat(to[0]), parseFloat(to[1]))
+		];
+		var linePath = new google.maps.Polyline({
+			path: lineCoordinates,
+			geodesic: true,
+			strokeColor: '#FF0000',
+			strokeOpacity: 1.0,
+			editable: true,
+			strokeWeight: 2
 		});
-		markers.push(marker);
-
-		google.maps.event.addListener(marker, 'click', function() {
-			marker.setMap(null);
-			for (var i = 0, I = markers.length; i < I && markers[i] != marker; ++i);
-			markers.splice(i, 1);
-			ponits.removeAt(i);
-			encodeStringPoints = google.maps.geometry.encoding.encodePath(ponits);
-			console.log(encodeStringPoints);
-        });
-		
-		google.maps.event.addListener(marker, 'dragend', function() {
-			for (var i = 0, I = markers.length; i < I && markers[i] != marker; ++i);
-			ponits.setAt(i, marker.getPosition());
-			encodeStringPoints = google.maps.geometry.encoding.encodePath(ponits);
-			console.log(encodeStringPoints);
-        });
-		console.log(encodeStringPoints);
-	}
-	
-	function drawLine(event) {
-	var path = poly.getPath();
-	path.push(event.latLng);
-	encodeStringLine = google.maps.geometry.encoding.encodePath(path);
+		undo.push(linePath);
+		temp = undo.pop();
+		undo.pop();
+		undo.push(temp);
+		linePath.setMap(editMap);
+		load.push(linePath);
+		load.push(editMap);
+		load.push("line");
 	}
 	
 	function drawCurve(from, to) {
-		selectedColor = $("#selected-color").val();
 		from = from.split(',');
 		to = to.split(',');
 		var path = new google.maps.MVCArray();
@@ -1095,10 +979,11 @@ Date Time Widget
 		var poly = new google.maps.Polyline({
 			map: editMap,
 			geodesic: true,
-			strokeColor: selectedColor,
+			strokeColor: '#FF0000',
+			editable: true,
 			strokeOpacity: 1.0,
 			strokeWeight: 2
-	});
+		});
 		var src = new google.maps.LatLng(parseFloat(from[0]), parseFloat(from[1]));
         var des = new google.maps.LatLng(parseFloat(to[0]), parseFloat(to[1]));
 		service.route({
@@ -1109,23 +994,18 @@ Date Time Widget
 			if (status == google.maps.DirectionsStatus.OK) {
 				for (var i = 0, len = result.routes[0].overview_path.length; i < len; i++) {
 					path.push(result.routes[0].overview_path[i]);
-					loadCurve.push(result.routes[0].overview_path[i]);
 				}
-				encodeStringCurve = google.maps.geometry.encoding.encodePath(loadCurve);
+				load.push(poly);
+				load.push(JSON.stringify(cycle.decycle(path)));
+				console.log(path);
 				poly.setPath(path);
+				load.push("curve");
 			}
-			
 		});
 	}
 	
-	
-	if(pageName == "routes.php") {
-		google.maps.event.addDomListener(window, 'load', initialize);
-		google.maps.event.addDomListener(window, 'load', mapEditor);
-	}
-	
-	if(pageName == "track.php") {
-		google.maps.event.addDomListener(window, 'load', tracker);
-	}
-	
+	google.maps.event.addDomListener(window, 'load', initialize);
+	google.maps.event.addDomListener(window, 'load', mapEditor);
 })();
+
+

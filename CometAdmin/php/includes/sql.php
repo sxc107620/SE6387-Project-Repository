@@ -83,8 +83,8 @@
 		return $result;
 	}
 	
-	function newRoute($name, $color, $line, $curve) {
-		mysql_query("INSERT INTO `routes` (`rname`, `color`, `lines`, `curves`) VALUES ( '$name', '$color', '$line', '$curve')");
+	function newRoute($name, $color, $points, $line, $curve) {
+		mysql_query("INSERT INTO `routes` (`rname`, `color`, `savepoints`, `lines`, `curves`) VALUES ( '$name', '$color', '$points', '$line', '$curve')");
 	}
 	
 	function deleteRoute($id) {

@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 31, 2015 at 05:40 PM
+-- Generation Time: Apr 01, 2015 at 11:37 PM
 -- Server version: 5.6.14
 -- PHP Version: 5.5.6
 
@@ -34,18 +34,18 @@ CREATE TABLE IF NOT EXISTS `routes` (
   `lines` varchar(400) NOT NULL,
   `curves` varchar(400) NOT NULL,
   PRIMARY KEY (`routeid`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=6 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=13 ;
 
 --
 -- Dumping data for table `routes`
 --
 
 INSERT INTO `routes` (`routeid`, `rname`, `color`, `savepoints`, `lines`, `curves`) VALUES
-(1, 'McDermott Library Route', '0039a6', '', 'e~ihEzynmQMX?xCnBFDcBDM', 'moihEpunmQeDCuB?eAZ??WJc@HM?UFAZAFO`@?JjBdAJCHEBc@Cy@UiAe@N[@QmAEY??Me@oA{Bq@f@CBs@oAQa@Oi@KmAESEGOE_@@m@?s@CG@??_@FDD?^C^?PFTR`@f@~@b@v@B@V^Vd@r@zAn@rABDLBHClA_ARQBOCQOi@_@s@e@o@^[TZ??^l@f@rATbB'),
-(2, 'University Commons Route', '773dbc', '', '', 'goihEvjomQA|GA`@G?k@@??qKCyKCqC?AjE???b@BVA~@mBA??sAA??O@EFAJ?z@A~A@VDDb@@??xBB??p@?DcG?YBUDkB@qA??Ag@hA@bD?bPBrA@~BA@{CDA??FKB_A?sA??OA'),
-(3, 'University Village Phase 1 Route', 'ff33ff', '', '', 'goihEvjomQEnc@??\\?JEJOJOB@PBVJFB??f@RTB`@?b@NFHNX@B??\\f@h@TPDHADM?O???sC@uA???]II_@Mm@Mq@EWEOG??y@UYAWHOFWVORe@KEA@{R@o@?yBHEFQ?]???kBKA'),
-(4, 'University Village Phase 1 Route 2', 'ff9900', '', '', 'goihEvjomQAjKAlKAlAG?{AAqBA}A?eF?CxF??`B@??zC?A{EAQ???MN?R??L?Pd@?ZBHDP?^An@Eb@AHR?hBAN??d@??eD?C@gP@{CLMBK???gCOA'),
-(5, 'Rutford Avenue North-South Route', '005710', '', 'gyhhEzuomQIg@gFCsAD?a@_A??f@', 'cyhhExuomQdD@nBAZAJG@A??AoDCGGAuB???S@CH?\\@jA?h@cD?K???aKHqGEi@?O???uLAyKC}KA?B@pHC?kC?A??}A??lC@');
+(1, 'McDermott Library Route', '#0039a6', 'uoihErunmQuMjCgBeIuH}FlDdK~IhGp@eE', 'e~ihEzynmQMX?xCnBFDcBDM', 'moihEpunmQeDCuB?eAZ??WJc@HM?UFAZAFO`@?JjBdAJCHEBc@Cy@UiAe@N[@QmAEY??Me@oA{Bq@f@CBs@oAQa@Oi@KmAESEGOE_@@m@?s@CG@??_@FDD?^C^?PFTR`@f@~@b@v@B@V^Vd@r@zAn@rABDLBHClA_ARQBOCQOi@_@s@e@o@^[TZ??^l@f@rATbB'),
+(2, 'University Commons Route', '#773dbc', 'yoihEdmomQ@hFoIPaS@kFbOjEkB', '', 'goihEvjomQA|GA`@G?k@@??qKCyKCqC?AjE???b@BVA~@mBA??sAA??O@EFAJ?z@A~A@VDDb@@??xBB??p@?DcG?YBUDkB@qA??Ag@hA@bD?bPBrA@~BA@{CDA??FKB_A?sA??OA'),
+(3, 'University Village Phase 1 Route', '#ff33ff', 'qoihEbmomQAbF?~S?~D|DJbEvBkCsI', '', 'goihEvjomQEnc@??\\?JEJOJOB@PBVJFB??f@RTB`@?b@NFHNX@B??\\f@h@TPDHADM?O???sC@uA???]II_@Mm@Mq@EWEOG??y@UYAWHOFWVORe@KEA@{R@o@?yBHEFQ?]???kBKA'),
+(4, 'University Village Phase 1 Route 2', '#ff9900', 'qoihEbmomQAbFKtPBnDaGmDmGjF', '', 'goihEvjomQAjKAlKAlAG?{AAqBA}A?eF?CxF??`B@??zC?A{EAQ???MN?R??L?Pd@?ZBHDP?^An@Eb@AHR?hBAN??d@??eD?C@gP@{CLMBK???gCOA'),
+(5, 'Rutford Avenue North-South Route', '#005710', 'soihEftomQoMD_OCcHJnp@VrPT', 'gyhhEzuomQIg@gFCsAD?a@_A??f@', 'cyhhExuomQdD@nBAZAJG@A??AoDCGGAuB???S@CH?\\@jA?h@cD?K???aKHqGEi@?O???uLAyKC}KA?B@pHC?kC?A??}A??lC@');
 
 -- --------------------------------------------------------
 
@@ -71,11 +71,11 @@ CREATE TABLE IF NOT EXISTS `shuttles` (
 --
 
 INSERT INTO `shuttles` (`id`, `number`, `status`, `latitude`, `longitude`, `type`, `capacity`, `routeid`, `totalpassengers`) VALUES
-(1, 101, 'on-duty', 32.98617172241211, -96.75096893310547, '7-seater', 5, 3, 153),
-(3, 201, 'off-duty', NULL, NULL, '9-seater', NULL, NULL, 0),
-(4, 301, 'off-duty', NULL, NULL, '7-seater', NULL, NULL, 0),
-(5, 401, 'off-duty', NULL, NULL, '7-seater', NULL, NULL, 0),
-(7, 501, 'off-duty', NULL, NULL, '9-seater', NULL, NULL, 0);
+(1, 101, 'on-duty', 32.9852758713839, -96.75412009935826, '7-seater', 5, 3, 153),
+(3, 201, 'on-duty', 32.987860928527766, -96.74627195578068, '9-seater', 0, 1, 94),
+(4, 301, 'on-duty', 32.98948864324784, -96.7510019056499, '7-seater', 7, 2, 197),
+(5, 401, 'on-duty', 32.987665195779485, -96.75374729325995, '7-seater', 2, 4, 308),
+(7, 501, 'on-duty', 32.98980248389205, -96.75098459701985, '9-seater', 5, 5, 458);
 
 -- --------------------------------------------------------
 
@@ -92,7 +92,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `joindate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `attempts` int(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`uid`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=16 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=17 ;
 
 --
 -- Dumping data for table `users`
@@ -108,7 +108,8 @@ INSERT INTO `users` (`uid`, `uname`, `upass`, `email`, `type`, `joindate`, `atte
 (12, 'jack', '4ff9fc6e4e5d5f590c4f2134a8cc96d1', 'jack@gmail.com', 'driver', '2015-03-29 04:47:13', 0),
 (13, 'bill', 'e8375d7cd983efcbf956da5937050ffc', 'bill@gmail.com', 'driver', '2015-03-29 04:47:36', 0),
 (14, 'percy', '13aef0865dcae54b2e4db0067e3fd5c6', 'percy@gmail.com', 'driver', '2015-03-29 04:48:14', 0),
-(15, 'jim', '5e027396789a18c37aeda616e3d7991b', 'jim@gmail.com', 'driver', '2015-03-29 05:15:35', 0);
+(15, 'jim', '5e027396789a18c37aeda616e3d7991b', 'jim@gmail.com', 'driver', '2015-03-29 05:15:35', 0),
+(16, 'fiona', '98855d4cedc4019a607176b532f1a051', 'fiona@gmail.com', 'admin', '2015-04-01 02:41:21', 0);
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

@@ -2,6 +2,6 @@
     // database values
     $dblocation = "localhost";
     $dbname = "cometride";
-    $dbuser = "root";
-    $dbpass = "";
+    $dbuser = "cometdev";
+    $dbpass = "cometride";
 ?>
