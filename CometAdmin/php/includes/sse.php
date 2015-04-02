@@ -13,6 +13,7 @@
 	  array_push($routeList, $row['routeid']);
 	}
 	
+	$shuttleObj = array();
 	for($i=0; $i<count($routeList); $i++) {
 	$result = array();
 	$getList = mysql_query("SELECT latitude, longitude, capacity, type FROM `shuttles` WHERE `routeid` = '".$routeList[$i]."'");
@@ -20,7 +21,7 @@
 	while ($row = mysql_fetch_assoc($getList)) {
 	  array_push($result, $row['latitude'], $row['longitude'], $row['capacity'], $row['type']);
 	}
-
+	
 	for($j=0; $j<(count($result))/4; $j++) {
 		$shuttle = array(
 			"Route" => $routeList[$i],
@@ -29,10 +30,11 @@
 			"Capacity" => $result[4*$j+2],
 			"Type" => $result[4*$j+3][0]
 		);
-		$JSON = json_encode($shuttle, JSON_FORCE_OBJECT);
-		echo "data: {$JSON}\n\n";
+		array_push($shuttleObj, $shuttle);
 	}
 	}
+	$JSON = json_encode($shuttleObj, JSON_FORCE_OBJECT);
+	echo "data: {$JSON}\n\n";
 
 	flush();
 
