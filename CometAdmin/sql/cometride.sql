@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 01, 2015 at 11:37 PM
+-- Generation Time: Apr 02, 2015 at 03:44 AM
 -- Server version: 5.6.14
 -- PHP Version: 5.5.6
 
@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS `shuttles` (
   `routeid` int(11) DEFAULT NULL,
   `totalpassengers` int(11) DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=8 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=10 ;
 
 --
 -- Dumping data for table `shuttles`
@@ -75,7 +75,9 @@ INSERT INTO `shuttles` (`id`, `number`, `status`, `latitude`, `longitude`, `type
 (3, 201, 'on-duty', 32.987860928527766, -96.74627195578068, '9-seater', 0, 1, 94),
 (4, 301, 'on-duty', 32.98948864324784, -96.7510019056499, '7-seater', 7, 2, 197),
 (5, 401, 'on-duty', 32.987665195779485, -96.75374729325995, '7-seater', 2, 4, 308),
-(7, 501, 'on-duty', 32.98980248389205, -96.75098459701985, '9-seater', 5, 5, 458);
+(7, 501, 'on-duty', 32.98980248389205, -96.75098459701985, '9-seater', 5, 5, 458),
+(8, 601, 'on-duty', 32.98971362, -96.74378961, '7-seater', 6, 1, 154),
+(9, 701, 'on-duty', 32.99069675, -96.75116166, '9-seater', 4, 2, 752);
 
 -- --------------------------------------------------------
 

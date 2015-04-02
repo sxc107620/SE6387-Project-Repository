@@ -14,6 +14,8 @@ import java.net.MalformedURLException;
 import java.net.Socket;
 import java.net.URL;
 import java.net.URLConnection;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Calendar;
 
 /**
@@ -44,7 +46,6 @@ public class UpdaterThread extends Thread {
 
     public void setLoginReady() {
         loginReady = true;
-        login.bluetoothUpdate("loginReady set");
     }
 
     public void setUpdateReady() {
@@ -76,7 +77,6 @@ public class UpdaterThread extends Thread {
         while(running) {
             //login.bluetoothUpdate("Iterate");
             if(loginReady) {
-                login.bluetoothUpdate("Validating Login");
                 validateLogin(username, password);
                 loginReady = false;
             }
@@ -96,19 +96,29 @@ public class UpdaterThread extends Thread {
     }
 
     private void sendInfoToServer(int riders, Location loc, boolean status) {
-//        toServer.write("update".getBytes());
+//        toServer.write("update");
 //        toServer.write(riders);
 //        toServer.write(loc);
 //        toServer.write(status);
+//        toServer.flush();
     }
 
     private void validateLogin(String user, String pass) {
-        //Security stuff (Hashing?)
-        //Send stuff to server
-        boolean status = true;
-        toServer.write("Login");
-        toServer.write(user);
-        toServer.write(pass);
+        boolean status = false;
+        toServer.write("Login" + '\n');
+        toServer.write(user + '\n');
+        String hashedPass = MD5(pass);
+        toServer.write(hashedPass + '\n');
+        toServer.flush();
+
+        try {
+            String Response = fromServer.readLine();
+            if(Response.equalsIgnoreCase("true")) {
+                status = true;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         login.loginResponse(status);
     }
@@ -124,4 +134,20 @@ public class UpdaterThread extends Thread {
         }
     }
 
+    private String MD5(String pwd)  {
+        MessageDigest md = null;
+        try {
+            md = MessageDigest.getInstance("MD5");
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        md.update(pwd.getBytes());
+        byte[] digest = md.digest();
+        StringBuffer sb = new StringBuffer();
+        for (byte b : digest) {
+            sb.append(String.format("%02x", b & 0xff));
+        }
+        String md5_pass = sb.toString();
+        return md5_pass;
+    }
 }
