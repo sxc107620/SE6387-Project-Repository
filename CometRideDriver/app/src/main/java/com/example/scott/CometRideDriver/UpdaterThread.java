@@ -119,7 +119,7 @@ public class UpdaterThread extends Thread {
     private void validateLogin(String user, String pass) {
         //Security stuff (Hashing?)
         //Send stuff to server
-        boolean status = false;
+        boolean status = true;
         toServer.write("Login");
         toServer.write(user);
         toServer.write(pass);
