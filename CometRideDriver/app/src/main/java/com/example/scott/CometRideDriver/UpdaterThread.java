@@ -25,8 +25,8 @@ public class UpdaterThread extends Thread {
     private BufferedReader fromServer;
     private Socket serverConn;
 
-    private String Host = "cs1.utdallas.edu";
-    private int port = 16000;
+    private String Host = "104.154.93.11";
+    private int port = 1500;
 
     private boolean loginReady = false;
     private boolean updateReady = false;

@@ -1,3 +1,7 @@
+import java.net.*;
+import java.io.*;
+import java.util.*;
+
 class ClientThread extends Thread {
 	// the socket where to listen/talk
 	Socket socket;
