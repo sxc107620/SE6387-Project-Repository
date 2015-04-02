@@ -27,7 +27,7 @@ public class LoginActivity extends ActionBarActivity implements View.OnClickList
 
     private Button btnLoginDialog;
 
-    public UpdaterThread updater;
+    public static UpdaterThread updater;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

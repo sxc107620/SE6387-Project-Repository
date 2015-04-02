@@ -38,8 +38,9 @@ public class MainActivity extends Activity implements LocationListener {
     private WebView myBrowser;
     private TextView myText = null;
 
-    private UpdaterThread updater = null;
     private boolean loggedIn = false;
+
+    public static UpdaterThread updater;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,8 +61,7 @@ public class MainActivity extends Activity implements LocationListener {
 
         myBrowser.loadUrl("file:///android_asset/index.html");
 
-        //updater = new UpdaterThread(this);
-        //updater.start();
+        updater = LoginActivity.updater;
     }
 
     public void login(boolean code) {
@@ -72,6 +72,7 @@ public class MainActivity extends Activity implements LocationListener {
     public void onLocationChanged(Location location) {
         if(lastLoc == null) {
             lastLoc = location;
+            updater.setUpdateReady();
             return;
         }
         if((Math.abs(lastLoc.distanceTo(location)) > 0.5)) { //Moved at least 0.5 meters in the last two seconds - In motion
@@ -133,7 +134,6 @@ public class MainActivity extends Activity implements LocationListener {
             alert.show();
         }
         locMgr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 0, this);
-        lastLoc = locMgr.getLastKnownLocation(LocationManager.GPS_PROVIDER);
     }
 
     public class MyJavaScriptInterface {
@@ -274,8 +274,13 @@ public class MainActivity extends Activity implements LocationListener {
     protected void onStop() {
         super.onStop();
         locMgr.removeUpdates(this);
-        updater.interrupt();
-        //btThread.cancel();
+        updater.kill();
+    }
+
+    protected void onDestroy() {
+        super.onDestroy();
+        locMgr.removeUpdates(this);
+        updater.kill();
     }
 
     @Override

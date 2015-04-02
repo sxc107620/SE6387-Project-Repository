@@ -30,11 +30,13 @@ public class UpdaterThread extends Thread {
 
     private boolean loginReady = false;
     private boolean updateReady = false;
+    private boolean running = true;
     private LoginActivity login;
     private MainActivity main;
 
     private String username;
     private String password;
+
 
     public UpdaterThread(LoginActivity login) {
         this.login = login;
@@ -57,29 +59,13 @@ public class UpdaterThread extends Thread {
         password = p;
     }
 
-    public void openConnection() {
-        try {
-            serverConn = new Socket(Host, port);
-        } catch (IOException e) {
-            login.bluetoothUpdate("IOException opening connection");
-        }
-        try {
-            fromServer = new BufferedReader(new InputStreamReader(serverConn.getInputStream()));
-            toServer = new PrintWriter(serverConn.getOutputStream());
-        } catch (IOException e) {
-            login.bluetoothUpdate("IOException getting streams");
-        }
-    }
-
     public void run() {
         try {
-            serverConn = new Socket("cs1.utdallas.edu", 16000);
-            login.bluetoothUpdate(serverConn.getRemoteSocketAddress().toString() + ":" + serverConn.getPort());
+            serverConn = new Socket(Host, port);
             serverConn.setKeepAlive(true);
         } catch (Exception e) {
             login.bluetoothUpdate(e.getMessage());
         }
-        //login.bluetoothUpdate(serverConn.getRemoteSocketAddress().toString() + ":" + serverConn.getPort());
         try {
             fromServer = new BufferedReader(new InputStreamReader(serverConn.getInputStream()));
             toServer = new PrintWriter(serverConn.getOutputStream());
@@ -87,10 +73,10 @@ public class UpdaterThread extends Thread {
             //login.bluetoothUpdate("IOException getting streams");
         }
         //toServer.write("Connected");
-        while(true) {
+        while(running) {
             //login.bluetoothUpdate("Iterate");
             if(loginReady) {
-                //login.bluetoothUpdate("Validating Login");
+                login.bluetoothUpdate("Validating Login");
                 validateLogin(username, password);
                 loginReady = false;
             }
@@ -125,6 +111,17 @@ public class UpdaterThread extends Thread {
         toServer.write(pass);
 
         login.loginResponse(status);
+    }
+
+    public void kill() {
+        running = false;
+        try {
+            serverConn.close();
+            toServer.close();
+            fromServer.close();
+        } catch (IOException e) {
+            //e.printStackTrace();
+        }
     }
 
 }
