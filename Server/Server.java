@@ -123,12 +123,12 @@ public class Server {
 	public void run()  {
 		// to loop until LOGOUT
 		boolean keepGoing = true;
-
+		str = "";
 		while(keepGoing) {
 				// read a String (which is an object)
 				try {
-
-						str = in.readLine().toString();
+					str = in.readLine().toString();
+					System.out.print("Line received: ");
 				}
 				catch (IOException e) {
 						System.out.println("Exception reading Streams: " + e);
