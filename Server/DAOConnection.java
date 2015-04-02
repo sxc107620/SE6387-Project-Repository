@@ -6,10 +6,10 @@ public class DAOConnection
     private static String driverName = "com.mysql.jdbc.Driver";
     private static String username = "cometdev";
     private static String password = "cometride";
-    
-    private static Connection con;    
+     
     public static Connection getConnection() 
     {
+    	Connection con = null; 
         try 
         {
             Class.forName(driverName);

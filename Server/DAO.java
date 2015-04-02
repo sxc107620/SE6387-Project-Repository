@@ -1,10 +1,13 @@
 import java.sql.*;
-import java.util.*;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 
 public class DAO 
 {
+	public static void main(String[] args) {
+		DAO d = new DAO();
+		System.out.println(d.getRouteNameList());
+	}
+	
 	public void closeConnection(Connection c) {
     	try {
 	    	if (c != null && !c.isClosed()) {
@@ -43,4 +46,55 @@ public class DAO
         closeConnection(con);
         return false;
     }
+	
+	public ArrayList<String> getRouteNameList()
+    {
+        Connection con = DAOConnection.getConnection();
+        try
+        {
+        	ArrayList<String> routes = new ArrayList<String>();
+        	
+            String query = "SELECT rname FROM routes;";
+            PreparedStatement preparedStatement = con.prepareStatement(query);
+            preparedStatement.executeQuery();
+            ResultSet rs = preparedStatement.getResultSet();
+            while (rs.next())
+            {
+                String name = rs.getString("rname");
+                routes.add(name);
+            }
+            closeConnection(con);
+            return routes;
+        }
+        catch(SQLException e)
+        {
+        	e.printStackTrace();
+        }
+        closeConnection(con);
+        return null;
+    }
+	
+	public Integer getRouteIdFromName(String name) {
+		Connection con = DAOConnection.getConnection();
+        try
+        {
+            String query = "SELECT routeid FROM routes WHERE rname =?;";
+            PreparedStatement preparedStatement = con.prepareStatement(query);
+            preparedStatement.setString(1, name);
+            preparedStatement.executeQuery();
+            ResultSet rs = preparedStatement.getResultSet();
+            while (rs.next())
+            {
+                int id = rs.getInt("rname");
+                closeConnection(con);
+                return id;
+            }
+        }
+        catch(SQLException e)
+        {
+        	e.printStackTrace();
+        }
+        closeConnection(con);
+        return null;
+	}
 }
