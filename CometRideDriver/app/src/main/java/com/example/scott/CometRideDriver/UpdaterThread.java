@@ -16,6 +16,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Calendar;
 
 /**
@@ -29,12 +30,15 @@ public class UpdaterThread extends Thread {
 
     private String Host = "104.154.93.11";
     private int port = 1500;
+    private String routeName = "";
 
     private boolean loginReady = false;
     private boolean updateReady = false;
+    private boolean selectRoutes = false;
     private boolean running = true;
     private LoginActivity login;
     private MainActivity main;
+    private RouteActivity route;
 
     private String username;
     private String password;
@@ -60,6 +64,19 @@ public class UpdaterThread extends Thread {
         password = p;
     }
 
+    public void setRouteActivity(RouteActivity route) {
+        this.route = route;
+    }
+
+    public void setRoute(String name) {
+        route.routeSet();
+        this.routeName = name;
+    }
+
+    public void setMainActivity(MainActivity main) {
+        this.main = main;
+    }
+
     public void run() {
         try {
             serverConn = new Socket(Host, port);
@@ -74,11 +91,16 @@ public class UpdaterThread extends Thread {
             //login.bluetoothUpdate("IOException getting streams");
         }
         //toServer.write("Connected");
-        while(running) {
+        while(true) {
             //login.bluetoothUpdate("Iterate");
             if(loginReady) {
                 validateLogin(username, password);
                 loginReady = false;
+            }
+            if(selectRoutes) {
+                ArrayList<String> routeList = getRouteList();
+                route.selectRoute(routeList);
+                selectRoutes = false;
             }
             if(updateReady) {
                 int numRiders = ourActivity.getCurrentRiders();
@@ -86,13 +108,40 @@ public class UpdaterThread extends Thread {
                 Location currentLoc = ourActivity.getLocation();
                 boolean status = ourActivity.getStatus();
                 //sendInfoToServer(numRiders, currentLoc, status);
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    return;
-                }
+            }
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                return;
             }
         }
+    }
+
+    private ArrayList<String> getRouteList() {
+        ArrayList<String> routeList = new ArrayList<String>();
+        toServer.write("Get Routes\n");
+        toServer.flush();
+        int numRoutes = 0;
+        String num = "";
+        try {
+            num = fromServer.readLine();
+            //main.bluetoothUpdate(num);
+            numRoutes = Integer.parseInt(num);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        for(int i = 0; i < numRoutes; i++) {
+            String route = "";
+            try {
+                route = fromServer.readLine();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if(!route.equals("")) {
+                routeList.add(route);
+            }
+        }
+        return routeList;
     }
 
     private void sendInfoToServer(int riders, Location loc, boolean status) {
@@ -149,5 +198,9 @@ public class UpdaterThread extends Thread {
         }
         String md5_pass = sb.toString();
         return md5_pass;
+    }
+
+    public void setSelectRoutes() {
+        selectRoutes = true;
     }
 }

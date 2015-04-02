@@ -1,5 +1,6 @@
 package com.example.scott.CometRideDriver;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -22,6 +23,7 @@ import java.net.Socket;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 
 public class LoginActivity extends ActionBarActivity implements View.OnClickListener {
 
@@ -71,7 +73,7 @@ public class LoginActivity extends ActionBarActivity implements View.OnClickList
 
     public void loginResponse(boolean status) {
         if(status) {
-            Intent myIntent=new Intent(LoginActivity.this,MainActivity.class);
+            Intent myIntent = new Intent(LoginActivity.this,RouteActivity.class);
             startActivity(myIntent);
         }
         else {

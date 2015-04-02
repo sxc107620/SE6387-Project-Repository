@@ -2,6 +2,7 @@ package com.example.scott.CometRideDriver;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothClass;
 import android.bluetooth.BluetoothDevice;
@@ -20,6 +21,7 @@ import android.webkit.WebView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.Set;
 
 
@@ -34,6 +36,7 @@ public class MainActivity extends Activity implements LocationListener {
     private int driverStatus = 0;
     private int totalRiders = 0;
     boolean status = true; //Start on duty
+    private String myRoute;
 
     private WebView myBrowser;
     private TextView myText = null;
@@ -46,10 +49,13 @@ public class MainActivity extends Activity implements LocationListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        updater = LoginActivity.updater;
+        updater.setMainActivity(this);
         Toast.makeText(this, "Login Successful. Welcome to CometRide", Toast.LENGTH_SHORT).show();
+
         /*myText = new TextView(this);
         myText.setText("Start");*/
-        //setContentView(myText);
+        //setContentView(myText)
         setUpBluetooth();
         setUpGPS();
 
@@ -61,7 +67,6 @@ public class MainActivity extends Activity implements LocationListener {
 
         myBrowser.loadUrl("file:///android_asset/index.html");
 
-        updater = LoginActivity.updater;
     }
 
     public void login(boolean code) {
@@ -72,7 +77,7 @@ public class MainActivity extends Activity implements LocationListener {
     public void onLocationChanged(Location location) {
         if(lastLoc == null) {
             lastLoc = location;
-            updater.setUpdateReady();
+            //updater.setUpdateReady();
             return;
         }
         if((Math.abs(lastLoc.distanceTo(location)) > 0.5)) { //Moved at least 0.5 meters in the last two seconds - In motion
