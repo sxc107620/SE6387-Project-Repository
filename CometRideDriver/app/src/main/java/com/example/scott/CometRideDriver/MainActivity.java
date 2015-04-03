@@ -32,7 +32,8 @@ public class MainActivity extends Activity implements LocationListener {
     private Location lastLoc = null;
     private int currentRiders = 0;
     private int driverStatus = 0;
-    private int totalRiders = 0;
+    private int newRiders = 0;
+    private int capacity = 0;
     boolean status = true; //Start on duty
     private String myRoute;
 
@@ -67,9 +68,16 @@ public class MainActivity extends Activity implements LocationListener {
 
     }
 
+    public void setCapacity(int num) {
+        capacity = num;
+        myBrowser.loadUrl("javascript:shuttleSeats("+capacity+")");
+    }
+
     public void login(boolean code) {
         loggedIn = code;
     }
+
+    public void resetNewRiders() { newRiders = 0; }
 
     @Override
     public void onLocationChanged(Location location) {
@@ -154,7 +162,14 @@ public class MainActivity extends Activity implements LocationListener {
 
         public void currentStatus(String stat) {
             //Database connection goes here, Driver status is received here
-            driverStatus = Integer.parseInt(stat);
+            int driverStatus = Integer.parseInt(stat);
+            if(driverStatus == 0) {
+                status = false;
+            }
+            else {
+                status = true;
+                updater.setUpdateReady(true);
+            }
         }
 
         public void incrementPressed() {
@@ -299,7 +314,7 @@ public class MainActivity extends Activity implements LocationListener {
         return currentRiders;
     }
 
-    public int getTotalRiders() { return totalRiders; }
+    public int getNewRiders() { return newRiders; }
 
     public Location getLocation() {
         return lastLoc;

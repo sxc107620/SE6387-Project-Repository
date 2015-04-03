@@ -46,7 +46,8 @@ public class UpdaterThread extends Thread {
     private String username;
     private String password;
     private Integer ourShuttle;
-    private int capacity;
+    private int shuttleCapacity;
+    private boolean getCapacity = false;
 
 
     public UpdaterThread(LoginActivity login) {
@@ -57,8 +58,12 @@ public class UpdaterThread extends Thread {
         loginReady = true;
     }
 
-    public void setUpdateReady() {
-        updateReady = true;
+    public void getSetCapacity() {
+        getCapacity = true;
+    }
+
+    public void setUpdateReady(boolean b) {
+        updateReady = b;
     }
 
     public void setUsername(String u) {
@@ -116,6 +121,10 @@ public class UpdaterThread extends Thread {
                 shuttle.selectShuttle(shuttleList);
                 selectShuttle = false;
             }
+            if(getCapacity) {
+                getCapacity(ourShuttle);
+                getCapacity = false;
+            }
             if(updateReady) {
                 int numRiders = ourActivity.getCurrentRiders();
                 //ourActivity.bluetoothUpdate(numRiders + " at " + Calendar.getInstance().get(Calendar.SECOND));
@@ -129,6 +138,22 @@ public class UpdaterThread extends Thread {
                 return;
             }
         }
+    }
+
+    private void getCapacity(Integer ourShuttle) {
+        int capacity;
+        toServer.write("Capacity\n");
+        toServer.write(ourShuttle.toString() + "\n");
+        toServer.flush();
+        String Line = null;
+        try {
+            Line = fromServer.readLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        char num = Line.charAt(0);
+        capacity = Character.getNumericValue(num);
+        shuttleCapacity = capacity;
     }
 
     private ArrayList<Integer> getShuttleList() {
@@ -184,18 +209,20 @@ public class UpdaterThread extends Thread {
         return routeList;
     }
 
-    private void sendInfoToServer(int currentRiders, int totalRiders, Location loc, boolean status) {
+    private void sendInfoToServer(int currentRiders, int newRiders, Location loc, boolean status) {
         toServer.write("update\n");
         toServer.write(ourShuttle + "\n");
         toServer.write(status + "\n");
         toServer.write(loc.getLatitude() + "\n");
         toServer.write(loc.getLongitude() + "\n");
-        toServer.write(capacity + "\n");
         toServer.write(routeName + "\n");
         toServer.write(currentRiders + "\n");
-        toServer.write(totalRiders + "\n");
-
+        toServer.write(newRiders + "\n");
         toServer.flush();
+        main.resetNewRiders();
+        if(!status) {
+            setUpdateReady(false);
+        }
     }
 
     private void validateLogin(String user, String pass) {
