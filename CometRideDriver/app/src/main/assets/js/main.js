@@ -1,6 +1,6 @@
 var clock;
 var capacity = 0;
-var shuttleType;
+var shuttleType = 5;
 
 	// Instantiate a counter
 	clock = new FlipClock($('.clock'), 00, {
@@ -44,7 +44,7 @@ var shuttleType;
 
 function inc() {
 	if($('#count').css('display') != 'none') {
-		if (capacity != shuttleType) {
+		if (capacity < shuttleType) {
 			clock.increment();
 			capacity++;
 			capacityUpdate(capacity);
@@ -55,7 +55,7 @@ function inc() {
 
 function dec() {
 	if($('#count').css('display') != 'none') {
-		if (capacity != 0) {
+		if (capacity > 0) {
 			clock.decrement();
 			capacity--;
 			capacityUpdate(capacity);

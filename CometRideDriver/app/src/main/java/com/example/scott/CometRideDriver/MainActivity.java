@@ -49,12 +49,8 @@ public class MainActivity extends Activity implements LocationListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         updater = LoginActivity.updater;
-        updater.setMainActivity(this);
-        Toast.makeText(this, "Login Successful. Welcome to CometRide", Toast.LENGTH_SHORT).show();
+        updater.setMainActivity(MainActivity.this);
 
-        /*myText = new TextView(this);
-        myText.setText("Start");*/
-        //setContentView(myText)
         setUpBluetooth();
         setUpGPS();
 
@@ -65,12 +61,18 @@ public class MainActivity extends Activity implements LocationListener {
         myBrowser.getSettings().setJavaScriptEnabled(true);
 
         myBrowser.loadUrl("file:///android_asset/index.html");
+    }
 
+    protected void onStart() {
+        super.onStart();
+        updater.setMainActivity(MainActivity.this);
+        setCapacity(updater.getShuttleCapacity());
     }
 
     public void setCapacity(int num) {
         capacity = num;
-        myBrowser.loadUrl("javascript:shuttleSeats("+capacity+")");
+        bluetoothUpdate(capacity + "");
+        myBrowser.loadUrl("javascript:shuttleSeats('"+capacity+"')");
     }
 
     public void login(boolean code) {
@@ -83,7 +85,7 @@ public class MainActivity extends Activity implements LocationListener {
     public void onLocationChanged(Location location) {
         if(lastLoc == null) {
             lastLoc = location;
-            //updater.setUpdateReady();
+            updater.setUpdateReady(true);
             return;
         }
         if((Math.abs(lastLoc.distanceTo(location)) > 0.5)) { //Moved at least 0.5 meters in the last two seconds - In motion
@@ -157,11 +159,14 @@ public class MainActivity extends Activity implements LocationListener {
         @JavascriptInterface
         public void currentCapacity(String cap) {
             //Database connection goes here, variable cap has the current capacity
-            currentRiders = Integer.parseInt(cap);
+            try {
+                currentRiders = Integer.parseInt(cap);
+            } catch(Exception e) {
+                //Silently ignore failed parses
+            }
         }
 
         public void currentStatus(String stat) {
-            //Database connection goes here, Driver status is received here
             int driverStatus = Integer.parseInt(stat);
             if(driverStatus == 0) {
                 status = false;

@@ -58,7 +58,7 @@ public class UpdaterThread extends Thread {
         loginReady = true;
     }
 
-    public void getSetCapacity() {
+    public void setGetCapacity() {
         getCapacity = true;
     }
 

@@ -39,7 +39,7 @@ public class ShuttleActivity extends ActionBarActivity {
             public void run() {
                 String Route;
                 final AlertDialog.Builder selector = new AlertDialog.Builder(ShuttleActivity.this);
-                selector.setTitle("Select your Route");
+                selector.setTitle("Select your Shuttle");
                 ArrayList<String> shuttleStrings = new ArrayList<String>();
                 for(Integer s : shuttleList) {
                     shuttleStrings.add(s.toString());
@@ -63,6 +63,7 @@ public class ShuttleActivity extends ActionBarActivity {
 
     private void setShuttle(ArrayList<Integer> shuttleList, int selectedPosition) {
         updater.setShuttle(shuttleList.get(selectedPosition));
+        updater.setGetCapacity();
     }
 
 
