@@ -1,5 +1,6 @@
 var clock;
 var capacity = 0;
+var shuttleType;
 
 	// Instantiate a counter
 	clock = new FlipClock($('.clock'), 00, {
@@ -43,7 +44,7 @@ var capacity = 0;
 
 function inc() {
 	if($('#count').css('display') != 'none') {
-		if (capacity != 8) {
+		if (capacity != shuttleType) {
 			clock.increment();
 			capacity++;
 			capacityUpdate(capacity);
@@ -86,5 +87,9 @@ function statusUpdate(toast) {
 
 function passengerOn() {
   AndroidFunction.incrementPressed();
+}
+
+function shuttleSeats(value) {
+  shuttleType = parseInt(value);
 }
  
