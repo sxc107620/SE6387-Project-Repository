@@ -47,6 +47,7 @@ function inc() {
 			clock.increment();
 			capacity++;
 			capacityUpdate(capacity);
+			passengerOn();
 		}
 	}
 }
@@ -81,5 +82,9 @@ function capacityUpdate(toast) {
 
 function statusUpdate(toast) {
   AndroidFunction.currentStatus(toast);
+}
+
+function passengerOn() {
+  AndroidFunction.incrementPressed();
 }
  

@@ -2,7 +2,6 @@ package com.example.scott.CometRideDriver;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothClass;
 import android.bluetooth.BluetoothDevice;
@@ -21,7 +20,6 @@ import android.webkit.WebView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
 import java.util.Set;
 
 
@@ -157,6 +155,10 @@ public class MainActivity extends Activity implements LocationListener {
         public void currentStatus(String stat) {
             //Database connection goes here, Driver status is received here
             driverStatus = Integer.parseInt(stat);
+        }
+
+        public void incrementPressed() {
+            //Triggers whenever + is pressed
         }
 
 
