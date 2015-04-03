@@ -5,7 +5,7 @@ public class DAO
 {
 	public static void main(String[] args) {
 		DAO d = new DAO();
-		System.out.println(d.setShuttleInfo(401, "off-duty", 32.9861717224121, 96.7509689331055, 0));
+		System.out.println(d.getShuttleCapacity(701));
 	}
 	
 	public void closeConnection(Connection c) {
@@ -173,5 +173,29 @@ public class DAO
         }    
         closeConnection(con);
         return false;
+	}
+	
+	public String getShuttleCapacity(int shuttle_number) {
+		Connection con = DAOConnection.getConnection();
+        try
+        {
+            String query = "SELECT type FROM shuttles WHERE number =?;";
+            PreparedStatement preparedStatement = con.prepareStatement(query);
+            preparedStatement.setInt(1, shuttle_number);
+            preparedStatement.executeQuery();
+            ResultSet rs = preparedStatement.getResultSet();
+            while (rs.next())
+            {
+                String type = rs.getString("type");
+                closeConnection(con);
+                return type;
+            }
+        }
+        catch(SQLException e)
+        {
+        	e.printStackTrace();
+        }
+        closeConnection(con);
+        return null;
 	}
 }
