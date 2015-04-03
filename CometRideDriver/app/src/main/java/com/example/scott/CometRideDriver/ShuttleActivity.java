@@ -12,36 +12,40 @@ import com.example.scott.CometRideDriver.R;
 
 import java.util.ArrayList;
 
-public class RouteActivity extends ActionBarActivity {
+public class ShuttleActivity extends ActionBarActivity {
 
     public static UpdaterThread updater;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_route);
+        setContentView(R.layout.activity_shuttle);
         updater = LoginActivity.updater;
-        updater.setRouteActivity(this);
-        updater.setSelectRoutes();
+        updater.setShuttleActivity(this);
+        updater.setSelectShuttle();
     }
 
-    public void routeSet() {
-        Intent myIntent = new Intent(RouteActivity.this,ShuttleActivity.class);
+    public void shuttleSet() {
+        Intent myIntent = new Intent(ShuttleActivity.this,MainActivity.class);
         startActivity(myIntent);
     }
 
-    public void selectRoute(final ArrayList<String> routeList) {
+    public void selectShuttle(final ArrayList<Integer> shuttleList) {
         this.runOnUiThread(new Runnable() {
             public void run() {
                 String Route;
-                final AlertDialog.Builder selector = new AlertDialog.Builder(RouteActivity.this);
+                final AlertDialog.Builder selector = new AlertDialog.Builder(ShuttleActivity.this);
                 selector.setTitle("Select your Route");
-                selector.setSingleChoiceItems(routeList.toArray(new String[routeList.size()]), 0, null);
+                ArrayList<String> shuttleStrings = new ArrayList<String>();
+                for(Integer s : shuttleList) {
+                    shuttleStrings.add(s.toString());
+                }
+                selector.setSingleChoiceItems(shuttleStrings.toArray(new String[shuttleStrings.size()]), 0, null);
                 selector.setPositiveButton(R.string.select_route_button_label, new DialogInterface.OnClickListener()
                         {
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 dialog.dismiss();
                                 int selectedPosition = ((AlertDialog) dialog).getListView().getCheckedItemPosition();
-                                setRoute(routeList, selectedPosition);
+                                setShuttle(shuttleList, selectedPosition);
                                 // Do something useful withe the position of the selected radio button
                             }
                         }
@@ -52,15 +56,15 @@ public class RouteActivity extends ActionBarActivity {
         });
     }
 
-    public void setRoute(ArrayList<String> list, int which) {
-        updater.setRoute(list.get(which));
+    private void setShuttle(ArrayList<Integer> shuttleList, int selectedPosition) {
+        updater.setShuttle(shuttleList.get(selectedPosition));
     }
 
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_route, menu);
+        getMenuInflater().inflate(R.menu.menu_shuttle, menu);
         return true;
     }
 

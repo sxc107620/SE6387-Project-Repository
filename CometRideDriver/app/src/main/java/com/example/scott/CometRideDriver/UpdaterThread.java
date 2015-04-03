@@ -35,13 +35,18 @@ public class UpdaterThread extends Thread {
     private boolean loginReady = false;
     private boolean updateReady = false;
     private boolean selectRoutes = false;
+    private boolean selectShuttle = false;
     private boolean running = true;
+
     private LoginActivity login;
     private MainActivity main;
     private RouteActivity route;
+    private ShuttleActivity shuttle;
 
     private String username;
     private String password;
+    private Integer ourShuttle;
+    private int capacity;
 
 
     public UpdaterThread(LoginActivity login) {
@@ -77,6 +82,10 @@ public class UpdaterThread extends Thread {
         this.main = main;
     }
 
+    public void setShuttleActivity(ShuttleActivity shuttle) {
+        this.shuttle = shuttle;
+    }
+
     public void run() {
         try {
             serverConn = new Socket(Host, port);
@@ -91,7 +100,7 @@ public class UpdaterThread extends Thread {
             //login.bluetoothUpdate("IOException getting streams");
         }
         //toServer.write("Connected");
-        while(true) {
+        while(running) {
             //login.bluetoothUpdate("Iterate");
             if(loginReady) {
                 validateLogin(username, password);
@@ -101,6 +110,11 @@ public class UpdaterThread extends Thread {
                 ArrayList<String> routeList = getRouteList();
                 route.selectRoute(routeList);
                 selectRoutes = false;
+            }
+            if(selectShuttle) {
+                ArrayList<Integer> shuttleList = getShuttleList();
+                shuttle.selectShuttle(shuttleList);
+                selectShuttle = false;
             }
             if(updateReady) {
                 int numRiders = ourActivity.getCurrentRiders();
@@ -117,6 +131,33 @@ public class UpdaterThread extends Thread {
         }
     }
 
+    private ArrayList<Integer> getShuttleList() {
+        ArrayList<Integer> shuttles = new ArrayList<Integer>();
+        toServer.write("Get Shuttles\n");
+        toServer.flush();
+        int numShuttles = 0;
+        String num = "";
+        try {
+            num = fromServer.readLine();
+            numShuttles= Integer.parseInt(num);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        for(int i = 0; i < numShuttles; i++) {
+            String line = "";
+            try {
+                line = fromServer.readLine();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if(!line.equals("")) {
+                Integer shuttle = Integer.parseInt(line);
+                shuttles.add(shuttle);
+            }
+        }
+        return shuttles;
+    }
+
     private ArrayList<String> getRouteList() {
         ArrayList<String> routeList = new ArrayList<String>();
         toServer.write("Get Routes\n");
@@ -125,7 +166,6 @@ public class UpdaterThread extends Thread {
         String num = "";
         try {
             num = fromServer.readLine();
-            //main.bluetoothUpdate(num);
             numRoutes = Integer.parseInt(num);
         } catch (IOException e) {
             e.printStackTrace();
@@ -144,12 +184,18 @@ public class UpdaterThread extends Thread {
         return routeList;
     }
 
-    private void sendInfoToServer(int riders, Location loc, boolean status) {
-//        toServer.write("update");
-//        toServer.write(riders);
-//        toServer.write(loc);
-//        toServer.write(status);
-//        toServer.flush();
+    private void sendInfoToServer(int currentRiders, int totalRiders, Location loc, boolean status) {
+        toServer.write("update\n");
+        toServer.write(ourShuttle + "\n");
+        toServer.write(status + "\n");
+        toServer.write(loc.getLatitude() + "\n");
+        toServer.write(loc.getLongitude() + "\n");
+        toServer.write(capacity + "\n");
+        toServer.write(routeName + "\n");
+        toServer.write(currentRiders + "\n");
+        toServer.write(totalRiders + "\n");
+
+        toServer.flush();
     }
 
     private void validateLogin(String user, String pass) {
@@ -202,5 +248,14 @@ public class UpdaterThread extends Thread {
 
     public void setSelectRoutes() {
         selectRoutes = true;
+    }
+
+    public void setSelectShuttle() {
+        selectShuttle = true;
+    }
+
+    public void setShuttle(Integer shut) {
+        ourShuttle = shut;
+        shuttle.shuttleSet();
     }
 }

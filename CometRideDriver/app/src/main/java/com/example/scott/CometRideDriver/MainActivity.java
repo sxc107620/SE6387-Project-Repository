@@ -182,23 +182,6 @@ public class MainActivity extends Activity implements LocationListener {
                 clicker = bd;
         }
         mBluetoothAdapter.cancelDiscovery();
-        if (clicker != null) { //This stuff was me trying to use the actual bluetooth API
-//            UUID myUUID = null;
-//            ParcelUuid[] UUIDs = clicker.getUuids();
-//            if (UUIDs.length < 1) {
-//                myText.setText("No UUIDs");
-//                setContentView(myText);
-//                return;
-//            } else {
-//                myUUID = UUIDs[0].getUuid();
-//                //btThread = new BluetoothThread(clicker, this);
-//                //btThread.run();
-//            }
-        }
-        else {
-            myText.setText("Clicker not found");
-            setContentView(myText);
-        }
     }
 
     //This is a debug/output function for me to test things with
@@ -313,6 +296,8 @@ public class MainActivity extends Activity implements LocationListener {
     public int getCurrentRiders() {
         return currentRiders;
     }
+
+    public int getTotalRiders() { return totalRiders; }
 
     public Location getLocation() {
         return lastLoc;
