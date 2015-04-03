@@ -174,6 +174,7 @@ public class MainActivity extends Activity implements LocationListener {
 
         public void incrementPressed() {
             //Triggers whenever + is pressed
+            newRiders++;
         }
 
 
