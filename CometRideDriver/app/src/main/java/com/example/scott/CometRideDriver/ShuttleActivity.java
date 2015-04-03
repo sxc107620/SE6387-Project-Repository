@@ -20,8 +20,13 @@ public class ShuttleActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_shuttle);
         updater = LoginActivity.updater;
-        updater.setShuttleActivity(this);
+        updater.setShuttleActivity(ShuttleActivity.this);
         updater.setSelectShuttle();
+    }
+
+    protected void onStart() {
+        super.onStart();
+        updater.setShuttleActivity(ShuttleActivity.this);
     }
 
     public void shuttleSet() {

@@ -34,7 +34,7 @@ public class LoginActivity extends ActionBarActivity implements View.OnClickList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        updater = new UpdaterThread(this);
+        updater = new UpdaterThread(LoginActivity.this);
         updater.start();
         btnLoginDialog = (Button) findViewById(R.id.btnLoginDialog);
         btnLoginDialog.setOnClickListener(this);

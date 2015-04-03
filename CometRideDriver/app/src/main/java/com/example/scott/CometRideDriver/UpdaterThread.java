@@ -46,7 +46,7 @@ public class UpdaterThread extends Thread {
     private String username;
     private String password;
     private Integer ourShuttle;
-    private int shuttleCapacity;
+    private int shuttleCapacity = 7;
     private boolean getCapacity = false;
 
 
@@ -82,6 +82,8 @@ public class UpdaterThread extends Thread {
         route.routeSet();
         this.routeName = name;
     }
+
+    public int getShuttleCapacity() { return shuttleCapacity; }
 
     public void setMainActivity(MainActivity main) {
         this.main = main;
@@ -126,11 +128,11 @@ public class UpdaterThread extends Thread {
                 getCapacity = false;
             }
             if(updateReady) {
-                int numRiders = ourActivity.getCurrentRiders();
-                //ourActivity.bluetoothUpdate(numRiders + " at " + Calendar.getInstance().get(Calendar.SECOND));
-                Location currentLoc = ourActivity.getLocation();
-                boolean status = ourActivity.getStatus();
-                //sendInfoToServer(numRiders, currentLoc, status);
+                int numRiders = main.getCurrentRiders();
+                int newRiders = main.getNewRiders();
+                Location currentLoc = main.getLocation();
+                boolean status = main.getStatus();
+                sendInfoToServer(numRiders, newRiders, currentLoc, status);
             }
             try {
                 Thread.sleep(1000);
