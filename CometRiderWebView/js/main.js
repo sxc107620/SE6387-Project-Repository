@@ -206,6 +206,11 @@ function drawRoute(src, des) {
 function bookCab(id, lat, lng) {
 	$.post("index.php",{ i: id, l: lat, lg: lng }, function(){
 		$("#success").modal('show');
+		var marker = new google.maps.Marker({
+			position: new google.maps.LatLng(lat, lng),
+			map: map,
+			icon: "img/dot.png" //custom pin icon
+		});
 	});
 }
 
@@ -213,10 +218,11 @@ $('.interest').click(function() {
 	navigator.geolocation.getCurrentPosition(function(position) {
 		currentPos = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
 		closestPt = closest(currentPos, groupPoints.j[0]);
+		console.log();
 		if(closestPt[1] > 300)
 			drawRoute(currentPos, closestPt[0]);
 		else
-			bookCab(routeid, position.coords.latitude, position.coords.longitude);
+			bookCab(routeid, closestPt[0].k, closestPt[0].D);
 	});
 	
 	
