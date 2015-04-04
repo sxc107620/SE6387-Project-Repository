@@ -40,6 +40,7 @@ var map;
 overlay = [];
 var groupPoints = new google.maps.MVCArray;
 var routeid;
+var GeoMarker;
 function initialize() {
 	var UTD = new google.maps.LatLng(32.98594891, -96.7509511);
     var mapProp = {
@@ -50,13 +51,19 @@ function initialize() {
         mapTypeId: google.maps.MapTypeId.ROADMAP
     };
 	map = new google.maps.Map(document.getElementById("map-container"), mapProp);
-		lines = $('.nav-list li a').first().data('lines');
-		curves = $('.nav-list li a').first().data('curves');
-		savepoints = $('.nav-list li a').first().data('savepoints');
-		color = $('.nav-list li a').first().data('color');
-		routeid = $('.nav-list li a').first().data('rid');
-		plotter(lines, curves, savepoints, color);
-		tracker();	
+	
+	/*Geomarker hits the performance*/
+	//GeoMarker = new GeolocationMarker();
+	//GeoMarker.setCircleOptions({fillOpacity: 0, strokeWeight: 0});
+	//GeoMarker.setMap(map);
+	
+	lines = $('.nav-list li a').first().data('lines');
+	curves = $('.nav-list li a').first().data('curves');
+	savepoints = $('.nav-list li a').first().data('savepoints');
+	color = $('.nav-list li a').first().data('color');
+	routeid = $('.nav-list li a').first().data('rid');
+	plotter(lines, curves, savepoints, color);
+	tracker();	
 };
 initialize();
 
@@ -162,6 +169,7 @@ function closest(llng, listData) {
     })[0];
 }
 
+
 function drawRoute(src, des) {
 	var service = new google.maps.DirectionsService();
 	var curvesArray = new google.maps.MVCArray;
@@ -192,11 +200,12 @@ function drawRoute(src, des) {
 			poly.setPath(curvesArray);
 		}
 	});
+	$("#failure").modal('show');
 }
 
 function bookCab(id, lat, lng) {
 	$.post("index.php",{ i: id, l: lat, lg: lng }, function(){
-		
+		$("#success").modal('show');
 	});
 }
 

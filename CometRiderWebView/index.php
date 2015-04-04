@@ -18,15 +18,40 @@
     <link rel="stylesheet" href="css/bootstrap-theme.min.css">
     <link rel="stylesheet" href="css/main.css">
 
-    <!--[if lt IE 9]>
-            <script src="js/vendor/html5-3.6-respond-1.4.2.min.js"></script>
-        <![endif]-->
 </head>
 
 <body>
-    <!--[if lt IE 8]>
-            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
-        <![endif]-->
+<div class="modal fade" id="failure" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+				<h4 class="modal-title">Alert</h4>
+			</div>
+			<div class="modal-body">You are too far to book a ride. Please follow the dotted lines which will take you to the desired route.
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-sm" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="modal fade" id="success" tabindex="-1" role="dialog" aria-hidden="true" style="display: none;">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+				<h4 class="modal-title">Alert</h4>
+			</div>
+			<div class="modal-body">The driver has been notified of your interest.
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-sm" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
     <nav class="navbar-custom navbar-inverse navbar-fixed-top " role="navigation">
         <div class="container">
             <div class="navbar-header">
@@ -79,6 +104,7 @@
 	<script src="js/vendor/scroll.min.js"></script>
     <script src="http://maps.googleapis.com/maps/api/js?v=3&sensor=false&libraries=geometry"></script>
     <script type="text/javascript" src="http://google-maps-utility-library-v3.googlecode.com/svn/trunk/infobox/src/infobox.js"></script>
+	<script type="text/javascript" src="js/vendor/geolocationmarker-compiled.js"></script>
 
     <script src="js/main.js"></script>
 </body>
