@@ -60,6 +60,9 @@
       <div class="row">
 		<div id="map-container"></div>
 	  </div>
+	  <div class="footer interest">
+		 <button type="submit" class="btn btn-default">I'm interested</button>
+	  </div>
 	</div>
 
 
