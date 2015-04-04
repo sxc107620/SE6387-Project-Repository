@@ -60,7 +60,7 @@ public class MainActivity extends Activity implements LocationListener {
         myBrowser.addJavascriptInterface(myJavaScriptInterface, "AndroidFunction");
         myBrowser.getSettings().setJavaScriptEnabled(true);
 
-        myBrowser.loadUrl("file:///android_asset/index.html");
+        myBrowser.loadUrl("file:///android_asset/index.html?type=7");
     }
 
     protected void onStart() {

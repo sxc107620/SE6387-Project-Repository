@@ -1,6 +1,22 @@
 var clock;
 var capacity = 0;
 var shuttleType = 5;
+function getQueryParams(qs) {
+    qs = qs.split("+").join(" ");
+
+    var params = {}, tokens,
+        re = /[?&]?([^=]+)=([^&]*)/g;
+
+    while (tokens = re.exec(qs)) {
+        params[decodeURIComponent(tokens[1])]
+            = decodeURIComponent(tokens[2]);
+    }
+
+    return params;
+}
+
+var query = getQueryParams(document.location.search);
+shuttleType = query.type;
 
 	// Instantiate a counter
 	clock = new FlipClock($('.clock'), 00, {
@@ -77,6 +93,7 @@ function screenOn() {
 	$("#count").show();
 }
 
+
 function capacityUpdate(toast) {
   AndroidFunction.currentCapacity(toast);
 }
@@ -89,7 +106,5 @@ function passengerOn() {
   AndroidFunction.incrementPressed();
 }
 
-function shuttleSeats(value) {
-  shuttleType = parseInt(value);
-}
+
  
