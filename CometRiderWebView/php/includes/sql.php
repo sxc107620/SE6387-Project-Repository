@@ -13,5 +13,8 @@
 		return $result;
 	}
 	
-	
+	function interest($id, $lt, $lg) {
+		echo "INSERT INTO `interests` ( `routeid`, `latitude`, `longitude`) VALUES ( '$id', '$lt', '$lg')";
+		mysql_query("INSERT INTO `interests` ( `routeid`, `latitude`, `longitude`) VALUES ( '$id', '$lt', '$lg')");
+	}
 ?>

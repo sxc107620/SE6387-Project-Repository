@@ -63,7 +63,7 @@ initialize();
 function plotter(lines, curves, savepoints, color) {
 	if (savepoints.length != 0) {
 		points = [];
-		groupPoints.length  = 0;
+		groupPoints = new google.maps.MVCArray;
 		points = google.maps.geometry.encoding.decodePath(savepoints);
 		for(j=0; j<points.length; j++) {
 			var marker = new google.maps.Marker({
@@ -105,7 +105,6 @@ function plotter(lines, curves, savepoints, color) {
 		}
 		map.fitBounds(bounds);
 	}
-	//console.log(groupPoints);
 }
 
 var shuttleMarkers = [];
@@ -160,7 +159,7 @@ function closest(llng, listData) {
 
     return distArr.sort(function(a,b){
         return a[1]-b[1];
-    })[0][0];
+    })[0];
 }
 
 function drawRoute(src, des) {
@@ -195,11 +194,20 @@ function drawRoute(src, des) {
 	});
 }
 
+function bookCab(id, lat, lng) {
+	$.post("index.php",{ i: id, l: lat, lg: lng }, function(){
+		
+	});
+}
+
 $('.interest').click(function() {
 	navigator.geolocation.getCurrentPosition(function(position) {
 		currentPos = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
 		closestPt = closest(currentPos, groupPoints.j[0]);
-		drawRoute(currentPos, closestPt);
+		if(closestPt[1] > 300)
+			drawRoute(currentPos, closestPt[0]);
+		else
+			bookCab(routeid, position.coords.latitude, position.coords.longitude);
 	});
 	
 	

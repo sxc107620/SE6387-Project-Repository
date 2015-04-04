@@ -40,6 +40,9 @@
 					include ("./php/includes/settings.inc.php");        // database settings
 					include ("./php/includes/connectdb.inc.php"); 
 					include ("./php/includes/sql.php");
+					if(isset($_REQUEST['i']) && $_REQUEST['i']!="") {
+						interest($_REQUEST['i'], $_REQUEST['l'], $_REQUEST['lg']);
+					}
 					$routeList = getRoutes();
 					$colums = $routeList[0];
 					$rows = (count($routeList)-1)/$colums;
