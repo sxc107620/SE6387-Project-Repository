@@ -23,7 +23,6 @@ import java.util.Calendar;
  * Created by Scott on 3/27/2015.
  */
 public class UpdaterThread extends Thread {
-    private MainActivity ourActivity;
     private PrintWriter toServer;
     private BufferedReader fromServer;
     private Socket serverConn;
@@ -42,6 +41,7 @@ public class UpdaterThread extends Thread {
     private MainActivity main;
     private RouteActivity route;
     private ShuttleActivity shuttle;
+    private InterestedRiderHandler interestedRiders;
 
     private String username;
     private String password;
@@ -49,6 +49,9 @@ public class UpdaterThread extends Thread {
     private int shuttleCapacity = 7;
     private boolean getCapacity = false;
 
+    public Socket getSocket() { return serverConn; }
+
+    public String getRouteName() { return routeName; }
 
     public UpdaterThread(LoginActivity login) {
         this.login = login;
@@ -87,6 +90,7 @@ public class UpdaterThread extends Thread {
 
     public void setMainActivity(MainActivity main) {
         this.main = main;
+        interestedRiders = new InterestedRiderHandler(serverConn,routeName,main);
     }
 
     public void setShuttleActivity(ShuttleActivity shuttle) {
@@ -133,9 +137,10 @@ public class UpdaterThread extends Thread {
                 Location currentLoc = main.getLocation();
                 boolean status = main.getStatus();
                 sendInfoToServer(numRiders, newRiders, currentLoc, status);
+                interestedRiders.handle();
             }
             try {
-                Thread.sleep(1000);
+                Thread.sleep(2000);
             } catch (InterruptedException e) {
                 return;
             }

@@ -35,10 +35,8 @@ public class MainActivity extends Activity implements LocationListener {
     private int newRiders = 0;
     private int capacity = 0;
     boolean status = true; //Start on duty
-    private String myRoute;
 
     private WebView myBrowser;
-    private TextView myText = null;
 
     private boolean loggedIn = false;
 
@@ -60,20 +58,17 @@ public class MainActivity extends Activity implements LocationListener {
         myBrowser.addJavascriptInterface(myJavaScriptInterface, "AndroidFunction");
         myBrowser.getSettings().setJavaScriptEnabled(true);
 
-        myBrowser.loadUrl("file:///android_asset/index.html?type=7");
-    }
-
-    protected void onStart() {
-        super.onStart();
-        updater.setMainActivity(MainActivity.this);
-        setCapacity(updater.getShuttleCapacity());
+        int capacity = updater.getShuttleCapacity();
+        bluetoothUpdate(capacity + "");
+        myBrowser.loadUrl("file:///android_asset/index.html?type=" + capacity);
     }
 
     public void setCapacity(int num) {
         capacity = num;
-        bluetoothUpdate(capacity + "");
         myBrowser.loadUrl("javascript:shuttleSeats('"+capacity+"')");
     }
+
+    public Location getLastLoc() { return lastLoc; }
 
     public void login(boolean code) {
         loggedIn = code;
@@ -88,7 +83,7 @@ public class MainActivity extends Activity implements LocationListener {
             updater.setUpdateReady(true);
             return;
         }
-        if((Math.abs(lastLoc.distanceTo(location)) > 0.5)) { //Moved at least 0.5 meters in the last two seconds - In motion
+        if((Math.abs(lastLoc.distanceTo(location)) > 1)) { //Moved at least 1 meter in the last two seconds - In motion
             lastLoc = location;
             blankScreen(true);
         }
