@@ -58,6 +58,12 @@ public class InterestedRiderHandler {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            int id = Integer.parseInt(line);
+            try {
+                line = fromServer.readLine();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             double lat = Double.parseDouble(line);
             try {
                 line = fromServer.readLine();
@@ -65,7 +71,7 @@ public class InterestedRiderHandler {
                 e.printStackTrace();
             }
             double lon = Double.parseDouble(line);
-            interestedList.add(new InterestedRider(lat,lon));
+            interestedList.add(new InterestedRider(id, lat,lon));
         }
     }
 
@@ -81,9 +87,7 @@ public class InterestedRiderHandler {
         }
         for(InterestedRider r : clearedEntries) {
             toServer.write("remove interested\n");
-            toServer.write(route + "\n");
-            toServer.write(r.latitude + "\n");
-            toServer.write(r.longitude + "\n");
+            toServer.write(r.id + "\n");
             toServer.flush();
         }
     }
@@ -92,8 +96,10 @@ public class InterestedRiderHandler {
     public class InterestedRider {
         public double latitude;
         public double longitude;
+        private int id;
 
-        public InterestedRider(double lat, double lon) {
+        public InterestedRider(int id, double lat, double lon) {
+            this.id = id;
             latitude = lat;
             longitude = lon;
         }
