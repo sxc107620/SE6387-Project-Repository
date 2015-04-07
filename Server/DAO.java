@@ -5,7 +5,7 @@ public class DAO
 {
 	public static void main(String[] args) {
 		DAO d = new DAO();
-		System.out.println(d.getinterestedRiders("University Commons Route").get(0).getLatitude());
+		System.out.println(d.removeInterestedRider(1));
 	}
 	
 	public void closeConnection(Connection c) {
@@ -227,5 +227,24 @@ public class DAO
         }
         closeConnection(con);
         return null;
+	}
+	
+	public boolean removeInterestedRider(int interested_id) {
+		Connection con = DAOConnection.getConnection(); 
+        try
+        {
+            String query = "DELETE FROM interests WHERE id=?";
+            PreparedStatement preparedStatement = con.prepareStatement(query);
+            preparedStatement.setInt(1, interested_id);
+            preparedStatement.executeUpdate();
+            closeConnection(con);
+            return true;
+        }
+        catch(SQLException e)
+        {
+        	e.printStackTrace();
+        }    
+        closeConnection(con);
+        return false;
 	}
 }
