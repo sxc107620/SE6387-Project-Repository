@@ -125,6 +125,7 @@ public class Server {
 		// to loop until LOGOUT
 		boolean keepGoing = true;
 		str = "";
+		boolean loggedIn = false;
 		while(keepGoing) {
 				// read a String (which is an object)
 				try {
@@ -142,6 +143,7 @@ public class Server {
 					boolean result = Database.authenticate(username, password);
 					if(result) {
 						out.write("true\n");
+						loggedIn = true;
 					}
 					else {
 						out.write("false\n");
@@ -152,9 +154,124 @@ public class Server {
 					e.printStackTrace();
 				}
 			}
-			else {
-				//System.out.println(str);
-			}	
+			if(!loggedIn) {
+				out.write("Not logged in. Closing connection");
+				keepGoing = false;	
+			}
+			if(str.equalsIgnoreCase("get routes")) {
+				ArrayList<String> routeList = Database.getRouteNameList();
+				int num = routeList.size();
+				out.write(num + "\n");
+				for(String str : routeList) {
+					out.write(str + "\n");
+				}
+				out.flush();
+			}
+			if(str.equalsIgnoreCase("get shuttles")) {
+				ArrayList<Integer> shuttles = Database.getShuttleList();
+				int num = shuttles.size();
+				out.write(num + "\n");
+				for(Integer n : shuttles) {
+					out.write(n + "\n");
+				}
+				out.flush();
+			}
+			if(str.equalsIgnoreCase("capacity")) {
+				String line = "";
+				try {
+					line = in.readLine();
+				}
+				catch(Exception ex) {
+					ex.printStackTrace();
+				}
+				int id = Integer.parseInt(line);
+				String capLine = Database.getShuttleCapacity(id);
+				out.write(capLine);
+				out.flush();
+			}
+			if(str.equalsIgnoreCase("update")) {
+				String line = "";
+				try {
+					line = in.readLine();
+				}
+				catch(Exception e) {
+					e.printStackTrace();
+				}
+				int shuttle = Integer.parseInt(line);
+				try {
+					line = in.readLine();
+				}
+				catch(Exception e) {
+					e.printStackTrace();
+				}
+				boolean Status = Boolean.parseBoolean(line);
+				try {
+					line = in.readLine();
+				}
+				catch(Exception e) {
+					e.printStackTrace();
+				}
+				double lat = Double.parseDouble(line);
+				try {
+					line = in.readLine();
+				}
+				catch(Exception e) {
+					e.printStackTrace();
+				}
+				double lon = Double.parseDouble(line);
+				try {
+					line = in.readLine();
+				}
+				catch(Exception e) {
+					e.printStackTrace();
+				}
+				String routeName = line;
+				try {
+					line = in.readLine();
+				}
+				catch(Exception e) {
+					e.printStackTrace();
+				}
+				int currentRiders = Integer.parseInt(line);
+				try {
+					line = in.readLine();
+				}
+				catch(Exception e) {
+					e.printStackTrace();
+				}
+				int newRiders = Integer.parseInt(line);
+				String statusLine = "off-duty";
+				if(Status) statusLine = "on-duty";
+				Database.setShuttleInfo(shuttle, statusLine, lat, lon, currentRiders, newRiders);
+			}
+			if(str.equalsIgnoreCase("get interested")) {
+				String route = "";
+				try {
+					route = in.readLine();
+				}
+				catch(Exception e) {
+					e.printStackTrace();
+				}
+				ArrayList<Interest> interest = Database.getinterestedRiders(route);
+				out.write(interest.size() + "\n");
+				for(Interest i : interest) {
+					out.write(i.getId() + "\n");
+					out.write(i.getLatitude() + "\n");
+					out.write(i.getLongitude() + "\n");
+				}
+				out.flush();
+			}
+			if(str.equalsIgnoreCase("remove interested")) {
+				String line = "";
+				try {
+					line = in.readLine();
+				}
+				catch(Exception e) {
+					e.printStackTrace();
+				}
+				int id = Integer.parseInt(line);
+				Database.removeInterestedRider(id);
+			}
 		}
 		remove(id);
 		close();

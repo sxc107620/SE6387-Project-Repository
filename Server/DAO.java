@@ -147,7 +147,7 @@ public class DAO
         return null;
     }
 	
-	public boolean setShuttleInfo(int shuttle_number, String status, double latitude, double longitude, int capacity) {
+	public boolean setShuttleInfo(int shuttle_number, String status, double latitude, double longitude, int capacity, int newRiders) {
 		Connection con = DAOConnection.getConnection(); 
         try
         {
@@ -156,13 +156,15 @@ public class DAO
             		+ ",latitude =? "
             		+ ",longitude =? "
             		+ ",capacity =? "
+			+ ",totalPassengers = totalPassengers+? "
             		+ "WHERE number =?";
             PreparedStatement preparedStatement = con.prepareStatement(query);
             preparedStatement.setString(1, status);
             preparedStatement.setDouble(2, latitude);
             preparedStatement.setDouble(3, longitude);
             preparedStatement.setInt(4, capacity);
-            preparedStatement.setInt(5, shuttle_number);
+	    preparedStatement.setInt(5, newRiders);
+            preparedStatement.setInt(6, shuttle_number);
             preparedStatement.executeUpdate();
             closeConnection(con);
             return true;
