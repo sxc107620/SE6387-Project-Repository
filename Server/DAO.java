@@ -5,7 +5,7 @@ public class DAO
 {
 	public static void main(String[] args) {
 		DAO d = new DAO();
-		System.out.println(d.getShuttleCapacity(701));
+		System.out.println(d.getinterestedRiders("University Commons Route").get(0).getLatitude());
 	}
 	
 	public void closeConnection(Connection c) {
@@ -190,6 +190,36 @@ public class DAO
                 closeConnection(con);
                 return type;
             }
+        }
+        catch(SQLException e)
+        {
+        	e.printStackTrace();
+        }
+        closeConnection(con);
+        return null;
+	}
+	
+	public ArrayList<Interest> getinterestedRiders(String route_name) {
+		Connection con = DAOConnection.getConnection();
+        try
+        {
+        	ArrayList<Interest> interest = new ArrayList<Interest>();
+        	
+            String query = "SELECT id, interests.routeid, latitude, longitude FROM interests, routes WHERE interests.routeid = routes.routeid AND rname=?;";
+            PreparedStatement preparedStatement = con.prepareStatement(query);
+            preparedStatement.setString(1, route_name);
+            preparedStatement.executeQuery();
+            ResultSet rs = preparedStatement.getResultSet();
+            while (rs.next())
+            {
+                int id = rs.getInt("id");
+                int rid = rs.getInt("routeid");
+                double lat = rs.getDouble("latitude");
+                double longit = rs.getDouble("longitude");
+                interest.add(new Interest(id, rid, lat, longit));
+            }
+            closeConnection(con);
+            return interest;
         }
         catch(SQLException e)
         {
