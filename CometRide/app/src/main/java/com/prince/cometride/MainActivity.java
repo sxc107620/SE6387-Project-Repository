@@ -1,7 +1,7 @@
 package com.prince.cometride;
 
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.webkit.WebView;
@@ -17,8 +17,11 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
         myBrowser = (WebView)findViewById(R.id.mybrowser);
         myBrowser.getSettings().setJavaScriptEnabled(true);
+        myBrowser.setInitialScale(1);
+        myBrowser.getSettings().setLoadWithOverviewMode(true);
+        myBrowser.getSettings().setUseWideViewPort(true);
 
-        myBrowser.loadUrl("file:///android_asset/index.html");
+        myBrowser.loadUrl("http://104.154.93.11/CometRide/");
     }
 
 
