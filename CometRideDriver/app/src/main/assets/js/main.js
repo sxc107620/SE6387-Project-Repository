@@ -68,9 +68,18 @@ function initRoute(lines, curves, color) { //lines, curves, color
 	//map.setCenter(UTD);
 }
 
+var shuttleMarkers = '';
 function updateCab(lat, lng) {
 	center = new google.maps.LatLng(lat, lng);
 	map.setCenter(center);
+	if(shuttleMarkers != '') {
+		shuttleMarkers.setMap(null);
+	}
+	shuttleMarkers = new google.maps.Marker({
+		position: center,
+		icon: "img/car.png",
+		map: map
+	});
 }
 
 function drawMarker(id, latPts, lngPts) {
