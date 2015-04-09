@@ -5,7 +5,7 @@ public class DAO
 {
 	public static void main(String[] args) {
 		DAO d = new DAO();
-		System.out.println(d.getRoutes().get(0).getLines());
+		System.out.println(d.updatePassengerStatistics(501, 6));
 	}
 	
 	public void closeConnection(Connection c) {
@@ -167,7 +167,8 @@ public class DAO
             preparedStatement.setInt(6, shuttle_number);
             preparedStatement.executeUpdate();
             closeConnection(con);
-            return true;
+            
+            return updatePassengerStatistics(shuttle_number, newRiders);
         }
         catch(SQLException e)
         {
@@ -280,4 +281,36 @@ public class DAO
         closeConnection(con);
         return null;
     }
+	
+	public boolean updatePassengerStatistics(int shuttle_number, int newRiders) {
+		Connection con = DAOConnection.getConnection(); 
+        try
+        {
+            String query = "UPDATE statistics_passengers SET "
+            		+ "totalpassengers = totalpassengers + ? "
+            		+ "WHERE routeid = (SELECT routeid FROM shuttles WHERE shuttles.number =?) "
+            		+ "AND DATE_SUB(NOW(),INTERVAL 5 MINUTE) <= `timestamp`";
+            PreparedStatement preparedStatement = con.prepareStatement(query);
+            preparedStatement.setInt(1, newRiders);
+            preparedStatement.setInt(2, shuttle_number);
+            int num_updated = preparedStatement.executeUpdate();
+            
+            if (num_updated == 0) {
+            	query = "INSERT INTO statistics_passengers (routeid,`timestamp`,totalpassengers) VALUES ( "
+            			+ "(SELECT routeid FROM shuttles WHERE shuttles.number = ?),NOW(),?)";
+                preparedStatement = con.prepareStatement(query);
+                preparedStatement.setInt(1, shuttle_number);
+                preparedStatement.setInt(2, newRiders);
+                preparedStatement.executeUpdate();
+            }
+            closeConnection(con);
+            return true;
+        }
+        catch(SQLException e)
+        {
+        	e.printStackTrace();
+        }    
+        closeConnection(con);
+        return false;
+	}
 }
