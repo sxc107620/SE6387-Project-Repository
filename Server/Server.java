@@ -261,6 +261,7 @@ public class Server {
 				catch(Exception e) {
 					e.printStackTrace();
 				}
+				int newRiders = Integer.parseInt(line);
 				try {
 					line = in.readLine();
 				}
@@ -268,7 +269,6 @@ public class Server {
 					e.printStackTrace();
 				}
 				String username = line;
-				int newRiders = Integer.parseInt(line);
 				String statusLine = "off-duty";
 				if(Status) statusLine = "on-duty";
 				Database.setShuttleInfo(shuttle, statusLine, lat, lon, currentRiders, newRiders, username);
