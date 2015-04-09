@@ -141,7 +141,6 @@ public class Server {
 				try {
 					String username = in.readLine();
 					String password = in.readLine();
-					System.out.println("User: " + username + " Pass: " + password);
 					boolean result = Database.authenticate(username, password);
 					if(result) {
 						out.write("true\n");
@@ -175,11 +174,15 @@ public class Server {
 					 route = in.readLine();
 				} catch(Exception e) {
 					}
+				System.out.println(route);
 				for(Route rt : routeList) {
 					if(route.equals(rt.getRname())) {
 						out.write(rt.getLines() + "\n");
 						out.write(rt.getCurves() + "\n");
 						out.write(rt.getColor() + "\n");
+						System.out.println(rt.getLines());
+						System.out.println(rt.getCurves());
+						System.out.println(rt.getColor());
 					}
 				}
 				out.flush();
@@ -201,10 +204,12 @@ public class Server {
 				catch(Exception ex) {
 					ex.printStackTrace();
 				}
+				System.out.println(line);
 				int id = Integer.parseInt(line);
 				String capLine = Database.getShuttleCapacity(id);
-				out.write(capLine);
+				out.write(capLine + "\n");
 				out.flush();
+				System.out.println(capLine);
 			}
 			if(str.equalsIgnoreCase("update")) {
 				String line = "";
@@ -256,10 +261,17 @@ public class Server {
 				catch(Exception e) {
 					e.printStackTrace();
 				}
+				try {
+					line = in.readLine();
+				}
+				catch(Exception e) {
+					e.printStackTrace();
+				}
+				String username = line;
 				int newRiders = Integer.parseInt(line);
 				String statusLine = "off-duty";
 				if(Status) statusLine = "on-duty";
-				Database.setShuttleInfo(shuttle, statusLine, lat, lon, currentRiders, newRiders);
+				Database.setShuttleInfo(shuttle, statusLine, lat, lon, currentRiders, newRiders, username);
 			}
 			if(str.equalsIgnoreCase("get interested")) {
 				String route = "";
