@@ -18,8 +18,10 @@ function getQueryParams(qs) {
 var query = getQueryParams(document.location.search);
 shuttleType = query.type;
 
-height = $(window).height() - $('#map').position().top;
-$('#map').height(height);
+height = $(document).height() - $('#map').position().top;
+$('#map').height(height-140);
+
+marker = Array();
 
 
 var UTD = new google.maps.LatLng(32.98594891, -96.7509511);
@@ -63,6 +65,27 @@ function initRoute(lines, curves, color, lat, lng) {
 function updateCab(lat, lng) {
 	center = new google.maps.LatLng(lat, lng);
 	map.setCenter(center);
+}
+
+function drawMarker(id, latPts, lngPts) {
+	var ids = id.split(',');
+	var lat = latPts.split(',');
+	var lng = lngPts.split(',');
+	for(i=0; i<ids.length; i++) {
+		pt = new google.maps.LatLng(lat[i], lng[i]);
+		marker[ids[i]] = new google.maps.Marker({
+			position: pt,
+			map: map,
+			icon: "img/marker.png" //custom pin icon
+		});
+	}
+}
+
+function deleteMarker(id) {
+	var ids = id.split(',');
+	for(i=0; i<ids.length; i++) {
+		marker[ids[i]].setMap(null);
+	}
 }
 
 	// Instantiate a counter
