@@ -18,6 +18,53 @@ function getQueryParams(qs) {
 var query = getQueryParams(document.location.search);
 shuttleType = query.type;
 
+height = $(window).height() - $('#map').position().top;
+$('#map').height(height);
+
+
+var UTD = new google.maps.LatLng(32.98594891, -96.7509511);
+var mapOptions = {
+	zoom: 18,
+	center: UTD,
+	panControl: true, //enable pan Control
+	zoomControl: true, //enable zoom control
+	scaleControl: true, // enable scale control
+	mapTypeId: google.maps.MapTypeId.ROADMAP // google map type
+}
+
+map = new google.maps.Map(document.getElementById('map'), mapOptions);
+
+function initRoute(lines, curves, color, lat, lng) {
+	if (lines.length != 0) {
+		var linePath = new google.maps.Polyline({
+			path: google.maps.geometry.encoding.decodePath(lines),
+			geodesic: true,
+			strokeColor: color,
+			strokeOpacity: 1.0,
+			strokeWeight: 2,
+			map: map
+		});
+	}
+
+	if (curves.length != 0) {
+		var curvePath = new google.maps.Polyline({
+			path: google.maps.geometry.encoding.decodePath(curves),
+			geodesic: true,
+			strokeColor: color,
+			strokeOpacity: 1.0,
+			strokeWeight: 2,
+			map: map
+		});
+	}
+	center = new google.maps.LatLng(lat, lng);
+	map.setCenter(center);
+}
+
+function updateCab(lat, lng) {
+	center = new google.maps.LatLng(lat, lng);
+	map.setCenter(center);
+}
+
 	// Instantiate a counter
 	clock = new FlipClock($('.clock'), 00, {
 		clockFace: 'Counter'
