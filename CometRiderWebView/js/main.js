@@ -187,6 +187,7 @@ function drawRoute(src, des) {
 			repeat: '20px'
 		  }],
 	});
+	map.setCenter(src);
 	overlay.push(poly);
 	service.route({
 		origin: src,
