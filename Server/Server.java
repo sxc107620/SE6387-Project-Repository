@@ -126,15 +126,17 @@ public class Server {
 		boolean keepGoing = true;
 		str = "";
 		boolean loggedIn = false;
+		ArrayList<Route> routeList = new ArrayList<Route>();
 		while(keepGoing) {
-				// read a String (which is an object)
-				try {
-					str = in.readLine();
-				}
-				catch (IOException e) {
-						System.out.println("Exception reading Streams: " + e);
-						break;
-				}
+			// read a String (which is an object)
+			try {
+				str = in.readLine();
+			}
+			catch (IOException e) {
+					System.out.println("Exception reading Streams: " + e);
+					break;
+			}
+			System.out.println(str);
 			if(str.equalsIgnoreCase("login")) {
 				try {
 					String username = in.readLine();
@@ -159,11 +161,26 @@ public class Server {
 				keepGoing = false;	
 			}
 			if(str.equalsIgnoreCase("get routes")) {
-				ArrayList<String> routeList = Database.getRouteNameList();
+				routeList = Database.getRoutes();
 				int num = routeList.size();
 				out.write(num + "\n");
-				for(String str : routeList) {
-					out.write(str + "\n");
+				for(Route rt : routeList) {
+					out.write(rt.getRname() + "\n");
+				}
+				out.flush();
+			}
+			if(str.equalsIgnoreCase("route info")) {
+				String route = "";
+				try {
+					 route = in.readLine();
+				} catch(Exception e) {
+					}
+				for(Route rt : routeList) {
+					if(route.equals(rt.getRname())) {
+						out.write(rt.getLines() + "\n");
+						out.write(rt.getCurves() + "\n");
+						out.write(rt.getColor() + "\n");
+					}
 				}
 				out.flush();
 			}
@@ -271,6 +288,9 @@ public class Server {
 				}
 				int id = Integer.parseInt(line);
 				Database.removeInterestedRider(id);
+			}
+			if(str.equalsIgnoreCase("close")) {
+				keepGoing = false;
 			}
 		}
 		remove(id);
