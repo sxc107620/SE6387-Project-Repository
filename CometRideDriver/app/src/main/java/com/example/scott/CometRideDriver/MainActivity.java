@@ -17,6 +17,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -61,6 +62,17 @@ public class MainActivity extends Activity implements LocationListener {
         int capacity = updater.getShuttleCapacity();
         bluetoothUpdate(capacity + "");
         myBrowser.loadUrl("file:///android_asset/index.html?type=" + capacity);
+        myBrowser.setWebViewClient(new WebViewClient() {
+
+            public void onPageFinished(WebView view, String url) {
+                String lines = updater.getRouteLines();
+                String curves = updater.getRouteCurves();
+                String color = updater.getRouteColor();
+                bluetoothUpdate(color);
+                myBrowser.loadUrl("javascript:initRoute(\"" + lines + "\",\"" + curves + "\",\"" + color + "\"");
+            }
+        });
+        updater.setUpdateReady(true);
     }
 
     public void setCapacity(int num) {
@@ -92,6 +104,20 @@ public class MainActivity extends Activity implements LocationListener {
             blankScreen(false);
         }
     }
+
+    public void updateCab(double lat, double lon) {
+        myBrowser.loadUrl("javascript:updateCab(\""+lat+"\",\""+lon+"\")");
+    }
+
+    public void addInterested(String ids, String lats, String lons) {
+        myBrowser.loadUrl("javascript:drawMarker(\""+ids+"\",\""+lats+"\",\""+lons+"\")");
+    }
+
+    public void removeInterested(String ids) {
+        myBrowser.loadUrl("javascript:deleteMarker(\"" + ids + "\")");
+    }
+
+
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
@@ -223,11 +249,11 @@ public class MainActivity extends Activity implements LocationListener {
                 case KeyEvent.KEYCODE_VOLUME_UP:
                     //bluetoothUpdate("Volume Up pressed");
                     myBrowser.loadUrl("javascript:inc()");
-                    return true;
+                    //return true;
                 case KeyEvent.KEYCODE_VOLUME_DOWN:
                     //bluetoothUpdate("Volume Down pressed");
                     myBrowser.loadUrl("javascript:dec()");
-                    return true;
+                    //return true;
                 case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
                     //bluetoothUpdate("Play/Pause pressed");
                     myBrowser.loadUrl("javascript:res()");

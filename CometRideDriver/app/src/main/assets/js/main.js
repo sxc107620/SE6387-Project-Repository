@@ -36,7 +36,7 @@ var mapOptions = {
 
 map = new google.maps.Map(document.getElementById('map'), mapOptions);
 
-function initRoute(lines, curves, color, lat, lng) {
+function initRoute(lines, curves, color) {
 	if (lines.length != 0) {
 		var linePath = new google.maps.Polyline({
 			path: google.maps.geometry.encoding.decodePath(lines),
@@ -58,8 +58,7 @@ function initRoute(lines, curves, color, lat, lng) {
 			map: map
 		});
 	}
-	center = new google.maps.LatLng(lat, lng);
-	map.setCenter(center);
+	map.setCenter(UTD);
 }
 
 function updateCab(lat, lng) {

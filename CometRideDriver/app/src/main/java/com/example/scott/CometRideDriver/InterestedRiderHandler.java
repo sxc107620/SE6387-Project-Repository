@@ -38,6 +38,32 @@ public class InterestedRiderHandler {
     public void handle() {
         populateInterestedList();
         removeEntries();
+        updateInterestedOnMap();
+        clearOldOnMap();
+    }
+
+    private void clearOldOnMap() {
+        String removeIDs = "";
+        for(InterestedRider i : clearedEntries) {
+            removeIDs += i.id + ",";
+        }
+        removeIDs.substring(0,removeIDs.length());
+        main.removeInterested(removeIDs);
+    }
+
+    private void updateInterestedOnMap() {
+        String interestedIDs = "";
+        String interestedLats = "";
+        String interestedLons = "";
+        for(InterestedRider i : interestedList) {
+            interestedIDs += i.id + ",";
+            interestedLats += i.latitude + ",";
+            interestedLons += i.longitude + ",";
+        }
+        interestedIDs = interestedIDs.substring(0,interestedIDs.length());
+        interestedLats = interestedLats.substring(0,interestedLats.length());
+        interestedLons = interestedLons.substring(0,interestedLons.length());
+        main.addInterested(interestedIDs,interestedLats,interestedLons);
     }
 
     private void populateInterestedList() {
@@ -96,7 +122,7 @@ public class InterestedRiderHandler {
     public class InterestedRider {
         public double latitude;
         public double longitude;
-        private int id;
+        public int id;
 
         public InterestedRider(int id, double lat, double lon) {
             this.id = id;

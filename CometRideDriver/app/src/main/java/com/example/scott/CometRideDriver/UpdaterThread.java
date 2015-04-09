@@ -43,11 +43,16 @@ public class UpdaterThread extends Thread {
     private ShuttleActivity shuttle;
     private InterestedRiderHandler interestedRiders;
 
+    private String routeLines = "";
+    private String routeCurves = "";
+    private String routeColor = "";
+
     private String username;
     private String password;
     private Integer ourShuttle;
     private int shuttleCapacity = 7;
     private boolean getCapacity = false;
+    private boolean getRouteInfo = false;
 
     public Socket getSocket() { return serverConn; }
 
@@ -84,6 +89,7 @@ public class UpdaterThread extends Thread {
     public void setRoute(String name) {
         route.routeSet();
         this.routeName = name;
+        getRouteInfo = true;
     }
 
     public int getShuttleCapacity() { return shuttleCapacity; }
@@ -122,6 +128,10 @@ public class UpdaterThread extends Thread {
                 route.selectRoute(routeList);
                 selectRoutes = false;
             }
+            if(getRouteInfo) {
+                requestRouteInfo();
+                getRouteInfo = false;
+            }
             if(selectShuttle) {
                 ArrayList<Integer> shuttleList = getShuttleList();
                 shuttle.selectShuttle(shuttleList);
@@ -137,6 +147,7 @@ public class UpdaterThread extends Thread {
                 Location currentLoc = main.getLocation();
                 boolean status = main.getStatus();
                 sendInfoToServer(numRiders, newRiders, currentLoc, status);
+                main.updateCab(currentLoc.getLatitude(), currentLoc.getLongitude());
                 interestedRiders.handle();
             }
             try {
@@ -145,6 +156,18 @@ public class UpdaterThread extends Thread {
                 return;
             }
         }
+    }
+
+    private void requestRouteInfo() {
+        toServer.write("route info\n");
+        toServer.write(routeName + "\n");
+        toServer.flush();
+        try {
+            routeLines = fromServer.readLine();
+            routeCurves = fromServer.readLine();
+            routeColor = fromServer.readLine();
+        }
+        catch (Exception e) {}
     }
 
     private void getCapacity(Integer ourShuttle) {
@@ -255,6 +278,7 @@ public class UpdaterThread extends Thread {
     public void kill() {
         running = false;
         try {
+            toServer.write("close\n");
             serverConn.close();
             toServer.close();
             fromServer.close();
@@ -291,5 +315,17 @@ public class UpdaterThread extends Thread {
     public void setShuttle(Integer shut) {
         ourShuttle = shut;
         shuttle.shuttleSet();
+    }
+
+    public String getRouteLines() {
+        return null;
+    }
+
+    public String getRouteCurves() {
+        return null;
+    }
+
+    public String getRouteColor() {
+        return null;
     }
 }
