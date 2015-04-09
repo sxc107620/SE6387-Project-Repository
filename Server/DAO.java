@@ -147,7 +147,7 @@ public class DAO
         return null;
     }
 	
-	public boolean setShuttleInfo(int shuttle_number, String status, double latitude, double longitude, int capacity, int newRiders) {
+	public boolean setShuttleInfo(int shuttle_number, String status, double latitude, double longitude, int capacity, int newRiders, String user_name) {
 		Connection con = DAOConnection.getConnection(); 
         try
         {
@@ -282,7 +282,7 @@ public class DAO
         return null;
     }
 	
-	public boolean updatePassengerStatistics(int shuttle_number, int newRiders) {
+	private boolean updatePassengerStatistics(int shuttle_number, int newRiders) {
 		Connection con = DAOConnection.getConnection(); 
         try
         {
