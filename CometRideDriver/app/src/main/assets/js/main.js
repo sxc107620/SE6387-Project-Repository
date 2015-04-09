@@ -36,7 +36,8 @@ var mapOptions = {
 
 map = new google.maps.Map(document.getElementById('map'), mapOptions);
 
-function initRoute(lines, curves, color) {
+function initRoute(lines, curves, color) { //lines, curves, color
+	//inc();
 	if (lines.length != 0) {
 		var linePath = new google.maps.Polyline({
 			path: google.maps.geometry.encoding.decodePath(lines),

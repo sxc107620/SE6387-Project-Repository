@@ -62,13 +62,17 @@ public class MainActivity extends Activity implements LocationListener {
         int capacity = updater.getShuttleCapacity();
         myBrowser.loadUrl("file:///android_asset/index.html?type=" + capacity);
         myBrowser.setWebViewClient(new WebViewClient() {
-
             public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
                 String lines = updater.getRouteLines();
+                lines = lines.replace("\\", "\\\\");
                 String curves = updater.getRouteCurves();
+                curves = curves.replace("\\", "\\\\");
                 String color = updater.getRouteColor();
                 //bluetoothUpdate(curves);
-                view.loadUrl("javascript:initRoute(\"" + lines + "\",\"" + curves + "\",\"" + color + "\"");
+                String args = "\"" + lines + "\"" + "," + "\"" + curves + "\"" + "," + "\"" + color + "\"";
+                view.loadUrl("javascript:initRoute(" + args + ")");
+                bluetoothUpdate("After Javascript Call: " + args);
             }
         });
     }
