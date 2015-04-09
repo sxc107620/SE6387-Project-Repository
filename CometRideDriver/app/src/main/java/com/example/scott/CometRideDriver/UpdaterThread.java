@@ -35,6 +35,8 @@ public class UpdaterThread extends Thread {
     private boolean updateReady = false;
     private boolean selectRoutes = false;
     private boolean selectShuttle = false;
+    private boolean getCapacity = false;
+    private boolean getRouteInfo = false;
     private boolean running = true;
 
     private LoginActivity login;
@@ -50,9 +52,7 @@ public class UpdaterThread extends Thread {
     private String username;
     private String password;
     private Integer ourShuttle;
-    private int shuttleCapacity = 7;
-    private boolean getCapacity = false;
-    private boolean getRouteInfo = false;
+    private int shuttleCapacity;
 
     public Socket getSocket() { return serverConn; }
 
@@ -104,6 +104,7 @@ public class UpdaterThread extends Thread {
     }
 
     public void run() {
+        running = true;
         try {
             serverConn = new Socket(Host, port);
             serverConn.setKeepAlive(true);
@@ -139,6 +140,7 @@ public class UpdaterThread extends Thread {
             }
             if(getCapacity) {
                 getCapacity(ourShuttle);
+                shuttle.shuttleSet();
                 getCapacity = false;
             }
             if(updateReady) {
@@ -173,7 +175,7 @@ public class UpdaterThread extends Thread {
     private void getCapacity(Integer ourShuttle) {
         int capacity;
         toServer.write("Capacity\n");
-        toServer.write(ourShuttle.toString() + "\n");
+        toServer.write(ourShuttle + "\n");
         toServer.flush();
         String Line = null;
         try {
@@ -184,6 +186,7 @@ public class UpdaterThread extends Thread {
         char num = Line.charAt(0);
         capacity = Character.getNumericValue(num);
         shuttleCapacity = capacity;
+        shuttle.bluetoothUpdate(shuttleCapacity + "");
     }
 
     private ArrayList<Integer> getShuttleList() {
@@ -314,18 +317,17 @@ public class UpdaterThread extends Thread {
 
     public void setShuttle(Integer shut) {
         ourShuttle = shut;
-        shuttle.shuttleSet();
     }
 
     public String getRouteLines() {
-        return null;
+        return routeLines;
     }
 
     public String getRouteCurves() {
-        return null;
+        return routeCurves;
     }
 
     public String getRouteColor() {
-        return null;
+        return routeColor;
     }
 }

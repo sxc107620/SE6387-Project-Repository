@@ -20,7 +20,7 @@ public class RouteActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_route);
         updater = LoginActivity.updater;
-        updater.setRouteActivity(RouteActivity.this);
+        updater.setRouteActivity(this);
         updater.setSelectRoutes();
     }
 

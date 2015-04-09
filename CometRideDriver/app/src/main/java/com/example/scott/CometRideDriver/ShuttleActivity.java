@@ -7,6 +7,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.example.scott.CometRideDriver.R;
 
@@ -22,6 +23,14 @@ public class ShuttleActivity extends ActionBarActivity {
         updater = LoginActivity.updater;
         updater.setShuttleActivity(ShuttleActivity.this);
         updater.setSelectShuttle();
+    }
+
+    public void bluetoothUpdate(final String text) {
+        this.runOnUiThread(new Runnable() {
+            public void run() {
+                Toast.makeText(getApplicationContext(), text, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     protected void onStart() {

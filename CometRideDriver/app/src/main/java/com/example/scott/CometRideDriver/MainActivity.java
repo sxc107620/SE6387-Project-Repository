@@ -60,7 +60,6 @@ public class MainActivity extends Activity implements LocationListener {
         myBrowser.getSettings().setJavaScriptEnabled(true);
 
         int capacity = updater.getShuttleCapacity();
-        bluetoothUpdate(capacity + "");
         myBrowser.loadUrl("file:///android_asset/index.html?type=" + capacity);
         myBrowser.setWebViewClient(new WebViewClient() {
 
@@ -68,11 +67,10 @@ public class MainActivity extends Activity implements LocationListener {
                 String lines = updater.getRouteLines();
                 String curves = updater.getRouteCurves();
                 String color = updater.getRouteColor();
-                bluetoothUpdate(color);
-                myBrowser.loadUrl("javascript:initRoute(\"" + lines + "\",\"" + curves + "\",\"" + color + "\"");
+                //bluetoothUpdate(curves);
+                view.loadUrl("javascript:initRoute(\"" + lines + "\",\"" + curves + "\",\"" + color + "\"");
             }
         });
-        updater.setUpdateReady(true);
     }
 
     public void setCapacity(int num) {
@@ -105,16 +103,28 @@ public class MainActivity extends Activity implements LocationListener {
         }
     }
 
-    public void updateCab(double lat, double lon) {
-        myBrowser.loadUrl("javascript:updateCab(\""+lat+"\",\""+lon+"\")");
+    public void updateCab(final double lat, final double lon) {
+        this.runOnUiThread(new Runnable() {
+            public void run() {
+                myBrowser.loadUrl("javascript:updateCab(\"" + lat + "\",\"" + lon + "\")");
+            }
+        });
     }
 
-    public void addInterested(String ids, String lats, String lons) {
-        myBrowser.loadUrl("javascript:drawMarker(\""+ids+"\",\""+lats+"\",\""+lons+"\")");
+    public void addInterested(final String ids, final String lats, final String lons) {
+        this.runOnUiThread(new Runnable() {
+            public void run() {
+                myBrowser.loadUrl("javascript:drawMarker(\"" + ids + "\",\"" + lats + "\",\"" + lons + "\")");
+            }
+        });
     }
 
-    public void removeInterested(String ids) {
-        myBrowser.loadUrl("javascript:deleteMarker(\"" + ids + "\")");
+    public void removeInterested(final String ids) {
+        this.runOnUiThread(new Runnable() {
+            public void run() {
+                myBrowser.loadUrl("javascript:deleteMarker(\"" + ids + "\")");
+            }
+        });
     }
 
 
@@ -249,20 +259,20 @@ public class MainActivity extends Activity implements LocationListener {
                 case KeyEvent.KEYCODE_VOLUME_UP:
                     //bluetoothUpdate("Volume Up pressed");
                     myBrowser.loadUrl("javascript:inc()");
-                    //return true;
+                    return true;
                 case KeyEvent.KEYCODE_VOLUME_DOWN:
                     //bluetoothUpdate("Volume Down pressed");
                     myBrowser.loadUrl("javascript:dec()");
-                    //return true;
+                    return true;
                 case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
                     //bluetoothUpdate("Play/Pause pressed");
                     myBrowser.loadUrl("javascript:res()");
                     return true;
                 case KeyEvent.KEYCODE_MEDIA_NEXT:
-                    bluetoothUpdate("Media Next pressed");
+                    //bluetoothUpdate("Media Next pressed");
                     return true;
                 case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
-                    bluetoothUpdate("Media Previous pressed");
+                    //bluetoothUpdate("Media Previous pressed");
                     return true;
                 default:
                     return super.dispatchKeyEvent(event);
@@ -296,10 +306,16 @@ public class MainActivity extends Activity implements LocationListener {
     protected void onPause() {
         super.onPause();
         locMgr.removeUpdates(this);
+        if (this.isFinishing()){
+            updater.kill();
+        }
     }
 
     protected void onResume() {
         super.onResume();
+        if(!updater.isAlive()) {
+            updater.start();
+        }
         locMgr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 0, this);
     }
 
