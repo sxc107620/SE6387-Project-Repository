@@ -5,7 +5,7 @@ public class DAO
 {
 	public static void main(String[] args) {
 		DAO d = new DAO();
-		System.out.println(d.removeInterestedRider(1));
+		System.out.println(d.getRoutes().get(0).getLines());
 	}
 	
 	public void closeConnection(Connection c) {
@@ -249,4 +249,35 @@ public class DAO
         closeConnection(con);
         return false;
 	}
+	
+	public ArrayList<Route> getRoutes()
+    {
+        Connection con = DAOConnection.getConnection();
+        try
+        {
+        	ArrayList<Route> routes = new ArrayList<Route>();
+        	
+            String query = "SELECT rname, color, savepoints, `lines`, curves FROM routes;";
+            PreparedStatement preparedStatement = con.prepareStatement(query);
+            preparedStatement.executeQuery();
+            ResultSet rs = preparedStatement.getResultSet();
+            while (rs.next())
+            {
+                String name = rs.getString("rname");
+                String color = rs.getString("color");
+                String savepoints = rs.getString("savepoints");
+                String lines = rs.getString("lines");
+                String curves = rs.getString("curves");
+                routes.add(new Route(name, color, savepoints, lines, curves));
+            }
+            closeConnection(con);
+            return routes;
+        }
+        catch(SQLException e)
+        {
+        	e.printStackTrace();
+        }
+        closeConnection(con);
+        return null;
+    }
 }
