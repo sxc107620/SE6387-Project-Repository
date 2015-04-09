@@ -72,7 +72,6 @@ public class MainActivity extends Activity implements LocationListener {
                 //bluetoothUpdate(curves);
                 String args = "\"" + lines + "\"" + "," + "\"" + curves + "\"" + "," + "\"" + color + "\"";
                 view.loadUrl("javascript:initRoute(" + args + ")");
-                bluetoothUpdate("After Javascript Call: " + args);
             }
         });
     }

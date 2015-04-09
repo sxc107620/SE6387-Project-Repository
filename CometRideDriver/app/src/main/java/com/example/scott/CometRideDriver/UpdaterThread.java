@@ -186,7 +186,6 @@ public class UpdaterThread extends Thread {
         char num = Line.charAt(0);
         capacity = Character.getNumericValue(num);
         shuttleCapacity = capacity;
-        shuttle.bluetoothUpdate(shuttleCapacity + "");
     }
 
     private ArrayList<Integer> getShuttleList() {
@@ -251,6 +250,7 @@ public class UpdaterThread extends Thread {
         toServer.write(routeName + "\n");
         toServer.write(currentRiders + "\n");
         toServer.write(newRiders + "\n");
+        toServer.write(username + "\n");
         toServer.flush();
         main.resetNewRiders();
         if(!status) {
