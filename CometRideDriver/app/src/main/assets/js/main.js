@@ -57,8 +57,14 @@ function initRoute(lines, curves, color) {
 			strokeWeight: 2,
 			map: map
 		});
+		var bounds = new google.maps.LatLngBounds();
+		var points = curvePath.getPath().getArray();
+		for (var n = 0; n < points.length ; n++){
+			bounds.extend(points[n]);
+		}
+		map.fitBounds(bounds);
 	}
-	map.setCenter(UTD);
+	//map.setCenter(UTD);
 }
 
 function updateCab(lat, lng) {
