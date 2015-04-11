@@ -96,13 +96,25 @@ public class MainActivity extends Activity implements LocationListener {
             updater.setUpdateReady(true);
             return;
         }
-        if((Math.abs(lastLoc.distanceTo(location)) > 1)) { //Moved at least 1 meter in the last two seconds - In motion
-            lastLoc = location;
-            blankScreen(true);
+        bluetoothUpdate(location.hasSpeed() + " " + location.getSpeed());
+        if(location.hasSpeed()) {
+            if(location.getSpeed() > 3.0) {
+                lastLoc = location;
+                blankScreen(true);
+            }
+            else {
+                lastLoc = location;
+                blankScreen(false);
+            }
         }
         else {
-            lastLoc = location;
-            blankScreen(false);
+            if ((Math.abs(lastLoc.distanceTo(location)) > 2)) { //Moved at least 2 meters in the last two seconds - In motion
+                lastLoc = location;
+                blankScreen(true);
+            } else {
+                lastLoc = location;
+                blankScreen(false);
+            }
         }
     }
 

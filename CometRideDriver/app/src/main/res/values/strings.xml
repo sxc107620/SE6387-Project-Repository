@@ -7,4 +7,5 @@
     <string name="select_route_button_label">Select Route</string>
     <string name="title_activity_route">Select Route</string>
     <string name="title_activity_shuttle">Select Shuttle</string>
+    <string name="select_shuttle_button_label">Select Shuttle</string>
 </resources>
