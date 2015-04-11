@@ -94,7 +94,8 @@ function plotter(lines, curves, savepoints, color) {
 			map: map
 		});
 		overlay.push(linePath);
-		groupPoints.push(linePath.getPath().getArray());
+		//groupPoints.push(linePath.getPath().getArray());
+		groupPoints = linePath.getPath().getArray();
 	}
 	if (curves.length != 0) {
 		var curvePath = new google.maps.Polyline({
@@ -106,14 +107,19 @@ function plotter(lines, curves, savepoints, color) {
 			map: map
 		});
 		overlay.push(curvePath);
-		groupPoints.push(curvePath.getPath().getArray());
-		var bounds = new google.maps.LatLngBounds();
-		var points = curvePath.getPath().getArray();
-		for (var n = 0; n < points.length ; n++){
-			bounds.extend(points[n]);
+		//groupPoints.push(curvePath.getPath().getArray());
+		if(groupPoints.length == 0) groupPoints = curvePath.getPath().getArray();
+		else {
+			$.each(curvePath.getPath().getArray(), function( index, value ) {
+				groupPoints.push(value);
+			});
 		}
-		map.fitBounds(bounds);
 	}
+	var bounds = new google.maps.LatLngBounds();
+	for (var n = 0; n < groupPoints.length ; n++){
+		bounds.extend(groupPoints[n]);
+	}
+	map.fitBounds(bounds);
 }
 
 var shuttleMarkers = [];
@@ -220,7 +226,7 @@ function bookCab(id, lat, lng) {
 $('.interest').click(function() {
 	navigator.geolocation.getCurrentPosition(function(position) {
 		currentPos = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-		closestPt = closest(currentPos, groupPoints.j[0]);
+		closestPt = closest(currentPos, groupPoints);
 		console.log();
 		if(closestPt[1] > 300)
 			drawRoute(currentPos, closestPt[0]);
