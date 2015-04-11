@@ -48,13 +48,13 @@ public class ShuttleActivity extends ActionBarActivity {
             public void run() {
                 String Route;
                 final AlertDialog.Builder selector = new AlertDialog.Builder(ShuttleActivity.this);
-                selector.setTitle("Select your Shuttle");
+                selector.setTitle(R.string.select_shuttle);
                 ArrayList<String> shuttleStrings = new ArrayList<String>();
                 for(Integer s : shuttleList) {
                     shuttleStrings.add(s.toString());
                 }
                 selector.setSingleChoiceItems(shuttleStrings.toArray(new String[shuttleStrings.size()]), 0, null);
-                selector.setPositiveButton(R.string.select_shuttle_button_label, new DialogInterface.OnClickListener()
+                selector.setPositiveButton(R.string.select_shuttle, new DialogInterface.OnClickListener()
                         {
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 dialog.dismiss();

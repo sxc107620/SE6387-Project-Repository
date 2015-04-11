@@ -79,7 +79,7 @@ public class LoginActivity extends ActionBarActivity implements View.OnClickList
         else {
             this.runOnUiThread(new Runnable() {
                 public void run() {
-                    Toast.makeText(LoginActivity.this,"Invalid credentials", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this,R.string.login_failed, Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -92,7 +92,7 @@ public class LoginActivity extends ActionBarActivity implements View.OnClickList
             final Dialog login = new Dialog(this);
             // Set GUI of login screen
             login.setContentView(R.layout.login_dialog);
-            login.setTitle("Login to CometRide");
+            login.setTitle(R.string.login_string);
 
             // Init button of login GUI
             Button btnLogin = (Button) login.findViewById(R.id.btnLogin);
@@ -114,7 +114,7 @@ public class LoginActivity extends ActionBarActivity implements View.OnClickList
                         login.dismiss();
                     }
                     else {
-                        Toast.makeText(LoginActivity.this,"Please enter Username and Password", Toast.LENGTH_LONG).show();
+                        Toast.makeText(LoginActivity.this,R.string.no_credentials, Toast.LENGTH_LONG).show();
                     }
                 }
             });

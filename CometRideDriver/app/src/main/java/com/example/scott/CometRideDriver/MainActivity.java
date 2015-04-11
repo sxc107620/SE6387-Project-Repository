@@ -96,7 +96,6 @@ public class MainActivity extends Activity implements LocationListener {
             updater.setUpdateReady(true);
             return;
         }
-        bluetoothUpdate(location.hasSpeed() + " " + location.getSpeed());
         if(location.hasSpeed()) {
             if(location.getSpeed() > 3.0) {
                 lastLoc = location;
@@ -157,14 +156,14 @@ public class MainActivity extends Activity implements LocationListener {
     @Override
     public void onProviderDisabled(String provider) {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("Your GPS seems to be disabled. Press Yes to enable it (GPS required for core functionality)")
+        builder.setMessage(R.string.gps_disabled)
                 .setCancelable(false)
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
                         startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
                     }
                 })
-                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
                     public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
                         dialog.cancel();
                     }
@@ -177,14 +176,14 @@ public class MainActivity extends Activity implements LocationListener {
         locMgr = (LocationManager) getSystemService( Context.LOCATION_SERVICE );
         if ( !locMgr.isProviderEnabled( LocationManager.GPS_PROVIDER ) ) {
             final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setMessage("Your GPS seems to be disabled. Press Yes to enable it (GPS required for core functionality)")
+            builder.setMessage(R.string.gps_disabled)
                     .setCancelable(false)
-                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                         public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
                             startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
                         }
                     })
-                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
                         public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
                             dialog.cancel();
                         }

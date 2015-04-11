@@ -39,9 +39,9 @@ public class RouteActivity extends ActionBarActivity {
             public void run() {
                 String Route;
                 final AlertDialog.Builder selector = new AlertDialog.Builder(RouteActivity.this);
-                selector.setTitle("Select your Route");
+                selector.setTitle(R.string.select_route);
                 selector.setSingleChoiceItems(routeList.toArray(new String[routeList.size()]), 0, null);
-                selector.setPositiveButton(R.string.select_route_button_label, new DialogInterface.OnClickListener()
+                selector.setPositiveButton(R.string.select_route, new DialogInterface.OnClickListener()
                         {
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 dialog.dismiss();
