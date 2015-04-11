@@ -693,7 +693,12 @@ Date Time Widget
 		$(e.currentTarget).find('.modal-title').html(name+"'s Details"+"<span id='dtype' data-type='"+type+"' data-email='"+email+"' data-name='"+name+"'></span>");
 		$(e.currentTarget).find('.modal-body').html("<table class='tile table table-bordered table-striped'><tbody><tr><td>User Name</td><td>"+name+"</td></tr><tr><td>Email</td><td>"+email+"</td></tr><tr><td>Status</td><td>"+type+"</td></tr><tr><td>Join Date</td><td>"+date+"</td></tr></tbody></table>");
 		if(type == "admin")
-			$(e.currentTarget).find('.modal-footer').html("<button type='button' class='btn btn-sm' data-dismiss='modal'>Close</button>");
+		{
+			if($('#cAdmin').data('type') == 'superadmin') {
+				$(e.currentTarget).find('.modal-footer').html("<input type='submit' class='btn btn-sm' id='deleteUser' value='Delete' /> <button type='button' class='btn btn-sm' data-dismiss='modal'>Close</button>");
+			}
+				else $(e.currentTarget).find('.modal-footer').html("<button type='button' class='btn btn-sm' data-dismiss='modal'>Close</button>");
+		}
 		else
 			$(e.currentTarget).find('.modal-footer').html("<input type='submit' class='btn btn-sm' id='deleteUser' value='Delete' /> <button type='button' class='btn btn-sm' data-dismiss='modal'>Close</button>");
 		} else {
@@ -709,7 +714,9 @@ Date Time Widget
 		var num = $(e.relatedTarget).data('name');
 		if(type == "admin" || type == "driver") {
 		$(e.currentTarget).find('.modal-title').html("Create new "+type+"<span id='ctype' data-type='"+type+"'></span>");
-		$(e.currentTarget).find('.modal-body').html("<form role='form'><table class='tile table table-bordered table-striped'><tbody><tr><td>User Name</td><td><input class='input-sm form-control' id='newName' type='text' autocomplete='off' maxlength='20'></td></tr><tr><td>Email</td><td><input class='input-sm form-control' id='newMail' type='text' ></td></tr><tr><td>Password</td><td><input type='password' id='newPass' class='input-sm form-control' name='password' id='password' ></td></tr><tr><td>Confirm Password</td><td><input type='password' id='newCPass' class='input-sm form-control' ></td></tr></tbody></table>");
+		//scheduler = "<tr><td>Schedule</td><td><select class='form-control'><option selected='' disabled='' hidden='' value=''>Monday</option><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Thursday</option><option>Friday</option></select>";
+		//scheduler = scheduler + "<input class='startTime input-sm form-control' placeholder='Start Time' value='' data-default=''><input class='endTime input-sm form-control' placeholder='End Time' value='' data-default=''></td></tr>";
+		$(e.currentTarget).find('.modal-body').html("<form role='form'><table class='tile table table-bordered table-striped'><tbody><tr><td>User Name</td><td><input class='input-sm form-control' id='newName' type='text' autocomplete='off' maxlength='20'></td></tr><tr><td>Email</td><td><input class='input-sm form-control' id='newMail' type='text' ></td></tr><tr><td>Password</td><td><input type='password' id='newPass' class='input-sm form-control' name='password' id='password' ></td></tr><tr><td>Confirm Password</td><td><input type='password' id='newCPass' class='input-sm form-control' ></td></tr>"+scheduler+"</tbody></table>");
 		$(e.currentTarget).find('.modal-footer').html("<input type='submit' class='btn btn-sm' id='createNew' value='Save' /> <button type='button' class='btn btn-sm' data-dismiss='modal'>Close</button></form>");
 		} else {
 		$(e.currentTarget).find('.modal-title').html("Create new shuttle entry");
@@ -717,6 +724,15 @@ Date Time Widget
 		$(e.currentTarget).find('.modal-footer').html("<input type='submit' class='btn btn-sm' id='createNewShuttle' value='Save' /> <button type='button' class='btn btn-sm' data-dismiss='modal'>Close</button></form>");	
 		}
 	});
+	
+	//Clock
+	/*$(document.body).on('focus',".startTime", function(){
+		$(this).clockpicker();
+	});
+	
+	$(document.body).on('focus',".endTime", function(){
+		$(this).clockpicker();
+	});*/
 	
 	$(document).on( "click", "#createNewShuttle", function() {
 		errorList = '';
@@ -895,10 +911,11 @@ Date Time Widget
 					position: points[j],
 					map: map[i],
 					animation: google.maps.Animation.DROP, //bounce animation
-					icon: "img/map/pin_green.png" //custom pin icon
+					icon: "img/map/marker.png" //custom pin icon
 				});
 			}
 		}
+		groupPoints = [];
 		if (lines.length != 0) {
 			var linePath = new google.maps.Polyline({
 				path: google.maps.geometry.encoding.decodePath(lines),
@@ -908,6 +925,7 @@ Date Time Widget
 				strokeWeight: 2,
 				map: map[i]
 			});
+			groupPoints = linePath.getPath().getArray();
 		}
 		if (curves.length != 0) {
 			var curvePath = new google.maps.Polyline({
@@ -918,13 +936,18 @@ Date Time Widget
 				strokeWeight: 2,
 				map: map[i]
 			});
-			var bounds = new google.maps.LatLngBounds();
-			var points = curvePath.getPath().getArray();
-			for (var n = 0; n < points.length ; n++){
-				bounds.extend(points[n]);
+			if(groupPoints.length == 0) groupPoints = curvePath.getPath().getArray();
+			else {
+				$.each(curvePath.getPath().getArray(), function( index, value ) {
+					groupPoints.push(value);
+				});
 			}
-			map[i].fitBounds(bounds);
 		}
+		var bounds = new google.maps.LatLngBounds();
+		for (var n = 0; n < groupPoints.length ; n++){
+			bounds.extend(groupPoints[n]);
+		}
+		map[i].fitBounds(bounds);
 	  }
 	}
 
@@ -998,6 +1021,17 @@ Date Time Widget
 	});
 	
 	$("#eraser").click(function(e) {
+		
+	});
+	
+	$("#undo").click(function(e) {
+		if(undo.length != 0) {
+			redo.push(undo.pop());
+			console.log("Undo");
+			console.log(redo);
+			console.log(undo);
+		}
+		/*
 		if (typeof encodeStringCurve != 'undefined') {
 			var curvePath = new google.maps.Polyline({
 				path: google.maps.geometry.encoding.decodePath(encodeStringCurve),
@@ -1020,21 +1054,16 @@ Date Time Widget
 			});
 			console.log(encodeStringLine);
 		}
-	});
-	
-	$("#undo").click(function(e) {
-		if(undo.length != 0) {
-			linePath = undo.pop();
-			redo.push(linePath);
-			linePath.setMap(null);
-		}
+		*/
+		
 	});
 	
 	$("#redo").click(function(e) {
 		if(redo.length != 0) {
-			linePath = redo.pop();
-			undo.push(linePath);
-			linePath.setMap(editMap);
+			undo.push(redo.pop());
+			console.log("Redo");
+			console.log(redo);
+			console.log(undo);
 		}
 	});
 	
@@ -1053,6 +1082,7 @@ Date Time Widget
 	function addSavePoints(event) {
 		ponits.push(event.latLng);
         encodeStringPoints = google.maps.geometry.encoding.encodePath(ponits);
+		undo.push("Points");
 		var marker = new google.maps.Marker({
 			position: event.latLng, //map Coordinates where user right clicked
 			map: editMap,
@@ -1074,20 +1104,23 @@ Date Time Widget
 			for (var i = 0, I = markers.length; i < I && markers[i] != marker; ++i);
 			ponits.setAt(i, marker.getPosition());
 			encodeStringPoints = google.maps.geometry.encoding.encodePath(ponits);
+			undo.push("Points");
         });
 	}
 	
+	var linesArray = new google.maps.MVCArray;
 	function drawLine(event) {
-	var path = poly.getPath();
-	path.push(event.latLng);
-	encodeStringLine = google.maps.geometry.encoding.encodePath(path);
+		linesArray = poly.getPath();
+		linesArray.push(event.latLng);
+		encodeStringLine = google.maps.geometry.encoding.encodePath(linesArray);
+		undo.push("Line");
 	}
 	
+	var curvesArray = new google.maps.MVCArray;
 	function drawCurve(from, to) {
 		selectedColor = $("#selected-color").val();
 		from = from.split(',');
 		to = to.split(',');
-		var path = new google.maps.MVCArray();
 		var service = new google.maps.DirectionsService();
 		var poly = new google.maps.Polyline({
 			map: editMap,
@@ -1105,11 +1138,12 @@ Date Time Widget
 		}, function (result, status) {
 			if (status == google.maps.DirectionsStatus.OK) {
 				for (var i = 0, len = result.routes[0].overview_path.length; i < len; i++) {
-					path.push(result.routes[0].overview_path[i]);
+					curvesArray.push(result.routes[0].overview_path[i]);
 					loadCurve.push(result.routes[0].overview_path[i]);
 				}
 				encodeStringCurve = google.maps.geometry.encoding.encodePath(loadCurve);
-				poly.setPath(path);
+				poly.setPath(curvesArray);
+				undo.push("Curve");
 			}
 			
 		});
