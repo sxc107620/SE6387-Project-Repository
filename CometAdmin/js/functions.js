@@ -726,13 +726,13 @@ Date Time Widget
 	});
 	
 	//Clock
-	/*$(document.body).on('focus',".startTime", function(){
+	$(document.body).on('focus',".startTime", function(){
 		$(this).clockpicker();
 	});
 	
 	$(document.body).on('focus',".endTime", function(){
 		$(this).clockpicker();
-	});*/
+	});
 	
 	$(document).on( "click", "#createNewShuttle", function() {
 		errorList = '';
@@ -994,6 +994,7 @@ Date Time Widget
 
 		
 	$("#line").click(function(e) {
+		tempLineHolder = [];
 		selectedColor = $("#selected-color").val();
 		google.maps.event.clearListeners(editMap, 'click');
 		editMap.setOptions({ draggableCursor: 'crosshair' });
@@ -1009,6 +1010,7 @@ Date Time Widget
 	});
 	
 	$("#curve").click(function(e) {
+		tempLineHolder = [];
 		google.maps.event.clearListeners(editMap, 'click');
 		editMap.setOptions({ draggableCursor: 'crosshair' });
 		list = new Array();
@@ -1024,50 +1026,51 @@ Date Time Widget
 		
 	});
 	
+	//temp code
+	//$('#modalCreateRoute').modal('show');
+
+	var tempLineHolder = [];
+	var mapLength;
 	$("#undo").click(function(e) {
 		if(undo.length != 0) {
-			redo.push(undo.pop());
-			console.log("Undo");
-			console.log(redo);
-			console.log(undo);
-		}
-		/*
-		if (typeof encodeStringCurve != 'undefined') {
-			var curvePath = new google.maps.Polyline({
-				path: google.maps.geometry.encoding.decodePath(encodeStringCurve),
-				geodesic: true,
-				strokeColor: selectedColor,
-				strokeOpacity: 1.0,
-				strokeWeight: 2,
-				map: editMap
-			});
-			console.log(encodeStringCurve);
-		}
-		if (typeof encodeStringLine != 'undefined') {
-			var linePath = new google.maps.Polyline({
-				path: google.maps.geometry.encoding.decodePath(encodeStringLine),
-				geodesic: true,
-				strokeColor: '#FF0000',
-				strokeOpacity: 1.0,
-				strokeWeight: 2,
-				map: editMap
-			});
-			console.log(encodeStringLine);
-		}
-		*/
-		
+			var type = undo.pop();
+			redo.push(type);
+			if(type == 'Line' && linesArray.j.length >= 1) {
+				tempLineHolder.push(linesArray.j.pop());
+				poly.setPath(linesArray.j);
+				encodeStringLine = google.maps.geometry.encoding.encodePath(linesArray);
+				console.log(linesArray.j.length);
+			}
+			if(linesArray.j.length == 1) {
+				tempLineHolder.push(linesArray.j.pop());
+				console.log(linesArray.j.length);
+				mapLength = tempLineHolder.length;
+				encodeStringLine = google.maps.geometry.encoding.encodePath(linesArray);
+			}
+		}		
 	});
 	
 	$("#redo").click(function(e) {
 		if(redo.length != 0) {
-			undo.push(redo.pop());
-			console.log("Redo");
-			console.log(redo);
-			console.log(undo);
+			var type = redo.pop(); 
+			undo.push(type);
+			if(tempLineHolder.length == mapLength) {
+				linesArray.j.push(tempLineHolder.pop());
+				poly.setPath(linesArray.j);
+				encodeStringLine = google.maps.geometry.encoding.encodePath(linesArray);
+				console.log(linesArray.j.length);
+			}
+			if(type == 'Line' && tempLineHolder.length >= 1) {
+				linesArray.j.push(tempLineHolder.pop());
+				poly.setPath(linesArray.j);
+				encodeStringLine = google.maps.geometry.encoding.encodePath(linesArray);
+				console.log(tempLineHolder.length);
+			} 
 		}
 	});
 	
 	$("#clear").click(function(e) {
+		tempLineHolder = [];
 		mapEditor();
 	});
 
@@ -1105,6 +1108,7 @@ Date Time Widget
 			ponits.setAt(i, marker.getPosition());
 			encodeStringPoints = google.maps.geometry.encoding.encodePath(ponits);
 			undo.push("Points");
+			console.log(ponits);
         });
 	}
 	
@@ -1113,6 +1117,7 @@ Date Time Widget
 		linesArray = poly.getPath();
 		linesArray.push(event.latLng);
 		encodeStringLine = google.maps.geometry.encoding.encodePath(linesArray);
+		tempLineHolder = [];
 		undo.push("Line");
 	}
 	
