@@ -1009,16 +1009,16 @@ Date Time Widget
 		google.maps.event.addListener(editMap, "click", drawLine);
 	});
 	
+	listCurvePts = new Array();
 	$("#curve").click(function(e) {
 		tempLineHolder = [];
 		google.maps.event.clearListeners(editMap, 'click');
 		editMap.setOptions({ draggableCursor: 'crosshair' });
-		list = new Array();
 		google.maps.event.addListener(editMap, "click", function(event) {
 			var lat = event.latLng.lat();
 			var lng = event.latLng.lng();
-			list.push(lat+","+lng);
-			if(list.length > 1) drawCurve(list[list.length-2], list[list.length-1]);
+			listCurvePts.push(lat+","+lng);
+			if(listCurvePts.length > 1) drawCurve(listCurvePts[listCurvePts.length-2], listCurvePts[listCurvePts.length-1]);
 		});
 	});
 	
@@ -1027,9 +1027,12 @@ Date Time Widget
 	});
 	
 	//temp code
-	//$('#modalCreateRoute').modal('show');
+	$('#modalCreateRoute').modal('show');
 
 	var tempLineHolder = [];
+	var tempCurveHolder = [];
+	var listCurvePtsHolder = [];
+	var curveStack = [];
 	var mapLength;
 	$("#undo").click(function(e) {
 		if(undo.length != 0) {
@@ -1046,6 +1049,12 @@ Date Time Widget
 				console.log(linesArray.j.length);
 				mapLength = tempLineHolder.length;
 				encodeStringLine = google.maps.geometry.encoding.encodePath(linesArray);
+			}
+			if(type == 'Curve' && curveStack.length >= 1) {
+				temp = curveStack.pop();
+				listCurvePtsHolder.push(listCurvePts.pop());
+				tempCurveHolder.push(temp);
+				temp.setMap(null);
 			}
 		}		
 	});
@@ -1066,11 +1075,18 @@ Date Time Widget
 				encodeStringLine = google.maps.geometry.encoding.encodePath(linesArray);
 				console.log(tempLineHolder.length);
 			} 
+			if(type == 'Curve' && tempCurveHolder.length >= 1) {
+				temp = tempCurveHolder.pop();
+				listCurvePts.push(listCurvePtsHolder.pop());
+				curveStack.push(temp);
+				temp.setMap(editMap);
+			}
 		}
 	});
 	
 	$("#clear").click(function(e) {
 		tempLineHolder = [];
+		tempCurveHolder = [];
 		mapEditor();
 	});
 
@@ -1118,12 +1134,15 @@ Date Time Widget
 		linesArray.push(event.latLng);
 		encodeStringLine = google.maps.geometry.encoding.encodePath(linesArray);
 		tempLineHolder = [];
+		tempCurveHolder = [];
 		undo.push("Line");
 	}
 	
-	var curvesArray = new google.maps.MVCArray;
+	
 	function drawCurve(from, to) {
 		selectedColor = $("#selected-color").val();
+		tempLineHolder = [];
+		tempCurveHolder = [];
 		from = from.split(',');
 		to = to.split(',');
 		var service = new google.maps.DirectionsService();
@@ -1142,12 +1161,15 @@ Date Time Widget
 			travelMode: google.maps.DirectionsTravelMode.DRIVING
 		}, function (result, status) {
 			if (status == google.maps.DirectionsStatus.OK) {
+				var curvesArray = new google.maps.MVCArray;
 				for (var i = 0, len = result.routes[0].overview_path.length; i < len; i++) {
 					curvesArray.push(result.routes[0].overview_path[i]);
 					loadCurve.push(result.routes[0].overview_path[i]);
 				}
 				encodeStringCurve = google.maps.geometry.encoding.encodePath(loadCurve);
 				poly.setPath(curvesArray);
+				curveStack.push(poly);
+				console.log(curveStack);
 				undo.push("Curve");
 			}
 			
