@@ -5,7 +5,9 @@ public class DAO
 {
 	public static void main(String[] args) {
 		DAO d = new DAO();
-		System.out.println(d.updatePassengerStatistics(501, 6));
+		System.out.println(d.updateDriverStatistics("bobby", "off-duty"));
+		System.out.println(d.updateDriverStatistics("alex", "off-duty"));
+		System.out.println(d.updateDriverStatistics("tim", "off-duty"));
 	}
 	
 	public void closeConnection(Connection c) {
@@ -318,24 +320,22 @@ public class DAO
 		Connection con = DAOConnection.getConnection(); 
         try
         {
-		if (status.equals("on-duty") {
-            String query = "INSERT INTO statistics_driver_time (username, `date`,starttime) VALUES "
-			+ "(?, CURRENT_DATE, CURRENT_TIME)";
-            PreparedStatement preparedStatement = con.prepareStatement(query);
-            preparedStatement.setString(1, username);
-            preparedStatement.executeUpdate();
-		}
-
-		else {
-            String query = "UPDATE statistics_driver_time SET "
-			+ "endtime = CURRENT_TIME, "
-			+ "totaltime = TIME_TO_SEC(TIMEDIFF(CURRENT_TIME, (SELECT starttime))) * 1000 "
-			+ "WHERE username = ? "
-			+ "AND endtime IS NULL";
-            PreparedStatement preparedStatement = con.prepareStatement(query);
-            preparedStatement.setString(1, username);
-            preparedStatement.executeUpdate();
-		}
+			if (status.equals("on-duty")) {
+	            String query = "INSERT INTO statistics_driver_time (username, `date`,starttime) VALUES "
+				+ "(?, CURRENT_DATE, CURRENT_TIME)";
+	            PreparedStatement preparedStatement = con.prepareStatement(query);
+	            preparedStatement.setString(1, username);
+	            preparedStatement.executeUpdate();
+			} else {
+	            String query = "UPDATE statistics_driver_time SET "
+				+ "endtime = CURRENT_TIME, "
+				+ "totaltime = TIME_TO_SEC(TIMEDIFF(CURRENT_TIME, (SELECT starttime))) * 1000 "
+				+ "WHERE username = ? "
+				+ "AND endtime IS NULL";
+	            PreparedStatement preparedStatement = con.prepareStatement(query);
+	            preparedStatement.setString(1, username);
+	            preparedStatement.executeUpdate();
+			}
 
             closeConnection(con);
             return true;
