@@ -884,7 +884,7 @@ Date Time Widget
 	redo = new Array();
 	loadCurve = new Array();
 	var encodeStringCurve;
-	var encodeStringLine;
+	var encodeStringLine = '';
 	var encodeStringPoints;
 	var poly = [];
 	var lineCounter = -1;
@@ -900,6 +900,8 @@ Date Time Widget
 	  for(i=0; i<rowCount; i++) {
 	  map[i] = new google.maps.Map(document.getElementById(i+'_Map'), mapOptions);
 	  lines = $("#"+i+"_Map").data('lines');
+	  slines = lines.split('+');
+	  console.log(slines);
 	  curves = $("#"+i+"_Map").data('curves');
 	  savepoints = $("#"+i+"_Map").data('savepoints');
 	  color = $("#"+i+"_Map").data('color');
@@ -918,15 +920,19 @@ Date Time Widget
 		}
 		groupPoints = [];
 		if (lines.length != 0) {
-			var linePath = new google.maps.Polyline({
-				path: google.maps.geometry.encoding.decodePath(lines),
-				geodesic: true,
-				strokeColor: color,
-				strokeOpacity: 1.0,
-				strokeWeight: 2,
-				map: map[i]
+			$.each(slines, function( index, value ) {
+				if(value.length != 0) {
+					var linePath = new google.maps.Polyline({
+						path: google.maps.geometry.encoding.decodePath(value),
+						geodesic: true,
+						strokeColor: color,
+						strokeOpacity: 1.0,
+						strokeWeight: 2,
+						map: map[i]
+					});
+					groupPoints = linePath.getPath().getArray();
+				}
 			});
-			groupPoints = linePath.getPath().getArray();
 		}
 		if (curves.length != 0) {
 			var curvePath = new google.maps.Polyline({
@@ -1045,6 +1051,10 @@ Date Time Widget
 		
 				poly[lineCounter].setPath(lineHolder[lineCounter].j);
 				//encodeStringLine = google.maps.geometry.encoding.encodePath(linesArray);
+				encodeStringLine = '';
+				$.each(lineHolder, function( index, value ) {
+					encodeStringLine = encodeStringLine + "+" + google.maps.geometry.encoding.encodePath(value)
+				});
 			}
 			if(lineHolder[lineCounter].j.length == 1) {
 				tempLineHolder.push(lineHolder[lineCounter].j.pop());
@@ -1053,6 +1063,10 @@ Date Time Widget
 				if(lineCounter >= 0) lineCounter--;
 				
 				//encodeStringLine = google.maps.geometry.encoding.encodePath(linesArray);
+				encodeStringLine = '';
+				$.each(lineHolder, function( index, value ) {
+					encodeStringLine = encodeStringLine + "+" + google.maps.geometry.encoding.encodePath(value)
+				});
 			}
 			if(type == 'Curve' && curveStack.length >= 1) {
 				temp = curveStack.pop();
@@ -1078,7 +1092,10 @@ Date Time Widget
 				poly[lineCounter].setPath(lineHolder[lineCounter].j);
 				lineCounter++;
 				//encodeStringLine = google.maps.geometry.encoding.encodePath(linesArray);
-	
+				$.each(lineHolder, function( index, value ) {
+					encodeStringLine = encodeStringLine + "+" + google.maps.geometry.encoding.encodePath(value)
+				});
+
 			}
 			
 			if(type == 'Line' && tempLineHolder.length >= 1) {
@@ -1086,7 +1103,10 @@ Date Time Widget
 				lineHolder[lineCounter].j.push(tempLineHolder.pop());
 				poly[lineCounter].setPath(lineHolder[lineCounter].j);
 				//encodeStringLine = google.maps.geometry.encoding.encodePath(linesArray);
-				
+				$.each(lineHolder, function( index, value ) {
+					encodeStringLine = encodeStringLine + "+" + google.maps.geometry.encoding.encodePath(value)
+				});
+
 			} 
 			if(type == 'Curve' && tempCurveHolder.length >= 1) {
 				temp = tempCurveHolder.pop();
@@ -1149,10 +1169,17 @@ Date Time Widget
 	var linesArray = new google.maps.MVCArray;
 	var lineHolder = new Array();
 	function drawLine(event) {
+		var encoder = new google.maps.MVCArray;
 		linesArray = poly[lineCounter].getPath();
 		linesArray.push(event.latLng);
 		lineHolder[lineCounter] = linesArray;
-		encodeStringLine = google.maps.geometry.encoding.encodePath(linesArray);
+		encodeStringLine = '';
+		$.each(lineHolder, function( index, value ) {
+			encodeStringLine = encodeStringLine + "+" + google.maps.geometry.encoding.encodePath(value)
+		});
+		
+		console.log(encodeStringLine);
+		//encodeStringLine = google.maps.geometry.encoding.encodePath(linesArray);
 		tempLineHolder = [];
 		tempCurveHolder = [];
 		undo.push("Line");
