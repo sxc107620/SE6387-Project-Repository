@@ -168,7 +168,7 @@ public class DAO
             preparedStatement.executeUpdate();
             closeConnection(con);
             
-            return updatePassengerStatistics(shuttle_number, newRiders);
+            return updatePassengerStatistics(shuttle_number, newRiders) && updateDriverStatistics(user_name, status);
         }
         catch(SQLException e)
         {
@@ -303,6 +303,40 @@ public class DAO
                 preparedStatement.setInt(2, newRiders);
                 preparedStatement.executeUpdate();
             }
+            closeConnection(con);
+            return true;
+        }
+        catch(SQLException e)
+        {
+        	e.printStackTrace();
+        }    
+        closeConnection(con);
+        return false;
+	}
+
+	private boolean updateDriverStatistics(String username, String status) {
+		Connection con = DAOConnection.getConnection(); 
+        try
+        {
+		if (status.equals("on-duty") {
+            String query = "INSERT INTO statistics_driver_time (username, `date`,starttime) VALUES "
+			+ "(?, CURRENT_DATE, CURRENT_TIME)";
+            PreparedStatement preparedStatement = con.prepareStatement(query);
+            preparedStatement.setString(1, username);
+            preparedStatement.executeUpdate();
+		}
+
+		else {
+            String query = "UPDATE statistics_driver_time SET "
+			+ "endtime = CURRENT_TIME, "
+			+ "totaltime = TIME_TO_SEC(TIMEDIFF(CURRENT_TIME, (SELECT starttime))) * 1000 "
+			+ "WHERE username = ? "
+			+ "AND endtime IS NULL";
+            PreparedStatement preparedStatement = con.prepareStatement(query);
+            preparedStatement.setString(1, username);
+            preparedStatement.executeUpdate();
+		}
+
             closeConnection(con);
             return true;
         }
