@@ -901,7 +901,6 @@ Date Time Widget
 	  map[i] = new google.maps.Map(document.getElementById(i+'_Map'), mapOptions);
 	  lines = $("#"+i+"_Map").data('lines');
 	  slines = lines.split('+');
-	  console.log(slines);
 	  curves = $("#"+i+"_Map").data('curves');
 	  savepoints = $("#"+i+"_Map").data('savepoints');
 	  color = $("#"+i+"_Map").data('color');
@@ -1058,7 +1057,7 @@ Date Time Widget
 					encodeStringLine = encodeStringLine + "+" + google.maps.geometry.encoding.encodePath(value)
 				});
 			}
-			if(lineHolder[lineCounter].j.length == 1) {
+			if(type == 'Line' && lineHolder[lineCounter].j.length == 1) {
 				tempLineHolder.push(lineHolder[lineCounter].j.pop());
 				mapLength[lineCounter] = tempLineHolder.length;
 				
@@ -1078,6 +1077,7 @@ Date Time Widget
 				var encodeCurve = [];
 				$.each(curveStack, function( index, value ) {
 					encodeCurve.push.apply(encodeCurve, value.getPath().getArray());
+					//console.log(encodeCurve);
 				});
 				encodeStringCurve = google.maps.geometry.encoding.encodePath(encodeCurve);
 			}
@@ -1089,7 +1089,7 @@ Date Time Widget
 			var type = redo.pop(); 
 			undo.push(type);
 			
-			if(tempLineHolder.length == mapLength[lineCounter]) {
+			if(type == 'Line' && tempLineHolder.length == mapLength[lineCounter]) {
 				lineHolder[lineCounter].j.push(tempLineHolder.pop());
 				poly[lineCounter].setPath(lineHolder[lineCounter].j);
 				lineCounter++;
@@ -1117,7 +1117,7 @@ Date Time Widget
 				temp.setMap(editMap);
 				var encodeCurve = [];
 				$.each(curveStack, function( index, value ) {
-					encodeCurve.push.apply(encodeCurve, value.getPath().getArray());
+					encodeCurve.push.apply(value.getPath().getArray());
 				});
 				encodeStringCurve = google.maps.geometry.encoding.encodePath(encodeCurve);
 			}
@@ -1164,7 +1164,7 @@ Date Time Widget
 			ponits.setAt(i, marker.getPosition());
 			encodeStringPoints = google.maps.geometry.encoding.encodePath(ponits);
 			undo.push("Points");
-			console.log(ponits);
+			//console.log(ponits);
         });
 	}
 	
@@ -1180,7 +1180,7 @@ Date Time Widget
 			encodeStringLine = encodeStringLine + "+" + google.maps.geometry.encoding.encodePath(value)
 		});
 		
-		console.log(encodeStringLine);
+		//console.log(encodeStringLine);
 		//encodeStringLine = google.maps.geometry.encoding.encodePath(linesArray);
 		tempLineHolder = [];
 		tempCurveHolder = [];
