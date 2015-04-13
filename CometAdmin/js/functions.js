@@ -3,7 +3,7 @@ $(document).ready(function(){
 	Template Settings
     -----------------------------------------------------------*/
     
-   /* var settings =  '<a id="settings" href="#changeSkin" data-toggle="modal">' +
+    var settings =  '<a id="settings" href="#changeSkin" data-toggle="modal">' +
 			'<i class="fa fa-gear"></i> Change Skin' +
 		    '</a>' +   
 		    '<div class="modal fade" id="changeSkin" tabindex="-1" role="dialog" aria-hidden="true">' +
@@ -11,54 +11,54 @@ $(document).ready(function(){
 			    '<div class="modal-content">' +
 				'<div class="modal-header">' +
 				    '<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>' +
-				    '<h4 class="modal-title">Change Template Skin</h4>' +
+				    '<h4 class="modal-title">Change Skin</h4>' +
 				'</div>' +
 				'<div class="modal-body">' +
 				    '<div class="row template-skins">' +
 					'<a data-skin="skin-blur-violate" class="col-sm-2 col-xs-4" href="">' +
-					    '<img src="img/skin-violate.jpg" alt="">' +
+					    '<img src="img/skin/skin-violate.jpg" alt="">' +
 					'</a>' +
 					'<a data-skin="skin-blur-lights" class="col-sm-2 col-xs-4" href="">' +
-					    '<img src="img/skin-lights.jpg" alt="">' +
+					    '<img src="img/skin/skin-lights.jpg" alt="">' +
 					'</a>' +
 					'<a data-skin="skin-blur-city" class="col-sm-2 col-xs-4" href="">' +
-					    '<img src="img/skin-city.jpg" alt="">' +
+					    '<img src="img/skin/skin-city.jpg" alt="">' +
 					'</a>' +
 					'<a data-skin="skin-blur-greenish" class="col-sm-2 col-xs-4" href="">' +
-					    '<img src="img/skin-greenish.jpg" alt="">' +
+					    '<img src="img/skin/skin-greenish.jpg" alt="">' +
 					'</a>' +
 					'<a data-skin="skin-blur-night" class="col-sm-2 col-xs-4" href="">' +
-					    '<img src="img/skin-night.jpg" alt="">' +
+					    '<img src="img/skin/skin-night.jpg" alt="">' +
 					'</a>' +
 					'<a data-skin="skin-blur-blue" class="col-sm-2 col-xs-4" href="">' +
-					    '<img src="img/skin-blue.jpg" alt="">' +
+					    '<img src="img/skin/skin-blue.jpg" alt="">' +
 					'</a>' +
 					'<a data-skin="skin-blur-sunny" class="col-sm-2 col-xs-4" href="">' +
-					    '<img src="img/skin-sunny.jpg" alt="">' +
+					    '<img src="img/skin/skin-sunny.jpg" alt="">' +
 					'</a>' +
 					'<a data-skin="skin-cloth" class="col-sm-2 col-xs-4" href="">' +
-					    '<img src="img/skin-cloth.jpg" alt="">' +
+					    '<img src="img/skin/skin-cloth.jpg" alt="">' +
 					'</a>' +
 					'<a data-skin="skin-tectile" class="col-sm-2 col-xs-4" href="">' +
-					    '<img src="img/skin-tectile.jpg" alt="">' +
+					    '<img src="img/skin/skin-tectile.jpg" alt="">' +
 					'</a>' +
 					'<a data-skin="skin-blur-chrome" class="col-sm-2 col-xs-4" href="">' +
-					    '<img src="img/skin-chrome.jpg" alt="">' +
+					    '<img src="img/skin/skin-chrome.jpg" alt="">' +
 					'</a>' +
 					'<a data-skin="skin-blur-ocean" class="col-sm-2 col-xs-4" href="">' +
-					    '<img src="img/skin-ocean.jpg" alt="">' +
+					    '<img src="img/skin/skin-ocean.jpg" alt="">' +
 					'</a>' +
 					'<a data-skin="skin-blur-sunset" class="col-sm-2 col-xs-4" href="">' +
-					    '<img src="img/skin-sunset.jpg" alt="">' +
+					    '<img src="img/skin/skin-sunset.jpg" alt="">' +
 					'</a>' +
 					'<a data-skin="skin-blur-yellow" class="col-sm-2 col-xs-4" href="">' +
-					    '<img src="img/skin-yellow.jpg" alt="">' +
+					    '<img src="img/skin/skin-yellow.jpg" alt="">' +
 					'</a>' +
 					'<a  data-skin="skin-blur-kiwi"class="col-sm-2 col-xs-4" href="">' +
-					    '<img src="img/skin-kiwi.jpg" alt="">' +
+					    '<img src="img/skin/skin-kiwi.jpg" alt="">' +
 					'</a>' +
 					'<a  data-skin="skin-blur-nexus"class="col-sm-2 col-xs-4" href="">' +
-					    '<img src="img/skin-nexus.jpg" alt="">' +
+					    '<img src="img/skin/skin-nexus.jpg" alt="">' +
 					'</a>' +
 				    '</div>' +
 				'</div>' +
@@ -66,7 +66,7 @@ $(document).ready(function(){
 			'</div>' +
 		    '</div>';
     $('#main').prepend(settings);
-        */    
+        
     $('body').on('click', '.template-skins > a', function(e){
 	e.preventDefault();
 	var skin = $(this).attr('data-skin');
@@ -886,7 +886,8 @@ Date Time Widget
 	var encodeStringCurve;
 	var encodeStringLine;
 	var encodeStringPoints;
-	var poly;
+	var poly = [];
+	var lineCounter = -1;
 	
 	function plotter() {
 		var mapOptions = {
@@ -999,7 +1000,8 @@ Date Time Widget
 		google.maps.event.clearListeners(editMap, 'click');
 		editMap.setOptions({ draggableCursor: 'crosshair' });
 		list = new Array();
-		poly = new google.maps.Polyline({
+		lineCounter++;
+		poly[lineCounter] = new google.maps.Polyline({
 			map: editMap,
 			geodesic: true,
 			strokeColor: selectedColor,
@@ -1027,7 +1029,7 @@ Date Time Widget
 	});
 	
 	//temp code
-	$('#modalCreateRoute').modal('show');
+	//$('#modalCreateRoute').modal('show');
 
 	var tempLineHolder = [];
 	var tempCurveHolder = [];
@@ -1038,23 +1040,35 @@ Date Time Widget
 		if(undo.length != 0) {
 			var type = undo.pop();
 			redo.push(type);
-			if(type == 'Line' && linesArray.j.length >= 1) {
-				tempLineHolder.push(linesArray.j.pop());
-				poly.setPath(linesArray.j);
-				encodeStringLine = google.maps.geometry.encoding.encodePath(linesArray);
-				console.log(linesArray.j.length);
+			if(type == 'Line' && lineHolder[lineCounter].j.length >= 1) {
+				tempLineHolder.push(lineHolder[lineCounter].j.pop());
+				console.log(lineHolder[lineCounter]);
+				poly[lineCounter].setPath(lineHolder[lineCounter].j);
+				//encodeStringLine = google.maps.geometry.encoding.encodePath(linesArray);
 			}
-			if(linesArray.j.length == 1) {
-				tempLineHolder.push(linesArray.j.pop());
-				console.log(linesArray.j.length);
+			if(lineHolder[lineCounter].j.length == 1) {
+				tempLineHolder.push(lineHolder[lineCounter].j.pop());
 				mapLength = tempLineHolder.length;
-				encodeStringLine = google.maps.geometry.encoding.encodePath(linesArray);
+				console.log(lineHolder[lineCounter]);
+				if(lineCounter >= 1) lineCounter--;
+				console.log(lineHolder[lineCounter]);
+				poly[lineCounter].setPath(lineHolder[lineCounter].j);
+				poly[lineCounter].setMap(null);
+				/*setTimeout(function () {
+					poly.setOptions({strokeColor: 'blue'});
+				}, 3000);*/
+				//encodeStringLine = google.maps.geometry.encoding.encodePath(linesArray);
 			}
 			if(type == 'Curve' && curveStack.length >= 1) {
 				temp = curveStack.pop();
 				listCurvePtsHolder.push(listCurvePts.pop());
 				tempCurveHolder.push(temp);
 				temp.setMap(null);
+				var encodeCurve = [];
+				$.each(curveStack, function( index, value ) {
+					encodeCurve.push.apply(encodeCurve, value.getPath().getArray());
+				});
+				encodeStringCurve = google.maps.geometry.encoding.encodePath(encodeCurve);
 			}
 		}		
 	});
@@ -1064,22 +1078,28 @@ Date Time Widget
 			var type = redo.pop(); 
 			undo.push(type);
 			if(tempLineHolder.length == mapLength) {
-				linesArray.j.push(tempLineHolder.pop());
-				poly.setPath(linesArray.j);
-				encodeStringLine = google.maps.geometry.encoding.encodePath(linesArray);
-				console.log(linesArray.j.length);
+				lineHolder[lineCounter].j.push(tempLineHolder.pop());
+				poly[lineCounter].setPath(lineHolder[lineCounter].j);
+				lineCounter++;
+				//encodeStringLine = google.maps.geometry.encoding.encodePath(linesArray);
+				//console.log(linesArray.j.length);
 			}
 			if(type == 'Line' && tempLineHolder.length >= 1) {
-				linesArray.j.push(tempLineHolder.pop());
-				poly.setPath(linesArray.j);
-				encodeStringLine = google.maps.geometry.encoding.encodePath(linesArray);
-				console.log(tempLineHolder.length);
+				lineHolder[lineCounter].j.push(tempLineHolder.pop());
+				poly[lineCounter].setPath(lineHolder[lineCounter].j);
+				//encodeStringLine = google.maps.geometry.encoding.encodePath(linesArray);
+				//console.log(tempLineHolder.length);
 			} 
 			if(type == 'Curve' && tempCurveHolder.length >= 1) {
 				temp = tempCurveHolder.pop();
 				listCurvePts.push(listCurvePtsHolder.pop());
 				curveStack.push(temp);
 				temp.setMap(editMap);
+				var encodeCurve = [];
+				$.each(curveStack, function( index, value ) {
+					encodeCurve.push.apply(encodeCurve, value.getPath().getArray());
+				});
+				encodeStringCurve = google.maps.geometry.encoding.encodePath(encodeCurve);
 			}
 		}
 	});
@@ -1129,9 +1149,11 @@ Date Time Widget
 	}
 	
 	var linesArray = new google.maps.MVCArray;
+	var lineHolder = new Array();
 	function drawLine(event) {
-		linesArray = poly.getPath();
+		linesArray = poly[lineCounter].getPath();
 		linesArray.push(event.latLng);
+		lineHolder[lineCounter] = linesArray;
 		encodeStringLine = google.maps.geometry.encoding.encodePath(linesArray);
 		tempLineHolder = [];
 		tempCurveHolder = [];
@@ -1169,7 +1191,6 @@ Date Time Widget
 				encodeStringCurve = google.maps.geometry.encoding.encodePath(loadCurve);
 				poly.setPath(curvesArray);
 				curveStack.push(poly);
-				console.log(curveStack);
 				undo.push("Curve");
 			}
 			
