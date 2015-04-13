@@ -70,6 +70,7 @@ function initialize() {
 initialize();
 
 function plotter(lines, curves, savepoints, color) {
+	var slines = lines.split('+');
 	if (savepoints.length != 0) {
 		points = [];
 		groupPoints = new google.maps.MVCArray;
@@ -84,18 +85,23 @@ function plotter(lines, curves, savepoints, color) {
 			overlay.push(marker);
 		}
 	}
-	if (lines.length != 0) {
-		var linePath = new google.maps.Polyline({
-			path: google.maps.geometry.encoding.decodePath(lines),
-			geodesic: true,
-			strokeColor: color,
-			strokeOpacity: 1.0,
-			strokeWeight: 2,
-			map: map
+	if (slines.length != 0) {
+		$.each(slines, function( index, value ) {
+			if(value.length != 0) {
+				var linePath = new google.maps.Polyline({
+					path: google.maps.geometry.encoding.decodePath(value),
+					geodesic: true,
+					strokeColor: color,
+					strokeOpacity: 1.0,
+					strokeWeight: 2,
+					map: map
+				});
+				overlay.push(linePath);
+				$.each(linePath.getPath().getArray(), function( index, value ) {
+					groupPoints.push(value);
+				});
+			}
 		});
-		overlay.push(linePath);
-		//groupPoints.push(linePath.getPath().getArray());
-		groupPoints = linePath.getPath().getArray();
 	}
 	if (curves.length != 0) {
 		var curvePath = new google.maps.Polyline({

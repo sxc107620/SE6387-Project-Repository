@@ -930,7 +930,9 @@ Date Time Widget
 						strokeWeight: 2,
 						map: map[i]
 					});
-					groupPoints = linePath.getPath().getArray();
+					$.each(linePath.getPath().getArray(), function( index, value ) {
+							groupPoints.push(value);
+					});
 				}
 			});
 		}
