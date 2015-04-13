@@ -43,6 +43,7 @@ overlay = [];
 var groupPoints = new google.maps.MVCArray;
 var routeid;
 var GeoMarker;
+var interestLocation = [];
 function initialize() {
 	var UTD = new google.maps.LatLng(32.98594891, -96.7509511);
     var mapProp = {
@@ -73,7 +74,6 @@ function plotter(lines, curves, savepoints, color) {
 	var slines = lines.split('+');
 	if (savepoints.length != 0) {
 		points = [];
-		groupPoints = new google.maps.MVCArray;
 		points = google.maps.geometry.encoding.decodePath(savepoints);
 		for(j=0; j<points.length; j++) {
 			var marker = new google.maps.Marker({
@@ -85,6 +85,7 @@ function plotter(lines, curves, savepoints, color) {
 			overlay.push(marker);
 		}
 	}
+	groupPoints = [];
 	if (slines.length != 0) {
 		$.each(slines, function( index, value ) {
 			if(value.length != 0) {
@@ -113,7 +114,6 @@ function plotter(lines, curves, savepoints, color) {
 			map: map
 		});
 		overlay.push(curvePath);
-		//groupPoints.push(curvePath.getPath().getArray());
 		if(groupPoints.length == 0) groupPoints = curvePath.getPath().getArray();
 		else {
 			$.each(curvePath.getPath().getArray(), function( index, value ) {
@@ -126,6 +126,12 @@ function plotter(lines, curves, savepoints, color) {
 		bounds.extend(groupPoints[n]);
 	}
 	map.fitBounds(bounds);
+	
+	//Interest Points
+	if(interestLocation != 0) {
+		if(typeof(interestLocation[routeid]) != 'undefined')
+			interestLocation[routeid].setMap(map);
+	}
 }
 
 var shuttleMarkers = [];
@@ -163,7 +169,7 @@ $('.nav-list').on('click', '.routeChange', function() {
 	  curves = $(this).data('curves');
 	  savepoints = $(this).data('savepoints');
 	  color = $(this).data('color');
-	  if(overlay.length != 0) while(overlay[0]) overlay.pop().setMap(null);
+	  while(overlay.length != 0) overlay.pop().setMap(null);
 	  plotter(lines, curves, savepoints, color);
 	  tracker();	
 });
@@ -218,14 +224,17 @@ function drawRoute(src, des) {
 	$("#failure").modal('show');
 }
 
+
 function bookCab(id, lat, lng) {
+	var id = routeid;
 	$.post("index.php",{ i: id, l: lat, lg: lng }, function(){
 		$("#success").modal('show');
-		var marker = new google.maps.Marker({
+		interestLocation[routeid] = new google.maps.Marker({
 			position: new google.maps.LatLng(lat, lng),
 			map: map,
 			icon: "img/dot.png" //custom pin icon
 		});
+		overlay.push(interestLocation[id]);
 	});
 }
 
