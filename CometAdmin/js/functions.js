@@ -1035,28 +1035,23 @@ Date Time Widget
 	var tempCurveHolder = [];
 	var listCurvePtsHolder = [];
 	var curveStack = [];
-	var mapLength;
+	var mapLength = [];
 	$("#undo").click(function(e) {
 		if(undo.length != 0) {
 			var type = undo.pop();
 			redo.push(type);
 			if(type == 'Line' && lineHolder[lineCounter].j.length >= 1) {
 				tempLineHolder.push(lineHolder[lineCounter].j.pop());
-				console.log(lineHolder[lineCounter]);
+		
 				poly[lineCounter].setPath(lineHolder[lineCounter].j);
 				//encodeStringLine = google.maps.geometry.encoding.encodePath(linesArray);
 			}
 			if(lineHolder[lineCounter].j.length == 1) {
 				tempLineHolder.push(lineHolder[lineCounter].j.pop());
-				mapLength = tempLineHolder.length;
-				console.log(lineHolder[lineCounter]);
-				if(lineCounter >= 1) lineCounter--;
-				console.log(lineHolder[lineCounter]);
-				poly[lineCounter].setPath(lineHolder[lineCounter].j);
-				poly[lineCounter].setMap(null);
-				/*setTimeout(function () {
-					poly.setOptions({strokeColor: 'blue'});
-				}, 3000);*/
+				mapLength[lineCounter] = tempLineHolder.length;
+				
+				if(lineCounter >= 0) lineCounter--;
+				
 				//encodeStringLine = google.maps.geometry.encoding.encodePath(linesArray);
 			}
 			if(type == 'Curve' && curveStack.length >= 1) {
@@ -1077,18 +1072,21 @@ Date Time Widget
 		if(redo.length != 0) {
 			var type = redo.pop(); 
 			undo.push(type);
-			if(tempLineHolder.length == mapLength) {
+			
+			if(tempLineHolder.length == mapLength[lineCounter]) {
 				lineHolder[lineCounter].j.push(tempLineHolder.pop());
 				poly[lineCounter].setPath(lineHolder[lineCounter].j);
 				lineCounter++;
 				//encodeStringLine = google.maps.geometry.encoding.encodePath(linesArray);
-				//console.log(linesArray.j.length);
+	
 			}
+			
 			if(type == 'Line' && tempLineHolder.length >= 1) {
+				if(lineCounter == -1) lineCounter = 0;
 				lineHolder[lineCounter].j.push(tempLineHolder.pop());
 				poly[lineCounter].setPath(lineHolder[lineCounter].j);
 				//encodeStringLine = google.maps.geometry.encoding.encodePath(linesArray);
-				//console.log(tempLineHolder.length);
+				
 			} 
 			if(type == 'Curve' && tempCurveHolder.length >= 1) {
 				temp = tempCurveHolder.pop();
