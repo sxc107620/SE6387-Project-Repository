@@ -135,8 +135,9 @@ function plotter(lines, curves, savepoints, color) {
 }
 
 var shuttle = [];
-var prevLt = [];
+var prevLt;
 var prevLn;
+var infowindow = [];
 function tracker() {
 		var image = 'img/car.png';
 		if(typeof(EventSource) !== "undefined") {
@@ -149,20 +150,25 @@ function tracker() {
 							if(typeof(shuttle[count]) != 'undefined') shuttle[count].setMap(null);
 							var shuttlePos = new google.maps.LatLng(shuttleLocations[count].Latitude, shuttleLocations[count].Longitude);
 							cap = shuttleLocations[count].Capacity+"/"+shuttleLocations[count].Type;
-							var infowindow = new google.maps.InfoWindow();
+							var options = {
+								position: shuttlePos
+							};
+							infowindow[count] = new google.maps.InfoWindow(options);
 							var contentString = 
 								'<div id="infowindow">' +
-								'Capacity:<br />' + cap +
+								'Capacity:    ' + cap +
 								'</div>';
 							shuttle[count] = new google.maps.Marker({
 								icon: image,
-								title: cap
+								zIndex:  google.maps.Marker.MAX_ZINDEX + 1 
 							});
 							shuttle[count].setPosition(shuttlePos);
 							shuttle[count].setMap(map);
-							google.maps.event.addListener(shuttle[count], 'click', function() {
-								infowindow.setContent(contentString);
-								infowindow.open(map, shuttle[count]);
+							
+							infowindow[count].setContent(contentString);
+							infowindow[count].open(map, shuttle[count]);
+							google.maps.event.addListener(infowindow[count], 'domready', function(){
+								$(".gm-style-iw").next("div").hide();
 							});
 							
 							prevLt = shuttleLocations[count].Latitude;
@@ -183,6 +189,9 @@ $('.nav-list').on('click', '.routeChange', function() {
 	while(overlay.length != 0) overlay.pop().setMap(null);
 	$.each(shuttle, function(index, value) {
 		if(typeof(value) != 'undefined') value.setMap(null);
+	});
+	$.each(infowindow, function(index, value) {
+		if(typeof(value) != 'undefined') value.close();
 	});
 	plotter(lines, curves, savepoints, color);
 	tracker();	
