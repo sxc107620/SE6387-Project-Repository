@@ -136,7 +136,7 @@ function plotter(lines, curves, savepoints, color) {
 
 var shuttle = [];
 var prevLt = [];
-var prevLn = [];
+var prevLn;
 function tracker() {
 		var image = 'img/car.png';
 		if(typeof(EventSource) !== "undefined") {
@@ -145,19 +145,28 @@ function tracker() {
 				shuttleLocations = jQuery.parseJSON(event.data);
 				for(var count in shuttleLocations) {
 					if(shuttleLocations[count].Route == routeid) {
-						if((prevLt[count] != shuttleLocations[count].Latitude) && (prevLn[count] != shuttleLocations[count].Longitude)) {
+						if((prevLt != shuttleLocations[count].Latitude) && (prevLn != shuttleLocations[count].Longitude)) {
 							if(typeof(shuttle[count]) != 'undefined') shuttle[count].setMap(null);
 							var shuttlePos = new google.maps.LatLng(shuttleLocations[count].Latitude, shuttleLocations[count].Longitude);
 							cap = shuttleLocations[count].Capacity+"/"+shuttleLocations[count].Type;
+							var infowindow = new google.maps.InfoWindow();
+							var contentString = 
+								'<div id="infowindow">' +
+								'Capacity:<br />' + cap +
+								'</div>';
 							shuttle[count] = new google.maps.Marker({
 								icon: image,
 								title: cap
 							});
 							shuttle[count].setPosition(shuttlePos);
 							shuttle[count].setMap(map);
+							google.maps.event.addListener(shuttle[count], 'click', function() {
+								infowindow.setContent(contentString);
+								infowindow.open(map, shuttle[count]);
+							});
 							
-							prevLt[count] = shuttleLocations[count].Latitude;
-							prevLn[count] = shuttleLocations[count].Longitude;
+							prevLt = shuttleLocations[count].Latitude;
+							prevLn = shuttleLocations[count].Longitude;
 						} 
 					}
 				}
@@ -173,7 +182,7 @@ $('.nav-list').on('click', '.routeChange', function() {
 	color = $(this).data('color');
 	while(overlay.length != 0) overlay.pop().setMap(null);
 	$.each(shuttle, function(index, value) {
-		value.setMap(null);
+		if(typeof(value) != 'undefined') value.setMap(null);
 	});
 	plotter(lines, curves, savepoints, color);
 	tracker();	
