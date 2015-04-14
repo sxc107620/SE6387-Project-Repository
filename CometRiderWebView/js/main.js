@@ -134,44 +134,49 @@ function plotter(lines, curves, savepoints, color) {
 	}
 }
 
-var shuttleMarkers = [];
+var shuttle = [];
+var prevLt = [];
+var prevLn = [];
 function tracker() {
 		var image = 'img/car.png';
 		if(typeof(EventSource) !== "undefined") {
 			var source = new EventSource("./php/includes/sse.php");
 			source.onmessage = function(event) {
 				shuttleLocations = jQuery.parseJSON(event.data);
-				if(shuttleMarkers.length != 0) {
-					for(i=0; i<shuttleMarkers.length; i++)
-						shuttleMarkers[i].setMap(null);
-				}
-				shuttleMarkers.length = 0;
 				for(var count in shuttleLocations) {
 					if(shuttleLocations[count].Route == routeid) {
-					var shuttle = new google.maps.LatLng(shuttleLocations[count].Latitude, shuttleLocations[count].Longitude);
-					cap = shuttleLocations[count].Capacity+"/"+shuttleLocations[count].Type;
-					shuttle = new google.maps.Marker({
-						position: shuttle,
-						icon: image,
-						title: cap
-					});
-					shuttle.setMap(map);
-					shuttleMarkers.push(shuttle);
-				}
+						if((prevLt[count] != shuttleLocations[count].Latitude) && (prevLn[count] != shuttleLocations[count].Longitude)) {
+							if(typeof(shuttle[count]) != 'undefined') shuttle[count].setMap(null);
+							var shuttlePos = new google.maps.LatLng(shuttleLocations[count].Latitude, shuttleLocations[count].Longitude);
+							cap = shuttleLocations[count].Capacity+"/"+shuttleLocations[count].Type;
+							shuttle[count] = new google.maps.Marker({
+								icon: image,
+								title: cap
+							});
+							shuttle[count].setPosition(shuttlePos);
+							shuttle[count].setMap(map);
+							
+							prevLt[count] = shuttleLocations[count].Latitude;
+							prevLn[count] = shuttleLocations[count].Longitude;
+						} 
+					}
 				}
 			};
 		} 
 }
 
 $('.nav-list').on('click', '.routeChange', function() {
-	  routeid = $(this).data('rid');
-	  lines = $(this).data('lines');
-	  curves = $(this).data('curves');
-	  savepoints = $(this).data('savepoints');
-	  color = $(this).data('color');
-	  while(overlay.length != 0) overlay.pop().setMap(null);
-	  plotter(lines, curves, savepoints, color);
-	  tracker();	
+	routeid = $(this).data('rid');
+	lines = $(this).data('lines');
+	curves = $(this).data('curves');
+	savepoints = $(this).data('savepoints');
+	color = $(this).data('color');
+	while(overlay.length != 0) overlay.pop().setMap(null);
+	$.each(shuttle, function(index, value) {
+		value.setMap(null);
+	});
+	plotter(lines, curves, savepoints, color);
+	tracker();	
 });
 
 function closest(llng, listData) {
@@ -229,10 +234,16 @@ function bookCab(id, lat, lng) {
 	var id = routeid;
 	$.post("index.php",{ i: id, l: lat, lg: lng }, function(){
 		$("#success").modal('show');
+		var image = {
+			url: 'img/dot.png',
+			size: new google.maps.Size(18, 16),
+			origin: new google.maps.Point(0,0),
+			anchor: new google.maps.Point(0, 16)
+		  };
 		interestLocation[routeid] = new google.maps.Marker({
 			position: new google.maps.LatLng(lat, lng),
 			map: map,
-			icon: "img/dot.png" //custom pin icon
+			icon: image //custom pin icon
 		});
 		overlay.push(interestLocation[id]);
 	});
