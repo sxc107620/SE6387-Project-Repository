@@ -5,9 +5,7 @@ public class DAO
 {
 	public static void main(String[] args) {
 		DAO d = new DAO();
-		System.out.println(d.updateDriverStatistics("bobby", "off-duty"));
-		System.out.println(d.updateDriverStatistics("alex", "off-duty"));
-		System.out.println(d.updateDriverStatistics("tim", "off-duty"));
+		System.out.println(d.updatePassengerStatistics(101, 1));
 	}
 	
 	public void closeConnection(Connection c) {
@@ -285,35 +283,38 @@ public class DAO
     }
 	
 	private boolean updatePassengerStatistics(int shuttle_number, int newRiders) {
-		Connection con = DAOConnection.getConnection(); 
-        try
-        {
-            String query = "UPDATE statistics_passengers SET "
-            		+ "totalpassengers = totalpassengers + ? "
-            		+ "WHERE routeid = (SELECT routeid FROM shuttles WHERE shuttles.number =?) "
-            		+ "AND DATE_SUB(NOW(),INTERVAL 5 MINUTE) <= `timestamp`";
-            PreparedStatement preparedStatement = con.prepareStatement(query);
-            preparedStatement.setInt(1, newRiders);
-            preparedStatement.setInt(2, shuttle_number);
-            int num_updated = preparedStatement.executeUpdate();
-            
-            if (num_updated == 0) {
-            	query = "INSERT INTO statistics_passengers (routeid,`timestamp`,totalpassengers) VALUES ( "
-            			+ "(SELECT routeid FROM shuttles WHERE shuttles.number = ?),NOW(),?)";
-                preparedStatement = con.prepareStatement(query);
-                preparedStatement.setInt(1, shuttle_number);
-                preparedStatement.setInt(2, newRiders);
-                preparedStatement.executeUpdate();
-            }
-            closeConnection(con);
-            return true;
-        }
-        catch(SQLException e)
-        {
-        	e.printStackTrace();
-        }    
-        closeConnection(con);
-        return false;
+    	if (newRiders > 0) {
+			Connection con = DAOConnection.getConnection(); 
+	        try
+	        {
+	            String query = "UPDATE statistics_passengers SET "
+	            		+ "totalpassengers = totalpassengers + ? "
+	            		+ "WHERE routeid = (SELECT routeid FROM shuttles WHERE shuttles.number =?) "
+	            		+ "AND DATE_SUB(NOW(),INTERVAL 5 MINUTE) <= `timestamp`";
+	            PreparedStatement preparedStatement = con.prepareStatement(query);
+	            preparedStatement.setInt(1, newRiders);
+	            preparedStatement.setInt(2, shuttle_number);
+	            int num_updated = preparedStatement.executeUpdate();
+	            
+	            if (num_updated == 0) {
+	            	query = "INSERT INTO statistics_passengers (routeid,`timestamp`,totalpassengers) VALUES ( "
+	            			+ "(SELECT routeid FROM shuttles WHERE shuttles.number = ?),NOW(),?)";
+	                preparedStatement = con.prepareStatement(query);
+	                preparedStatement.setInt(1, shuttle_number);
+	                preparedStatement.setInt(2, newRiders);
+	                preparedStatement.executeUpdate();
+	            }
+	            closeConnection(con);
+	            return true;
+	        }
+	        catch(SQLException e)
+	        {
+	        	e.printStackTrace();
+	        }    
+	        closeConnection(con);
+	        return false;
+    	}
+    	return true;
 	}
 
 	private boolean updateDriverStatistics(String username, String status) {
@@ -321,10 +322,13 @@ public class DAO
         try
         {
 			if (status.equals("on-duty")) {
-	            String query = "INSERT INTO statistics_driver_time (username, `date`,starttime) VALUES "
-				+ "(?, CURRENT_DATE, CURRENT_TIME)";
+	            String query = "INSERT INTO statistics_driver_time (username, `date`,starttime) "
+	            		+ "SELECT ?, CURRENT_DATE, CURRENT_TIME FROM statistics_driver_time "
+	            		+ "WHERE NOT EXISTS (SELECT * FROM statistics_driver_time WHERE username = ? AND endtime IS NULL) "
+	            		+ "LIMIT 1";
 	            PreparedStatement preparedStatement = con.prepareStatement(query);
 	            preparedStatement.setString(1, username);
+	            preparedStatement.setString(2, username);
 	            preparedStatement.executeUpdate();
 			} else {
 	            String query = "UPDATE statistics_driver_time SET "
