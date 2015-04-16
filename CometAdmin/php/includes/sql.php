@@ -91,9 +91,9 @@
 		mysql_query('DELETE FROM `routes` WHERE `routeid` = "'.$id.'"');
 	}
 	
-	function getDriverHours() {
+	function getDriverHours($month) {
 		$result = array();
-		$getList = mysql_query("SELECT username, SUM( totaltime /3600000 ) AS totaltime FROM statistics_driver_time WHERE  `date` BETWEEN CURDATE( ) - INTERVAL 30 DAY AND CURDATE( ) GROUP BY username");
+		$getList = mysql_query("SELECT username, SUM( totaltime /3600000 ) AS totaltime FROM statistics_driver_time WHERE MONTH(date) = '$month' GROUP BY username");
 		mysql_data_seek($getList, 0);
 		while ($row = mysql_fetch_assoc($getList)) {
 		  array_push($result, $row['username'], $row['totaltime']);

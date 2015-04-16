@@ -62,23 +62,20 @@
                           
                         <div class="tab-content media-body">
                             <div class="tab-pane active" id="driver">
-							<p>The following chart lists the amount of hours the driver has driven in the past 30 days:</p>
+							<p>The following chart lists the amount of hours the driver has driven based on months:</p>
                                 <div class="list-group block" id="driverHours">
-									<?php
-										$driverHours = getDriverHours();
-										$driverNamesList = '';
-										$driverHoursList = '';
-										for($i = 0; $i < count($driverHours)/2; $i++) {
-											$driverNamesList .= (string)$driverHours[2*$i];
-											if($i != (count($driverHours)/2)-1) $driverNamesList .= ";";
-											$driverHoursList .= (string)$driverHours[2*$i+1];
-											if($i != (count($driverHours)/2)-1) $driverHoursList .= ";";
-										}
-									?>
 									<div class="tile">
-										<h2 class="tile-title">Driver Bar Chart</h2>
+										<h2 class="tile-title h31">Driver Bar Chart</h2>
+										<div class="tile-config input-group">
+											<div class="input-group date w200" id="pickerDriver">
+											<input type='text' class="form-control pull-right h30" id="queryDateDriver" disabled />
+											<span class="input-group-addon add-on">
+												<span class="glyphicon glyphicon-calendar"></span>
+											</span>
+											</div>
+										</div>
 										<div class="p-10">
-											<div id="driver-chart" class="main-chart" data-names=<?php echo $driverNamesList; ?> data-hours=<?php echo $driverHoursList; ?> style="height: 250px; width: 100%; padding: 0px; position: relative;"></div>
+											<div id="driver-chart" class="main-chart" style="height: 250px; width: 100%; padding: 0px; position: relative;"></div>
 										</div>
 									</div>
 								</div>
@@ -87,7 +84,7 @@
                             <p>The following chart lists the number of passengers who have taken the cabs in 24 hour based on route:</p>
                                 <div class="list-group block" id="routeList">
 									<div class="tile">
-										<h2 class="tile-title">Route Bar Chart</h2>
+										<h2 class="tile-title h31">Route Bar Chart</h2>
 										<div class="tile-config input-group w420">
 										<select class="form-control input-sm m-b-10 pull-right w200 h30" id="routeSel">
 											<option selected="true" style="display:none;">Select route</option>
@@ -99,7 +96,7 @@
 											?>
 										</select>
 										<div class="input-group date w200" id="picker">
-										<input type='text' class="form-control pull-right h30" id="queryDate" disabled onchange="SetDefault($(this).val());"/>
+										<input type='text' class="form-control pull-right h30" id="queryDate" disabled />
 										<span class="input-group-addon add-on">
 											<span class="glyphicon glyphicon-calendar"></span>
 										</span>
@@ -126,7 +123,7 @@
 										}
 									?>
 									<div class="tile">
-										<h2 class="tile-title">Shuttle Bar Chart</h2>
+										<h2 class="tile-title h31">Shuttle Bar Chart</h2>
 										<div class="p-10">
 											<div id="shuttle-chart" class="main-chart" data-names=<?php echo $shuttleList; ?> data-cap=<?php echo $shuttleCapList; ?> style="height: 250px; width: 100%; padding: 0px; position: relative;"></div>
 										</div>
