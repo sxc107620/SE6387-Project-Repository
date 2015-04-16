@@ -16,4 +16,5 @@
         <link href="css/style.css" rel="stylesheet">
         <link href="css/icons.css" rel="stylesheet">
         <link href="css/generics.css" rel="stylesheet"> 
+		<!--link href="css/jquery-clockpicker.min.css" rel="stylesheet"--> 
 		<link href="css/main.css" rel="stylesheet">

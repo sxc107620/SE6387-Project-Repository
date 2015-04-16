@@ -29,12 +29,13 @@ if(isset($_POST['submit'])){
 	$userid = $_POST['uid'];
     $pwd = $_POST['passwd'];
 	$type = getUserType($userid);
-	if($type == "admin") {
+	if($type == "admin" || $type == "superadmin") {
 	$attempts = getAttempts($userid);
 	if($attempts < 2) {
 	if(md5($pwd) == getPwd($userid)) {
 	session_start();
 	$_SESSION['uName'] = $userid;
+	$_SESSION['type'] = $type;
 	header('Location: dashboard.php');
 	updateAttempt($userid, 0);
 	} else {

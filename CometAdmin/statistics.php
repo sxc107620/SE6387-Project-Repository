@@ -6,10 +6,14 @@
 	include ("head.php"); 
 ?>
     </head>
-    <body id="skin-blur-violate">
+    <body>
 	<?php
-				session_start();
-				if(isset($_SESSION['uName'])) {
+	error_reporting(0);
+	session_start();
+	if(isset($_SESSION['uName'])) {
+		include ("./php/includes/settings.inc.php");        // database settings
+		include ("./php/includes/connectdb.inc.php"); 
+		include ("./php/includes/sql.php");
 		?>
         <header id="header" class="media">
             <?php
@@ -47,114 +51,94 @@
 					include ("breadcrumb.php"); 
 				?>
                 
-                <div class="block-area">
-                    <h3 class="block-title">Driver and Shuttle Statistics</h3>
-                    
-                    <div class="tile">
-                        <h2 class="tile-title">Shuttle Line Chart</h2>
-                        <div class="tile-config dropdown">
-                            <a data-toggle="dropdown" href="#" class="tooltips tile-menu" title="Options"></a>
-                            <ul class="dropdown-menu pull-right text-right">
-                                <li><a href="#">Refresh</a></li>
-                                <li><a href="#">Settings</a></li>
-                            </ul>
-                        </div>
-                        <div class="p-10">
-                            <div id="line-chart" class="main-chart" style="height: 250px"></div>
-                        </div>
-                    </div>
-                    
-                  
-                    
-                    <div class="tile">
-                        <h2 class="tile-title">Driver Bar Chart</h2>
-                        <div class="tile-config dropdown">
-                            <a data-toggle="dropdown" href="#" class="tooltips tile-menu" title="Options"></a>
-                            <ul class="dropdown-menu pull-right text-right">
-                                <li><a href="#">Refresh</a></li>
-                                <li><a href="#">Settings</a></li>
-                            </ul>
-                        </div>
-                        <div class="p-10">
-                            <div id="bar-chart" class="main-chart" style="height: 250px"></div>
-                        </div>
-                    </div>
-                
-  
-                    <!-- Pies -->
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="tile">
-                                <h2 class="tile-title"> DriverPie Chart</h2>
-                                <div class="tile-config dropdown">
-                                    <a data-toggle="dropdown" href="#" class="tooltips tile-menu" title="Options"></a>
-                                    <ul class="dropdown-menu pull-right text-right">
-                                        <li><a href="#">Refresh</a></li>
-                                        <li><a href="#">Settings</a></li>
-                                    </ul>
-                                </div>
-                                <div class="p-10">
-                                    <div id="pie-chart" class="main-chart" style="height: 300px"></div>
-                                </div>
+                <article id="paragraph" class="block-area">
+                    <h3 class="block-title">Chart Entities</h3>
+                    <div class="tab-container tile media">
+                        <ul class="tab pull-left tab-vertical nav nav-tabs" id="statTabs" style="height: auto;">
+                            <li class="active"><a href="#driver">Drivers</a></li>
+                            <li class=""><a href="#route">Routes</a></li>
+							<li class=""><a href="#shuttle">Shuttles</a></li>
+                        </ul>
+                          
+                        <div class="tab-content media-body">
+                            <div class="tab-pane active" id="driver">
+							<p>The following chart lists the amount of hours the driver has driven in the past 30 days:</p>
+                                <div class="list-group block" id="driverHours">
+									<?php
+										$driverHours = getDriverHours();
+										$driverNamesList = '';
+										$driverHoursList = '';
+										for($i = 0; $i < count($driverHours)/2; $i++) {
+											$driverNamesList .= (string)$driverHours[2*$i];
+											if($i != (count($driverHours)/2)-1) $driverNamesList .= ";";
+											$driverHoursList .= (string)$driverHours[2*$i+1];
+											if($i != (count($driverHours)/2)-1) $driverHoursList .= ";";
+										}
+									?>
+									<div class="tile">
+										<h2 class="tile-title">Driver Bar Chart</h2>
+										<div class="p-10">
+											<div id="driver-chart" class="main-chart" data-names=<?php echo $driverNamesList; ?> data-hours=<?php echo $driverHoursList; ?> style="height: 250px; width: 100%; padding: 0px; position: relative;"></div>
+										</div>
+									</div>
+								</div>
+                            </div>
+                            <div class="tab-pane" id="route">
+                            <p>The following chart lists the number of passengers who have taken the cabs in 24 hour based on route:</p>
+                                <div class="list-group block" id="routeList">
+									<div class="tile">
+										<h2 class="tile-title">Route Bar Chart</h2>
+										<div class="tile-config input-group w420">
+										<select class="form-control input-sm m-b-10 pull-right w200 h30" id="routeSel">
+											<option selected="true" style="display:none;">Select route</option>
+											<?php
+												$routeList = getRoutes();
+												$colums = $routeList[0];
+												$rows = (count($routeList)-1)/$colums;
+												for($i = 0; $i < $rows; $i++) echo "<option>".$routeList[$colums*$i+2]."</option>";
+											?>
+										</select>
+										<div class="input-group date w200" id="picker">
+										<input type='text' class="form-control pull-right h30" id="queryDate" disabled onchange="SetDefault($(this).val());"/>
+										<span class="input-group-addon add-on">
+											<span class="glyphicon glyphicon-calendar"></span>
+										</span>
+										</div>
+										</div>
+										<div class="p-10">
+											<div id="route-chart" class="main-chart" style="height: 250px; width: 100%; padding: 0px; position: relative;"></div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="tab-pane" id="shuttle">
+							<p>The following chart lists the number of passengers who have taken the cabs in the past 30 days:</p>
+                                <div class="list-group block" id="shuttleUsageList">
+									<?php
+										$shuttleUsageList = getShuttleUsage();
+										$shuttleList = '';
+										$shuttleCapList = '';
+										for($i = 0; $i < count($shuttleUsageList)/2; $i++) {
+											$shuttleList .= (string)$shuttleUsageList[2*$i];
+											if($i != (count($shuttleUsageList)/2)-1) $shuttleList .= ";";
+											$shuttleCapList .= (string)$shuttleUsageList[2*$i+1];
+											if($i != (count($shuttleUsageList)/2)-1) $shuttleCapList .= ";";
+										}
+									?>
+									<div class="tile">
+										<h2 class="tile-title">Shuttle Bar Chart</h2>
+										<div class="p-10">
+											<div id="shuttle-chart" class="main-chart" data-names=<?php echo $shuttleList; ?> data-cap=<?php echo $shuttleCapList; ?> style="height: 250px; width: 100%; padding: 0px; position: relative;"></div>
+										</div>
+									</div>
+								</div>
                             </div>
                         </div>
                         
-                        <div class="col-md-6">
-                            <div class="tile">
-                                <h2 class="tile-title">Driver Donut Chart</h2>
-                                <div class="tile-config dropdown">
-                                    <a data-toggle="dropdown" href="#" class="tooltips tile-menu" title="Options"></a>
-                                    <ul class="dropdown-menu pull-right text-right">
-                                        <li><a href="#">Refresh</a></li>
-                                        <li><a href="#">Settings</a></li>
-                                    </ul>
-                                </div>
-                                <div class="p-10">
-                                    <div id="donut-chart" class="main-chart" style="height: 300px"></div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
-                </div>
-                
+					<br>
+                </article> 
                 <hr class="whiter m-t-20 m-b-20" />
-
-                <div class="block-area">
-                    <h3 class="block-title">Driver Work Chart</h3>
-                    
-                    <!-- Easy Pie charts -->
-                    <div class="tile text-center">
-                        <div class="tile-dark p-10">
-                            <div class="pie-chart-tiny" data-percent="86">
-                                <span class="percent"></span>
-                                <span class="pie-title">Driver 1 <i class="m-l-5 fa fa-retweet"></i></span>
-                            </div>
-                            <div class="pie-chart-tiny" data-percent="23">
-                                <span class="percent"></span>
-                                <span class="pie-title">Driver 2 <i class="m-l-5 fa fa-retweet"></i></span>
-                            </div>
-                            <div class="pie-chart-tiny" data-percent="57">
-                                <span class="percent"></span>
-                                <span class="pie-title">Driver 3 <i class="m-l-5 fa fa-retweet"></i></span>
-                            </div>
-                            <div class="pie-chart-tiny" data-percent="34">
-                                <span class="percent"></span>
-                                <span class="pie-title">Driver 4 <i class="m-l-5 fa fa-retweet"></i></span>
-                            </div>
-                            <div class="pie-chart-tiny" data-percent="81">
-                                <span class="percent"></span>
-                                <span class="pie-title">Driver 5 <i class="m-l-5 fa fa-retweet"></i></span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <hr class="whiter m-t-20 m-b-20" />
-                
-               
-                
-              
-                <br/><br/><br/>
             </section>
         </section>
 		
@@ -170,41 +154,19 @@
 				}
 		?>
         
-        <!-- Javascript Libraries -->
-        <!-- jQuery -->
-        <script src="js/jquery.min.js"></script> <!-- jQuery Library -->
-        <script src="js/jquery-ui.min.js"></script> <!-- jQuery UI -->
-        <script src="js/jquery.easing.1.3.js"></script> <!-- jQuery Easing - Requirred for Lightbox -->
-        
-        <!-- Bootstrap -->
-        <script src="js/bootstrap.min.js"></script>
-        
-        <!-- Charts -->
+        <?php
+			include ("js.php"); 
+		?>
+		<!-- Charts -->
         <script src="js/charts/jquery.flot.js"></script> <!-- Flot Main -->
         <script src="js/charts/jquery.flot.time.js"></script> <!-- Flot sub -->
         <script src="js/charts/jquery.flot.animator.min.js"></script> <!-- Flot sub -->
         <script src="js/charts/jquery.flot.resize.min.js"></script> <!-- Flot sub - for repaint when resizing the screen -->
         <script src="js/charts/jquery.flot.orderBar.js"></script> <!-- Flot Bar chart -->
         <script src="js/charts/jquery.flot.pie.min.js"></script> <!-- Flot Pie chart -->
- 
-        <script src="js/sparkline.min.js"></script> <!-- Sparkline - Tiny charts -->
-        <script src="js/easypiechart.js"></script> <!-- EasyPieChart - Animated Pie Charts -->
-        <script src="js/charts.js"></script> <!-- All the above chart related functions -->
-        
-        <!-- Map -->
-        <script src="js/maps/jvectormap.min.js"></script> <!-- jVectorMap main library -->
-        <script src="js/maps/usa.js"></script> <!-- USA Map for jVectorMap -->
-        <script src="js/maps/world.js"></script> <!-- World Map for jVectorMap -->
-        
-        <!-- UX -->
-        <script src="js/scroll.min.js"></script> <!-- Custom Scrollbar -->
-        
-        <!-- Other -->
-        <script src="js/calendar.min.js"></script> <!-- Calendar -->
-        <script src="js/feeds.min.js"></script> <!-- News Feeds -->
-        
-        
-        <!-- All JS functions -->
-        <script src="js/functions.js"></script>
+		<script src="js/charts/jquery.flot.categories.js"></script> <!-- Flot print names -->
+		<script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment-with-locales.js"></script>
+		<script src="js/datetimepicker.min.js"></script> <!-- Date time picker -->
+		<script src="js/charts.js"></script> <!-- All the above chart related functions -->
     </body>
 </html>

@@ -6,7 +6,7 @@
 	include ("head.php"); 
 ?>
     </head>
-    <body id="skin-blur-violate">
+    <body>
 	<?php
 	error_reporting(0);
 	session_start();
@@ -95,7 +95,13 @@
 										}
 									?>
 								</div>
-								<a data-toggle='modal' href="#modalCreate" data-type='admin' class="btn pull-right">Create New Admin</a>
+								<?php 
+									if($_SESSION['type'] == 'superadmin') {
+								?>
+								<a data-toggle='modal' href="#modalCreate" data-type='superadmin' id='cAdmin' class="btn pull-right">Create New Admin</a>
+								<?php 
+									}
+								?>
                             </div>
                             <div class="tab-pane" id="driver">
                             <p>The list of drivers available in the system:</p>

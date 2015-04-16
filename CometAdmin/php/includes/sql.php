@@ -90,4 +90,34 @@
 	function deleteRoute($id) {
 		mysql_query('DELETE FROM `routes` WHERE `routeid` = "'.$id.'"');
 	}
+	
+	function getDriverHours() {
+		$result = array();
+		$getList = mysql_query("SELECT username, SUM( totaltime /3600000 ) AS totaltime FROM statistics_driver_time WHERE  `date` BETWEEN CURDATE( ) - INTERVAL 30 DAY AND CURDATE( ) GROUP BY username");
+		mysql_data_seek($getList, 0);
+		while ($row = mysql_fetch_assoc($getList)) {
+		  array_push($result, $row['username'], $row['totaltime']);
+		}
+		return $result;
+	}
+	
+	function getShuttleUsage() {
+		$result = array();
+		$getList = mysql_query("SELECT number, totalpassengers FROM shuttles");
+		mysql_data_seek($getList, 0);
+		while ($row = mysql_fetch_assoc($getList)) {
+		  array_push($result, $row['number'], $row['totalpassengers']);
+		}
+		return $result;
+	}
+	
+	function getData($route, $from, $to) {
+		$result = array();
+		$getList = mysql_query("SELECT FROM_UNIXTIME(FLOOR(UNIX_TIMESTAMP(timestamp) / 3600)*3600) AS timestamp, SUM(totalpassengers) AS totalpassengers FROM statistics_passengers, routes WHERE statistics_passengers.routeid = routes.routeid AND routes.rname = '$route' AND timestamp > '$from' AND timestamp < '$to' GROUP BY FLOOR(UNIX_TIMESTAMP(timestamp) / 3600)");
+		mysql_data_seek($getList, 0);
+		while ($row = mysql_fetch_assoc($getList)) {
+		  array_push($result, $row['timestamp'], $row['totalpassengers']);
+		}
+		return $result;
+	}
 ?>

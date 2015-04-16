@@ -6,7 +6,7 @@
 	include ("head.php"); 
 ?>
     </head>
-    <body id="skin-blur-violate">
+    <body>
 	<?php
 		session_start();
 		if(isset($_SESSION['uName'])) {
