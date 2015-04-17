@@ -103,7 +103,9 @@ public class MainActivity extends Activity implements LocationListener {
             }
         }
         else {
-            if ((Math.abs(lastLoc.distanceTo(location)) > 6)) { //Moved at least 6 meters in the last two seconds - In motion
+            float[] dist = new float[3];
+            Location.distanceBetween(lastLoc.getLatitude(), lastLoc.getLongitude(), location.getLatitude(), location.getLongitude(), dist);
+            if ((dist[0] > 6.0)) { //Moved at least 6 meters in the last two seconds - In motion
                 lastLoc = location;
                 blankScreen(true);
             } else {
@@ -125,14 +127,6 @@ public class MainActivity extends Activity implements LocationListener {
         this.runOnUiThread(new Runnable() {
             public void run() {
                 myBrowser.loadUrl("javascript:drawMarker(\"" + ids + "\",\"" + lats + "\",\"" + lons + "\")");
-            }
-        });
-    }
-
-    public void removeInterested(final String ids) {
-        this.runOnUiThread(new Runnable() {
-            public void run() {
-                myBrowser.loadUrl("javascript:deleteMarker(\"" + ids + "\")");
             }
         });
     }
@@ -237,8 +231,19 @@ public class MainActivity extends Activity implements LocationListener {
     public void initRoute(final String color, final String curves, final String lines) {
         this.runOnUiThread(new Runnable() {
             public void run() {
-                String args = "\"" + lines + "\"" + "," + "\"" + curves + "\"" + "," + "\"" + color + "\"";
+                String line = lines.replace("\\", "\\\\");
+                String curve = curves.replace("\\", "\\\\");
+                String args = "\"" + line + "\"" + "," + "\"" + curve + "\"" + "," + "\"" + color + "\"";
                 myBrowser.loadUrl("javascript:initRoute(" + args + ")");
+            }
+        });
+    }
+
+    public void refreshInterested(final String ids, final String lats, final String lons) {
+        this.runOnUiThread(new Runnable() {
+            public void run() {
+                myBrowser.loadUrl("javascript:deleteAllMarkers()");
+                myBrowser.loadUrl("javascript:drawMarker(\"" + ids + "\",\"" + lats + "\",\"" + lons + "\")");
             }
         });
     }

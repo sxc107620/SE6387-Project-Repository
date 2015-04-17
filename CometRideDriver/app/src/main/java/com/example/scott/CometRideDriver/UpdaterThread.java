@@ -77,6 +77,7 @@ public class UpdaterThread extends Thread {
 
     public void setRoute(String name) {
         this.routeName = name;
+        interestedRiders.setRoute(name);
         getRouteInfo = true;
     }
 
@@ -102,7 +103,7 @@ public class UpdaterThread extends Thread {
         }
         shuttleList = getShuttleList();
         routeNames = getRouteList();
-        interestedRiders = new InterestedRiderHandler(serverConn,routeName,main);
+        interestedRiders = new InterestedRiderHandler(serverConn,main);
         while(running) {
             if(loginReady) {
                 boolean status = validateLogin(username,password);
@@ -128,7 +129,6 @@ public class UpdaterThread extends Thread {
                     continue;
                 }
                 boolean status = main.getStatus();
-                main.bluetoothUpdate(ourShuttle.toString());
                 sendInfoToServer(numRiders, newRiders, currentLoc, status);
                 main.updateCab(currentLoc.getLatitude(), currentLoc.getLongitude());
                 interestedRiders.handle();
