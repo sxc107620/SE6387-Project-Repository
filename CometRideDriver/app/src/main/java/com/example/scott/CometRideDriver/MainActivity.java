@@ -57,6 +57,7 @@ public class MainActivity extends Activity implements LocationListener {
 
         myBrowser.addJavascriptInterface(myJavaScriptInterface, "AndroidFunction");
         myBrowser.getSettings().setJavaScriptEnabled(true);
+        myBrowser.setKeepScreenOn(true);
 
         setUpBluetooth();
         setUpGPS();

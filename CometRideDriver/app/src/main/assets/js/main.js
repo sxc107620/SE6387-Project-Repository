@@ -162,11 +162,20 @@ function drawMarker(id, latPts, lngPts) {
 	}
 }
 
-function deleteMarker(id) {
-	var ids = id.split(',');
-	for(i=0; i<ids.length; i++) {
-		marker[ids[i]].setMap(null);
+//This is the function I really want
+//But if I include it, all the other functions become undefined
+function deleteAllMarkers() {
+	for(i=0; i<marker.length; i++;) {
+		marker[i].setMap(null);
 	}
+}
+
+//Rendered obsolete by the above
+function deleteMarker(id) {
+//	var ids = id.split(',');
+//	for(i=0; i<ids.length; i++) {
+//		marker[ids[i]].setMap(null);
+//	}
 }
 
 	// Instantiate a counter
