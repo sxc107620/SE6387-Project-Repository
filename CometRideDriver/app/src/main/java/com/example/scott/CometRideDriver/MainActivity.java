@@ -20,6 +20,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.Set;
 
 
@@ -31,9 +32,10 @@ public class MainActivity extends Activity implements LocationListener {
     private LocationManager locMgr;
     private Location lastLoc = null;
     private int currentRiders = 0;
-    private int driverStatus = 0;
     private int newRiders = 0;
     private int capacity = 0;
+    private String routeName;
+    private int shuttleNum;
     boolean status = true; //Start on duty
 
     private WebView myBrowser;
@@ -46,11 +48,6 @@ public class MainActivity extends Activity implements LocationListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        updater = LoginActivity.updater;
-        updater.setMainActivity(MainActivity.this);
-
-        setUpBluetooth();
-        setUpGPS();
 
         myBrowser = (WebView)findViewById(R.id.mybrowser);
         final MyJavaScriptInterface myJavaScriptInterface = new MyJavaScriptInterface(this);
@@ -59,20 +56,12 @@ public class MainActivity extends Activity implements LocationListener {
         myBrowser.getSettings().setJavaScriptEnabled(true);
 
         int capacity = updater.getShuttleCapacity();
-        myBrowser.loadUrl("file:///android_asset/index.html?type=" + capacity);
-        myBrowser.setWebViewClient(new WebViewClient() {
-            public void onPageFinished(WebView view, String url) {
-                super.onPageFinished(view, url);
-                String lines = updater.getRouteLines();
-                lines = lines.replace("\\", "\\\\");
-                String curves = updater.getRouteCurves();
-                curves = curves.replace("\\", "\\\\");
-                String color = updater.getRouteColor();
-                //bluetoothUpdate(curves);
-                String args = "\"" + lines + "\"" + "," + "\"" + curves + "\"" + "," + "\"" + color + "\"";
-                view.loadUrl("javascript:initRoute(" + args + ")");
-            }
-        });
+        myBrowser.loadUrl("file:///android_asset/index.html");
+        updater = new UpdaterThread(this);
+        updater.start();
+        setUpBluetooth();
+        setUpGPS();
+
     }
 
     public void setCapacity(int num) {
@@ -193,6 +182,45 @@ public class MainActivity extends Activity implements LocationListener {
         locMgr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 0, this);
     }
 
+    public void setRoutesAndShuttles(ArrayList<Shuttle> shuttleList, ArrayList<String> routeNames) {
+        String shuttleJSON = "[";
+        for(Shuttle s : shuttleList) {
+            String thisShuttle = "[";
+            thisShuttle += "\"" + s.getNumber() + "\"";
+            thisShuttle += ",";
+            thisShuttle += "\"" + s.getCapacity() + "\"";
+            thisShuttle += "],";
+            shuttleJSON += thisShuttle;
+        }
+        shuttleJSON.substring(0, shuttleJSON.length()-1); //Remove last comma
+        shuttleJSON += "]";
+        myBrowser.loadUrl("javascript:initCabs(" + "\"" + shuttleJSON + "\"" + ")");
+        String routeJSON = "[";
+        for(String r : routeNames) {
+            routeJSON += "\"" + r + "\"";
+            routeJSON += ",";
+        }
+        routeJSON.substring(0, routeJSON.length()-1); //Remove last comma
+        routeJSON += "]";
+        myBrowser.loadUrl("javascript:initRoutes(" + "\"" + shuttleJSON + "\"" + ")");
+    }
+
+    public void validLogin() {
+        myBrowser.loadUrl("javascript:loginSuccess()");
+        updater.setRoute(routeName);
+    }
+
+    public void invalidLogin() {
+        myBrowser.loadUrl("javascript:loginFailure()");
+        routeName = "";
+        shuttleNum = -1;
+    }
+
+    public void initRoute(String color, String curves, String lines) {
+        String args = "\"" + lines + "\"" + "," + "\"" + curves + "\"" + "," + "\"" + color + "\"";
+        myBrowser.loadUrl("javascript:initRoute(" + args + ")");
+    }
+
     public class MyJavaScriptInterface {
         Context mContext;
 
@@ -227,9 +255,11 @@ public class MainActivity extends Activity implements LocationListener {
         }
 
         public void credentials(String username, String pwd, String route, String cab) {
-            //call loginSuccess() if the credentials match
-            //if not call loginFailure()
-
+            updater.setUsername(username);
+            updater.setPassword(pwd);
+            updater.setLoginReady();
+            routeName = route;
+            shuttleNum = Integer.parseInt(cab);
         }
 
 

@@ -155,10 +155,6 @@ public class Server {
 					e.printStackTrace();
 				}
 			}
-			if(!loggedIn) {
-				out.write("Not logged in. Closing connection");
-				keepGoing = false;	
-			}
 			if(str.equalsIgnoreCase("get routes")) {
 				routeList = Database.getRoutes();
 				int num = routeList.size();
@@ -167,6 +163,20 @@ public class Server {
 					out.write(rt.getRname() + "\n");
 				}
 				out.flush();
+			}
+			if(str.equalsIgnoreCase("get shuttles")) {
+				ArrayList<Shuttle> shuttles = Database.getShuttleList();
+				int num = shuttles.size();
+				out.write(num + "\n");
+				for(Shuttle n : shuttles) {
+					out.write(n.getId() + "\n");
+					out.write(n.getCapacity() + "\n");
+				}
+				out.flush();
+			}
+			if(!loggedIn) {
+				out.write("Not logged in. Closing connection");
+				keepGoing = false;	
 			}
 			if(str.equalsIgnoreCase("route info")) {
 				String route = "";
@@ -180,19 +190,7 @@ public class Server {
 						out.write(rt.getLines() + "\n");
 						out.write(rt.getCurves() + "\n");
 						out.write(rt.getColor() + "\n");
-						System.out.println(rt.getLines());
-						System.out.println(rt.getCurves());
-						System.out.println(rt.getColor());
 					}
-				}
-				out.flush();
-			}
-			if(str.equalsIgnoreCase("get shuttles")) {
-				ArrayList<Integer> shuttles = Database.getShuttleList();
-				int num = shuttles.size();
-				out.write(num + "\n");
-				for(Integer n : shuttles) {
-					out.write(n + "\n");
 				}
 				out.flush();
 			}

@@ -39,12 +39,11 @@ public class UpdaterThread extends Thread {
     private boolean getRouteInfo = false;
     private boolean running = true;
 
-    private LoginActivity login;
     private MainActivity main;
-    private RouteActivity route;
-    private ShuttleActivity shuttle;
     private InterestedRiderHandler interestedRiders;
 
+    private ArrayList<String> routeNames;
+    private ArrayList<Shuttle> shuttleList;
     private String routeLines = "";
     private String routeCurves = "";
     private String routeColor = "";
@@ -54,20 +53,15 @@ public class UpdaterThread extends Thread {
     private Integer ourShuttle;
     private int shuttleCapacity;
 
-    public Socket getSocket() { return serverConn; }
-
     public String getRouteName() { return routeName; }
 
-    public UpdaterThread(LoginActivity login) {
-        this.login = login;
+    public UpdaterThread(MainActivity main) {
+        this.main = main;
+        interestedRiders = new InterestedRiderHandler(serverConn,routeName,main);
     }
 
     public void setLoginReady() {
         loginReady = true;
-    }
-
-    public void setGetCapacity() {
-        getCapacity = true;
     }
 
     public void setUpdateReady(boolean b) {
@@ -82,26 +76,12 @@ public class UpdaterThread extends Thread {
         password = p;
     }
 
-    public void setRouteActivity(RouteActivity route) {
-        this.route = route;
-    }
-
     public void setRoute(String name) {
-        route.routeSet();
         this.routeName = name;
         getRouteInfo = true;
     }
 
     public int getShuttleCapacity() { return shuttleCapacity; }
-
-    public void setMainActivity(MainActivity main) {
-        this.main = main;
-        interestedRiders = new InterestedRiderHandler(serverConn,routeName,main);
-    }
-
-    public void setShuttleActivity(ShuttleActivity shuttle) {
-        this.shuttle = shuttle;
-    }
 
     public void run() {
         running = true;
@@ -109,7 +89,7 @@ public class UpdaterThread extends Thread {
             serverConn = new Socket(Host, port);
             serverConn.setKeepAlive(true);
         } catch (Exception e) {
-            login.bluetoothUpdate(e.getMessage());
+            main.bluetoothUpdate(e.getMessage());
         }
         try {
             fromServer = new BufferedReader(new InputStreamReader(serverConn.getInputStream()));
@@ -118,30 +98,24 @@ public class UpdaterThread extends Thread {
             //login.bluetoothUpdate("IOException getting streams");
         }
         //toServer.write("Connected");
+        shuttleList = getShuttleList();
+        routeNames = getRouteList();
+        main.setRoutesAndShuttles(shuttleList,routeNames);
         while(running) {
-            //login.bluetoothUpdate("Iterate");
             if(loginReady) {
-                validateLogin(username, password);
+                boolean status = validateLogin(username,password);
+                if(status) {
+                    main.validLogin();
+                }
+                else {
+                    main.invalidLogin();
+                }
                 loginReady = false;
-            }
-            if(selectRoutes) {
-                ArrayList<String> routeList = getRouteList();
-                route.selectRoute(routeList);
-                selectRoutes = false;
             }
             if(getRouteInfo) {
                 requestRouteInfo();
+                main.initRoute(routeColor, routeCurves, routeLines);
                 getRouteInfo = false;
-            }
-            if(selectShuttle) {
-                ArrayList<Integer> shuttleList = getShuttleList();
-                shuttle.selectShuttle(shuttleList);
-                selectShuttle = false;
-            }
-            if(getCapacity) {
-                getCapacity(ourShuttle);
-                shuttle.shuttleSet();
-                getCapacity = false;
             }
             if(updateReady) {
                 int numRiders = main.getCurrentRiders();
@@ -172,24 +146,8 @@ public class UpdaterThread extends Thread {
         catch (Exception e) {}
     }
 
-    private void getCapacity(Integer ourShuttle) {
-        int capacity;
-        toServer.write("Capacity\n");
-        toServer.write(ourShuttle + "\n");
-        toServer.flush();
-        String Line = null;
-        try {
-            Line = fromServer.readLine();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        char num = Line.charAt(0);
-        capacity = Character.getNumericValue(num);
-        shuttleCapacity = capacity;
-    }
-
-    private ArrayList<Integer> getShuttleList() {
-        ArrayList<Integer> shuttles = new ArrayList<Integer>();
+    private ArrayList<Shuttle> getShuttleList() {
+        ArrayList<Shuttle> shuttles = new ArrayList<>();
         toServer.write("Get Shuttles\n");
         toServer.flush();
         int numShuttles = 0;
@@ -201,15 +159,18 @@ public class UpdaterThread extends Thread {
             e.printStackTrace();
         }
         for(int i = 0; i < numShuttles; i++) {
-            String line = "";
+            num = "";
+            String cap = "";
             try {
-                line = fromServer.readLine();
+                num = fromServer.readLine();
+                cap = fromServer.readLine();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            if(!line.equals("")) {
-                Integer shuttle = Integer.parseInt(line);
-                shuttles.add(shuttle);
+            if(!num.equals("") && !cap.equals("")) {
+                int shuttle = Integer.parseInt(num);
+                int capacity = Integer.parseInt(cap);
+                shuttles.add(new Shuttle(shuttle,capacity));
             }
         }
         return shuttles;
@@ -258,7 +219,7 @@ public class UpdaterThread extends Thread {
         }
     }
 
-    private void validateLogin(String user, String pass) {
+    private boolean validateLogin(String user, String pass) {
         boolean status = false;
         toServer.write("Login" + '\n');
         toServer.write(user + '\n');
@@ -274,8 +235,7 @@ public class UpdaterThread extends Thread {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        login.loginResponse(status);
+        return status;
     }
 
     public void kill() {
@@ -305,18 +265,6 @@ public class UpdaterThread extends Thread {
         }
         String md5_pass = sb.toString();
         return md5_pass;
-    }
-
-    public void setSelectRoutes() {
-        selectRoutes = true;
-    }
-
-    public void setSelectShuttle() {
-        selectShuttle = true;
-    }
-
-    public void setShuttle(Integer shut) {
-        ourShuttle = shut;
     }
 
     public String getRouteLines() {
