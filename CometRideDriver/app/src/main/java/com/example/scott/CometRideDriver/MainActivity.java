@@ -18,7 +18,6 @@ import android.view.MenuItem;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.Set;
@@ -225,6 +224,12 @@ public class MainActivity extends Activity implements LocationListener {
         public void incrementPressed() {
             //Triggers whenever + is pressed
             newRiders++;
+        }
+
+        public void credentials(String username, String pwd, String route, String cab) {
+            //call loginSuccess() if the credentials match
+            //if not call loginFailure()
+
         }
 
 

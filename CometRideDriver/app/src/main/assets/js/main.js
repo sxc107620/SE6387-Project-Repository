@@ -1,6 +1,73 @@
 var clock;
 var capacity = 0;
 var shuttleType = 5;
+
+//Login Page
+function loginPage() {
+	$('.cab-stat').hide();
+	$('#counterPage').hide();
+	$('#loginPage').show();
+	$('#alertMessage').hide();
+}
+
+function counterPage() {
+	$('.cab-stat').show();
+	$('#counterPage').show();
+	$('#loginPage').hide();
+}
+
+function initRoutes(data) {
+	/*var json = [];
+	json.push("Route 1", "Route 2", "Route 3");
+	data = JSON.stringify(json);
+	console.log(data)//["Route 1","Route 2","Route 3"];*/
+	data = JSON.parse(data);
+	for(i=0; i<data.length; i++) $("#login-route").append(new Option(data[i], i));
+}
+
+function initCabs(data) {
+	/*var json = [];
+	json.push(new Array("101", "7"), new Array("201", "9"), new Array("301", "7"));
+	data = JSON.stringify(json);
+	console.log(data)//[["101","7"],["201","9"],["301","7"]];*/
+	data = JSON.parse(data);
+	for(i=0; i<data.length; i++) $("#login-cab").append(new Option(data[i][0], data[i][1]));
+}
+
+function loginSuccess() {
+	shuttleType = $("#login-cab").val();
+	height = $(document).height() - $('#map').position().top;
+	$('#map').height(height-140);
+	counterPage();
+	statusUpdate(1);
+}
+
+function loginFailure() {
+	$('#alertMessage span').html("Your login credentials were incorrect");
+	$('#alertMessage').show();
+}
+
+$('#login').click(function() {
+	var error = '';
+	uname = $('#login-username').val();
+	pass = $('#login-password').val();
+	route = $('#login-route').val();
+	cab = $('#login-cab option:selected').html();
+	if(uname == '') error += "<li>Username is empty</li>";
+	if(pass == '') error += "<li>Password is empty</li>";
+	if(route == 'Select route') error += "<li>Route not selected</li>";
+	if(cab == 'Select cab') error += "<li>Cab not selected</li>";
+	console.log(cab);
+	if(error.length == '') {
+		$('#alertMessage').hide();
+		checkCredentials(uname, pass, route, cab);
+	}
+	else {
+		$('#alertMessage span').html("<ul>" + error + "</ul>");
+		$('#alertMessage').show();
+	}
+});
+
 function getQueryParams(qs) {
     qs = qs.split("+").join(" ");
 
@@ -15,11 +82,10 @@ function getQueryParams(qs) {
     return params;
 }
 
-var query = getQueryParams(document.location.search);
-shuttleType = query.type;
+/*var query = getQueryParams(document.location.search);
+shuttleType = query.type;*/
 
-height = $(document).height() - $('#map').position().top;
-$('#map').height(height-140);
+
 
 marker = Array();
 
@@ -135,11 +201,9 @@ function deleteMarker(id) {
 			$("#count").hide();
 			clock.reset();
 			capacity = 0;
+			loginPage();
 			statusUpdate(0);
-		} else {
-			$("#count").show();
-			statusUpdate(1);
-		}
+		} 
 	});
 
 
@@ -191,5 +255,7 @@ function passengerOn() {
   AndroidFunction.incrementPressed();
 }
 
-
+function checkCredentials(username, password, route, cab) {
+	AndroidFunction.credentials(username, password, route, cab);
+}
  

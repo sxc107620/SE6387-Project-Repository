@@ -149,6 +149,28 @@ body {
   float: right!important;
   margin-right: 15px;
   margin-top: 15px;
+  display: none;
+}
+
+#counterPage {
+  display: none;
+}
+
+.t100 {
+  position: relative;
+  top: 100px;
+}
+
+.glyphicon-bed:before {
+  content: "\e219";
+}
+
+#alertMessage {
+  display: none;
+}
+
+#alertMessage span ul li {
+  text-align: left;
 }
 
 
