@@ -120,21 +120,23 @@ public class DAO
         return false;
 	}
 	
-	public ArrayList<Integer> getShuttleList()
+	public ArrayList<Shuttle> getShuttleList()
     {
         Connection con = DAOConnection.getConnection();
         try
         {
-        	ArrayList<Integer> routes = new ArrayList<Integer>();
+        	ArrayList<Shuttle> routes = new ArrayList<Shuttle>();
         	
-            String query = "SELECT number FROM shuttles;";
+            String query = "SELECT number,type FROM shuttles;";
             PreparedStatement preparedStatement = con.prepareStatement(query);
             preparedStatement.executeQuery();
             ResultSet rs = preparedStatement.getResultSet();
             while (rs.next())
             {
                 int number = rs.getInt("number");
-                routes.add(number);
+		String type = rs.getString("type");
+		int cap = Character.getNumericValue(type.charAt(0));
+                routes.add(new Shuttle(number, cap));
             }
             closeConnection(con);
             return routes;

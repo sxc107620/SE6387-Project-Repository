@@ -136,7 +136,7 @@ public class Server {
 					System.out.println("Exception reading Streams: " + e);
 					break;
 			}
-			System.out.println(str);
+			//System.out.println(str);
 			if(str.equalsIgnoreCase("login")) {
 				try {
 					String username = in.readLine();
@@ -154,6 +154,7 @@ public class Server {
 				catch (IOException e) {
 					e.printStackTrace();
 				}
+				continue;
 			}
 			if(str.equalsIgnoreCase("get routes")) {
 				routeList = Database.getRoutes();
@@ -163,6 +164,7 @@ public class Server {
 					out.write(rt.getRname() + "\n");
 				}
 				out.flush();
+				continue;
 			}
 			if(str.equalsIgnoreCase("get shuttles")) {
 				ArrayList<Shuttle> shuttles = Database.getShuttleList();
@@ -173,6 +175,10 @@ public class Server {
 					out.write(n.getCapacity() + "\n");
 				}
 				out.flush();
+				continue;
+			}
+			if(str.equalsIgnoreCase("keep alive")) {
+				continue;
 			}
 			if(!loggedIn) {
 				out.write("Not logged in. Closing connection");
@@ -184,7 +190,6 @@ public class Server {
 					 route = in.readLine();
 				} catch(Exception e) {
 					}
-				System.out.println(route);
 				for(Route rt : routeList) {
 					if(route.equals(rt.getRname())) {
 						out.write(rt.getLines() + "\n");

@@ -12,6 +12,6 @@ class Shuttle {
 	}
 	
 	public int getCapacity() {
-		return cap;
+		return capacity;
 	}
 }
