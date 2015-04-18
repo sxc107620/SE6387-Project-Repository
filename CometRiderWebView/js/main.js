@@ -179,6 +179,8 @@ $('.nav-list').on('click', '.routeChange', function() {
 	savepoints = $(this).data('savepoints');
 	color = $(this).data('color');
 	while(overlay.length != 0) overlay.pop().setMap(null);
+	while(prevLt.length != 0) prevLt.pop();
+	while(prevLn.length != 0) prevLn.pop();
 	$.each(shuttle, function(index, value) {
 		if(typeof(value) != 'undefined') value.setMap(null);
 	});
