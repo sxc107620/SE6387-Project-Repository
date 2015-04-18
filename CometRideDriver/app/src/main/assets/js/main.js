@@ -209,7 +209,6 @@ function deleteMarker(id) {
 		$(this).find('.btn').toggleClass('btn-default');
 
 		if ($(this).find('.active').html() == "OFF-Duty") {
-			$("#count").hide();
 			clock.reset();
 			capacity = 0;
 			loginPage();
