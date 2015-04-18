@@ -21,12 +21,11 @@ public class InterestedRiderHandler {
     ArrayList<InterestedRider> interestedList;
     ArrayList<InterestedRider> clearedEntries;
 
-    public InterestedRiderHandler(Socket conn, String r, MainActivity m) {
+    public InterestedRiderHandler(Socket conn, MainActivity m) {
         main = m;
         interestedList = new ArrayList<>();
         clearedEntries = new ArrayList<>();
         serverConn = conn;
-        route = r;
         try {
             fromServer = new BufferedReader(new InputStreamReader(serverConn.getInputStream()));
             toServer = new PrintWriter(serverConn.getOutputStream());
@@ -35,20 +34,14 @@ public class InterestedRiderHandler {
         }
     }
 
+    public void setRoute(String r) {
+        this.route = r;
+    }
+
     public void handle() {
         populateInterestedList();
         removeEntries();
         updateInterestedOnMap();
-        clearOldOnMap();
-    }
-
-    private void clearOldOnMap() {
-        String removeIDs = "";
-        for(InterestedRider i : clearedEntries) {
-            removeIDs += i.id + ",";
-        }
-        removeIDs.substring(0,removeIDs.length());
-        main.removeInterested(removeIDs);
     }
 
     private void updateInterestedOnMap() {
@@ -60,10 +53,14 @@ public class InterestedRiderHandler {
             interestedLats += i.latitude + ",";
             interestedLons += i.longitude + ",";
         }
-        interestedIDs = interestedIDs.substring(0,interestedIDs.length());
-        interestedLats = interestedLats.substring(0,interestedLats.length());
-        interestedLons = interestedLons.substring(0,interestedLons.length());
-        main.addInterested(interestedIDs,interestedLats,interestedLons);
+        if(!interestedIDs.isEmpty()) {
+            interestedIDs = interestedIDs.substring(0, interestedIDs.length() - 1);
+            interestedLats = interestedLats.substring(0, interestedLats.length() - 1);
+            interestedLons = interestedLons.substring(0, interestedLons.length() - 1);
+        }
+        main.refreshInterested(interestedIDs, interestedLats, interestedLons);
+        interestedList.clear();
+        clearedEntries.clear();
     }
 
     private void populateInterestedList() {
@@ -102,13 +99,14 @@ public class InterestedRiderHandler {
     }
 
     private void removeEntries() {
+        clearedEntries.clear();
         Location loc = main.getLastLoc();
         for(InterestedRider r : interestedList) {
-            Location rider = new Location("");
-            rider.setLatitude(r.latitude);
-            rider.setLongitude(r.longitude);
-            if(loc.distanceTo(rider) < 5) {
+            float[] dist = new float[3];
+            Location.distanceBetween(loc.getLatitude(), loc.getLongitude(), r.latitude, r.longitude, dist);
+            if(dist[0] < 5.0) {
                 clearedEntries.add(r);
+                interestedList.remove(r);
             }
         }
         for(InterestedRider r : clearedEntries) {

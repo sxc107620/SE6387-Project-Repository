@@ -57,7 +57,6 @@ public class UpdaterThread extends Thread {
 
     public UpdaterThread(MainActivity main) {
         this.main = main;
-        interestedRiders = new InterestedRiderHandler(serverConn,routeName,main);
     }
 
     public void setLoginReady() {
@@ -78,7 +77,12 @@ public class UpdaterThread extends Thread {
 
     public void setRoute(String name) {
         this.routeName = name;
+        interestedRiders.setRoute(name);
         getRouteInfo = true;
+    }
+
+    public void setShuttle(int shuttle) {
+        ourShuttle = shuttle;
     }
 
     public int getShuttleCapacity() { return shuttleCapacity; }
@@ -97,10 +101,9 @@ public class UpdaterThread extends Thread {
         } catch (IOException e) {
             //login.bluetoothUpdate("IOException getting streams");
         }
-        //toServer.write("Connected");
         shuttleList = getShuttleList();
         routeNames = getRouteList();
-        main.setRoutesAndShuttles(shuttleList,routeNames);
+        interestedRiders = new InterestedRiderHandler(serverConn,main);
         while(running) {
             if(loginReady) {
                 boolean status = validateLogin(username,password);
@@ -112,19 +115,26 @@ public class UpdaterThread extends Thread {
                 }
                 loginReady = false;
             }
-            if(getRouteInfo) {
+            else if(getRouteInfo) {
                 requestRouteInfo();
                 main.initRoute(routeColor, routeCurves, routeLines);
                 getRouteInfo = false;
             }
-            if(updateReady) {
+            else if(updateReady) {
                 int numRiders = main.getCurrentRiders();
                 int newRiders = main.getNewRiders();
                 Location currentLoc = main.getLocation();
+                if(currentLoc == null) {
+                    toServer.write("Keep alive\n");
+                    continue;
+                }
                 boolean status = main.getStatus();
                 sendInfoToServer(numRiders, newRiders, currentLoc, status);
                 main.updateCab(currentLoc.getLatitude(), currentLoc.getLongitude());
                 interestedRiders.handle();
+            }
+            else {
+                toServer.write("Keep alive\n");
             }
             try {
                 Thread.sleep(2000);
@@ -277,5 +287,13 @@ public class UpdaterThread extends Thread {
 
     public String getRouteColor() {
         return routeColor;
+    }
+
+    public ArrayList<String> getRouteNames() {
+        return routeNames;
+    }
+
+    public ArrayList<Shuttle> getShuttles() {
+        return shuttleList;
     }
 }

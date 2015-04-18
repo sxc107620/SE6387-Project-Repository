@@ -40,7 +40,7 @@ $('#map-container').css({
 
 var map; 
 overlay = [];
-var groupPoints = new google.maps.MVCArray;
+var points = new google.maps.MVCArray;
 var routeid;
 var GeoMarker;
 var interestLocation = [];
@@ -84,8 +84,13 @@ function plotter(lines, curves, savepoints, color) {
 			});
 			overlay.push(marker);
 		}
+	var bounds = new google.maps.LatLngBounds();
+	for (var n = 0; n < points.length ; n++){
+		bounds.extend(points[n]);
 	}
-	groupPoints = [];
+	map.fitBounds(bounds);
+	}
+	
 	if (slines.length != 0) {
 		$.each(slines, function( index, value ) {
 			if(value.length != 0) {
@@ -98,9 +103,6 @@ function plotter(lines, curves, savepoints, color) {
 					map: map
 				});
 				overlay.push(linePath);
-				$.each(linePath.getPath().getArray(), function( index, value ) {
-					groupPoints.push(value);
-				});
 			}
 		});
 	}
@@ -114,18 +116,7 @@ function plotter(lines, curves, savepoints, color) {
 			map: map
 		});
 		overlay.push(curvePath);
-		if(groupPoints.length == 0) groupPoints = curvePath.getPath().getArray();
-		else {
-			$.each(curvePath.getPath().getArray(), function( index, value ) {
-				groupPoints.push(value);
-			});
-		}
 	}
-	var bounds = new google.maps.LatLngBounds();
-	for (var n = 0; n < groupPoints.length ; n++){
-		bounds.extend(groupPoints[n]);
-	}
-	map.fitBounds(bounds);
 	
 	//Interest Points
 	if(interestLocation != 0) {
@@ -135,8 +126,8 @@ function plotter(lines, curves, savepoints, color) {
 }
 
 var shuttle = [];
-var prevLt;
-var prevLn;
+var prevLt = [];
+var prevLn = [];
 var infowindow = [];
 function tracker() {
 		var image = 'img/car.png';
@@ -146,12 +137,13 @@ function tracker() {
 				shuttleLocations = jQuery.parseJSON(event.data);
 				for(var count in shuttleLocations) {
 					if(shuttleLocations[count].Route == routeid) {
-						if((prevLt != shuttleLocations[count].Latitude) && (prevLn != shuttleLocations[count].Longitude)) {
+						if((prevLt[count] != shuttleLocations[count].Latitude) && (prevLn[count] != shuttleLocations[count].Longitude)) {
 							if(typeof(shuttle[count]) != 'undefined') shuttle[count].setMap(null);
 							var shuttlePos = new google.maps.LatLng(shuttleLocations[count].Latitude, shuttleLocations[count].Longitude);
 							cap = shuttleLocations[count].Capacity+"/"+shuttleLocations[count].Type;
 							var options = {
-								position: shuttlePos
+								position: shuttlePos,
+								disableAutoPan: true
 							};
 							infowindow[count] = new google.maps.InfoWindow(options);
 							var contentString = 
@@ -171,8 +163,8 @@ function tracker() {
 								$(".gm-style-iw").next("div").hide();
 							});
 							
-							prevLt = shuttleLocations[count].Latitude;
-							prevLn = shuttleLocations[count].Longitude;
+							prevLt[count] = shuttleLocations[count].Latitude;
+							prevLn[count] = shuttleLocations[count].Longitude;
 						} 
 					}
 				}
@@ -270,7 +262,7 @@ function bookCab(id, lat, lng) {
 $('.interest').click(function() {
 	navigator.geolocation.getCurrentPosition(function(position) {
 		currentPos = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-		closestPt = closest(currentPos, groupPoints);
+		closestPt = closest(currentPos, points);
 		console.log();
 		if(closestPt[1] > 300)
 			drawRoute(currentPos, closestPt[0]);

@@ -49,19 +49,28 @@ public class MainActivity extends Activity implements LocationListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        updater = new UpdaterThread(this);
+        updater.start();
+
         myBrowser = (WebView)findViewById(R.id.mybrowser);
         final MyJavaScriptInterface myJavaScriptInterface = new MyJavaScriptInterface(this);
 
         myBrowser.addJavascriptInterface(myJavaScriptInterface, "AndroidFunction");
         myBrowser.getSettings().setJavaScriptEnabled(true);
+        myBrowser.setKeepScreenOn(true);
 
-        int capacity = updater.getShuttleCapacity();
-        myBrowser.loadUrl("file:///android_asset/index.html");
-        updater = new UpdaterThread(this);
-        updater.start();
         setUpBluetooth();
         setUpGPS();
 
+        myBrowser.loadUrl("file:///android_asset/index.html");
+        myBrowser.setWebViewClient(new WebViewClient() {
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                ArrayList<String> routeNames = updater.getRouteNames();
+                ArrayList<Shuttle> shuttles = updater.getShuttles();
+                setRoutesAndShuttles(shuttles, routeNames);
+            }
+        });
     }
 
     public void setCapacity(int num) {
@@ -95,7 +104,9 @@ public class MainActivity extends Activity implements LocationListener {
             }
         }
         else {
-            if ((Math.abs(lastLoc.distanceTo(location)) > 2)) { //Moved at least 2 meters in the last two seconds - In motion
+            float[] dist = new float[3];
+            Location.distanceBetween(lastLoc.getLatitude(), lastLoc.getLongitude(), location.getLatitude(), location.getLongitude(), dist);
+            if ((dist[0] > 6.0)) { //Moved at least 6 meters in the last two seconds - In motion
                 lastLoc = location;
                 blankScreen(true);
             } else {
@@ -117,14 +128,6 @@ public class MainActivity extends Activity implements LocationListener {
         this.runOnUiThread(new Runnable() {
             public void run() {
                 myBrowser.loadUrl("javascript:drawMarker(\"" + ids + "\",\"" + lats + "\",\"" + lons + "\")");
-            }
-        });
-    }
-
-    public void removeInterested(final String ids) {
-        this.runOnUiThread(new Runnable() {
-            public void run() {
-                myBrowser.loadUrl("javascript:deleteMarker(\"" + ids + "\")");
             }
         });
     }
@@ -179,7 +182,6 @@ public class MainActivity extends Activity implements LocationListener {
             final AlertDialog alert = builder.create();
             alert.show();
         }
-        locMgr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 0, this);
     }
 
     public void setRoutesAndShuttles(ArrayList<Shuttle> shuttleList, ArrayList<String> routeNames) {
@@ -189,36 +191,62 @@ public class MainActivity extends Activity implements LocationListener {
             thisShuttle += "\"" + s.getNumber() + "\"";
             thisShuttle += ",";
             thisShuttle += "\"" + s.getCapacity() + "\"";
-            thisShuttle += "],";
+            thisShuttle += "], ";
             shuttleJSON += thisShuttle;
         }
-        shuttleJSON.substring(0, shuttleJSON.length()-1); //Remove last comma
+        shuttleJSON = shuttleJSON.substring(0, shuttleJSON.length()-2); //Remove last comma
         shuttleJSON += "]";
-        myBrowser.loadUrl("javascript:initCabs(" + "\"" + shuttleJSON + "\"" + ")");
+        myBrowser.loadUrl("javascript:initCabs(" + "\'" + shuttleJSON + "\'" + ")");
         String routeJSON = "[";
         for(String r : routeNames) {
             routeJSON += "\"" + r + "\"";
-            routeJSON += ",";
+            routeJSON += ", ";
         }
-        routeJSON.substring(0, routeJSON.length()-1); //Remove last comma
+        routeJSON = routeJSON.substring(0, routeJSON.length()-2); //Remove last comma
         routeJSON += "]";
-        myBrowser.loadUrl("javascript:initRoutes(" + "\"" + shuttleJSON + "\"" + ")");
+        myBrowser.loadUrl("javascript:initRoutes(" + "\'" + routeJSON + "\'" + ")");
     }
 
     public void validLogin() {
-        myBrowser.loadUrl("javascript:loginSuccess()");
-        updater.setRoute(routeName);
+        this.runOnUiThread(new Runnable() {
+            public void run() {
+                myBrowser.loadUrl("javascript:loginSuccess()");
+                updater.setRoute(routeName);
+                updater.setShuttle(shuttleNum);
+                locMgr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 0, MainActivity.this);
+            }
+        });
+
     }
 
     public void invalidLogin() {
-        myBrowser.loadUrl("javascript:loginFailure()");
-        routeName = "";
-        shuttleNum = -1;
+        this.runOnUiThread(new Runnable() {
+            public void run() {
+                myBrowser.loadUrl("javascript:loginFailure()");
+                routeName = "";
+                shuttleNum = -1;
+            }
+        });
     }
 
-    public void initRoute(String color, String curves, String lines) {
-        String args = "\"" + lines + "\"" + "," + "\"" + curves + "\"" + "," + "\"" + color + "\"";
-        myBrowser.loadUrl("javascript:initRoute(" + args + ")");
+    public void initRoute(final String color, final String curves, final String lines) {
+        this.runOnUiThread(new Runnable() {
+            public void run() {
+                String line = lines.replace("\\", "\\\\");
+                String curve = curves.replace("\\", "\\\\");
+                String args = "\"" + line + "\"" + "," + "\"" + curve + "\"" + "," + "\"" + color + "\"";
+                myBrowser.loadUrl("javascript:initRoute(" + args + ")");
+            }
+        });
+    }
+
+    public void refreshInterested(final String ids, final String lats, final String lons) {
+        this.runOnUiThread(new Runnable() {
+            public void run() {
+                myBrowser.loadUrl("javascript:deleteAllMarkers()");
+                myBrowser.loadUrl("javascript:drawMarker(\"" + ids + "\",\"" + lats + "\",\"" + lons + "\")");
+            }
+        });
     }
 
     public class MyJavaScriptInterface {
@@ -237,7 +265,7 @@ public class MainActivity extends Activity implements LocationListener {
                 //Silently ignore failed parses
             }
         }
-
+        @JavascriptInterface
         public void currentStatus(String stat) {
             int driverStatus = Integer.parseInt(stat);
             if(driverStatus == 0) {
@@ -248,21 +276,19 @@ public class MainActivity extends Activity implements LocationListener {
                 updater.setUpdateReady(true);
             }
         }
-
+        @JavascriptInterface
         public void incrementPressed() {
             //Triggers whenever + is pressed
             newRiders++;
         }
-
+        @JavascriptInterface
         public void credentials(String username, String pwd, String route, String cab) {
             updater.setUsername(username);
             updater.setPassword(pwd);
             updater.setLoginReady();
-            routeName = route;
+            routeName = updater.getRouteNames().get(Integer.parseInt(route));
             shuttleNum = Integer.parseInt(cab);
         }
-
-
     }
 
     private void setUpBluetooth() { //This method checks that the clicker exists and is paired
@@ -365,12 +391,10 @@ public class MainActivity extends Activity implements LocationListener {
         if(!updater.isAlive()) {
             updater.start();
         }
-        locMgr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 0, this);
     }
 
     protected void onStop() {
         super.onStop();
-        locMgr.removeUpdates(this);
         updater.kill();
     }
 
