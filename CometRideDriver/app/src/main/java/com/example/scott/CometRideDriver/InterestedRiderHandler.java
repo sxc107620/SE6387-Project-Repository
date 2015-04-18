@@ -104,7 +104,6 @@ public class InterestedRiderHandler {
         for(InterestedRider r : interestedList) {
             float[] dist = new float[3];
             Location.distanceBetween(loc.getLatitude(), loc.getLongitude(), r.latitude, r.longitude, dist);
-            main.bluetoothUpdate(dist[0] + "");
             if(dist[0] < 5.0) {
                 clearedEntries.add(r);
                 interestedList.remove(r);

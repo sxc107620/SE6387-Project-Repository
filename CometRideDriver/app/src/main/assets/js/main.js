@@ -154,7 +154,7 @@ function drawMarker(id, latPts, lngPts) {
 	var lng = lngPts.split(',');
 	for(i=0; i<ids.length; i++) {
 		pt = new google.maps.LatLng(lat[i], lng[i]);
-		marker[ids[i]] = new google.maps.Marker({
+		marker[i] = new google.maps.Marker({
 			position: pt,
 			map: map,
 			icon: "img/marker.png" //custom pin icon
@@ -163,11 +163,12 @@ function drawMarker(id, latPts, lngPts) {
 }
 
 //This is the function I really want
-//But if I include it, all the other functions become undefined
 function deleteAllMarkers() {
-	for(i=0; i<marker.length; i++;) {
+	var num = marker.length;
+	for(var i=0; i < num; i++) {
 		marker[i].setMap(null);
 	}
+	marker.length = 0;
 }
 
 //Rendered obsolete by the above
