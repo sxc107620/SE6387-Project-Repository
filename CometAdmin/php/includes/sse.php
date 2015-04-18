@@ -16,19 +16,20 @@
 	$shuttleObj = array();
 	for($i=0; $i<count($routeList); $i++) {
 	$result = array();
-	$getList = mysql_query("SELECT latitude, longitude, capacity, type FROM `shuttles` WHERE `status` = 'on-duty' AND `routeid` = '".$routeList[$i]."'");
+	$getList = mysql_query("SELECT latitude, longitude, capacity, type, status FROM `shuttles` WHERE `routeid` = '".$routeList[$i]."'");
 	mysql_data_seek($getList, 0);
 	while ($row = mysql_fetch_assoc($getList)) {
-	  array_push($result, $row['latitude'], $row['longitude'], $row['capacity'], $row['type']);
+	  array_push($result, $row['latitude'], $row['longitude'], $row['capacity'], $row['type'], $row['status']);
 	}
 	
-	for($j=0; $j<(count($result))/4; $j++) {
+	for($j=0; $j<(count($result))/5; $j++) {
 		$shuttle = array(
 			"Route" => $routeList[$i],
-			"Latitude" => $result[4*$j],
-			"Longitude" => $result[4*$j+1],
-			"Capacity" => $result[4*$j+2],
-			"Type" => $result[4*$j+3][0]
+			"Latitude" => $result[5*$j],
+			"Longitude" => $result[5*$j+1],
+			"Capacity" => $result[5*$j+2],
+			"Type" => $result[5*$j+3][0],
+			"Status" => $result[5*$j+4]
 		);
 		array_push($shuttleObj, $shuttle);
 	}

@@ -10,11 +10,20 @@ $(function () {
 		format: "MMM"
 	});
 	
+	var d = new Date();
+	var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+	$('#queryDateDriver').val(monthNames[d.getMonth()]);
+	driverHoursFn();
+	
 	$('#pickerDriver').on('changeDate', function(e) {
+		driverHoursFn();
+	});
+	
+	function driverHoursFn() {
 		var dateRaw = $("#pickerDriver").data("datetimepicker").getDate();
 		var dateObject = new Date(dateRaw);
 		var dateFormatted = dateObject.toISOString().substring(5, 7);
-		$('#queryDateDriver').val("025");
+		
 		$.post("chartDataDriver.php",{ m: dateFormatted }, function(data){
 			data = JSON.parse(data);
 			var barData = new Array();
@@ -87,7 +96,7 @@ $(function () {
 
 			$("<div id='driverchart-tooltip' class='chart-tooltip'></div>").appendTo("body");
 		});
-	});
+	}
 	
 	
 	
@@ -245,7 +254,7 @@ $(function () {
 						
 						xaxis: {
 							tickColor: 'rgba(255,255,255,0)',
-							min: 8,
+							min: 7,
 							max: 23,
 							tickSize: 1,
 							font :{

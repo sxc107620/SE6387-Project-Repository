@@ -842,25 +842,64 @@ Custom Code
 	}
 	
 	var shuttleMarkers = [];
+	var infowindow = [];
+	var prevLt = [];
+	var prevLn = [];
 	function sse() {
 		var image = 'img/car.png';
+		var imageI = 'img/carI.png';
 		if(typeof(EventSource) !== "undefined") {
 			var source = new EventSource("./php/includes/sse.php");
 			source.onmessage = function(event) {
 				shuttleLocations = jQuery.parseJSON(event.data);
-				if(shuttleMarkers.length != 0) {
+				/*if(shuttleMarkers.length != 0) {
 					for(i=0; i<shuttleMarkers.length; i++)
 						shuttleMarkers[i].setMap(null);
-				}
+				}*/
+				
 				for(var count in shuttleLocations) {
-					var shuttle = new google.maps.LatLng(shuttleLocations[count].Latitude, shuttleLocations[count].Longitude);
-					cap = shuttleLocations[count].Capacity+"/"+shuttleLocations[count].Type;
-					shuttleMarkers[count] = new google.maps.Marker({
-						position: shuttle,
-						icon: image,
-						title: cap
-					});
-					shuttleMarkers[count].setMap(map[(shuttleLocations[count].Route)-1]);
+					/*if((prevLt[count] != shuttleLocations[count].Latitude) && (prevLn[count] != shuttleLocations[count].Longitude)) {*/
+						if(typeof(shuttleMarkers[count]) != 'undefined') shuttleMarkers[count].setMap(null);
+						var shuttle = new google.maps.LatLng(shuttleLocations[count].Latitude, shuttleLocations[count].Longitude);
+						cap = shuttleLocations[count].Capacity+"/"+shuttleLocations[count].Type;
+						var options = {
+							position: shuttle,
+							disableAutoPan: true
+						};
+						infowindow[count] = new google.maps.InfoWindow(options);
+						if(shuttleLocations[count].Status == 'on-duty') {
+							var contentString = 
+								'<div id="infowindow">' +
+								'Capacity: ' + cap +
+								'</div>';
+							shuttleMarkers[count] = new google.maps.Marker({
+								icon: image,
+								zIndex:  google.maps.Marker.MAX_ZINDEX + 1, 
+								position: shuttle,
+								map: map[(shuttleLocations[count].Route)-1]
+							});
+						} else {
+							var contentString = 
+								'<div id="infowindow">' + shuttleLocations[count].Status +	'</div>';
+							shuttleMarkers[count] = new google.maps.Marker({
+								icon: imageI,
+								zIndex:  google.maps.Marker.MAX_ZINDEX + 1,
+							    position: shuttle,
+								map: map[(shuttleLocations[count].Route)-1]
+							});
+						}
+						/*console.log(map[(shuttleLocations[count].Route)-1].getBounds());*/
+							
+						
+						infowindow[count].setContent(contentString);
+						infowindow[count].open(map[(shuttleLocations[count].Route)-1], shuttleMarkers[count]);
+						google.maps.event.addListener(infowindow[count], 'domready', function(){
+							$(".gm-style-iw").next("div").hide();
+						});
+						
+						/*prevLt[count] = shuttleLocations[count].Latitude;
+						prevLn[count] = shuttleLocations[count].Longitude;
+					}*/
 				}
 			};
 		} 

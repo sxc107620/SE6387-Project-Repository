@@ -172,3 +172,15 @@
 	float: left !important;
 	line-height: 23px;
 }
+
+.routeMap img {
+	max-width: none;
+}
+
+.routeMapEdit img {
+	max-width: none;
+}
+
+#infowindow {
+	color: black;
+}
