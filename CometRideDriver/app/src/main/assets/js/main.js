@@ -13,6 +13,7 @@ function loginPage() {
 function counterPage() {
 	$('.cab-stat').show();
 	$('#counterPage').show();
+	google.maps.event.trigger(map, 'resize');
 	$('#loginPage').hide();
 }
 
