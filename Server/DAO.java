@@ -85,7 +85,7 @@ public class DAO
             ResultSet rs = preparedStatement.getResultSet();
             while (rs.next())
             {
-                int id = rs.getInt("rname");
+                int id = rs.getInt("routeid");
                 closeConnection(con);
                 return id;
             }
@@ -159,7 +159,7 @@ public class DAO
             		+ ",latitude =? "
             		+ ",longitude =? "
             		+ ",capacity =? "
-					+ ",route =? "
+					+ ",routeid =? "
 					+ ",totalPassengers = totalPassengers+? "
             		+ "WHERE number =?";
             PreparedStatement preparedStatement = con.prepareStatement(query);
