@@ -51,6 +51,7 @@ public class MainActivity extends Activity {
         mWebView.getSettings().setJavaScriptEnabled(true);
         mWebView.getSettings().setGeolocationEnabled(true);
         mWebView.setWebChromeClient(new GeoWebChromeClient());
+        mWebView.setKeepScreenOn(true);
         mWebView.loadUrl("http://104.154.93.11/CometRide/");
     }
 
