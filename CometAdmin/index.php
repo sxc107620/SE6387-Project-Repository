@@ -80,13 +80,8 @@ if(isset($_POST['submit'])){
             <form method="post" action='index.php' class="box tile animated active" id="box-login">
                 <h2 class="m-t-0 m-b-15">Login</h2>
                 <input type="text" class="login-control m-b-10" name="uid" placeholder="Username">
-                <input type="password" class="login-control" name="passwd" placeholder="Password">
-                <div class="checkbox m-b-20">
-                    <label>
-                        <input type="checkbox">
-                        Remember Me
-                    </label>
-                </div>
+                <input type="password" class="login-control m-b-10" name="passwd" placeholder="Password">
+                
 				<input type="submit" value="Sign in" name="submit" class="btn btn-sm m-r-5"/>
                 
                 <small>

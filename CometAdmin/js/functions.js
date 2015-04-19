@@ -82,6 +82,17 @@ $(document).ready(function(){
 	$('#changeSkin').modal('hide');
     });
 	
+	/* --------------------------------------------------------
+     Login + Sign up
+    -----------------------------------------------------------*/
+    (function(){
+	$('body').on('click touchstart', '.box-switcher', function(e){
+	    e.preventDefault();
+	    var box = $(this).attr('data-switch');
+	    $(this).closest('.box').toggleClass('active');
+	    $('#'+box).closest('.box').addClass('active'); 
+	});
+    })();
 	 
     /* --------------------------------------------------------
 	Components
