@@ -12,7 +12,6 @@ import java.util.ArrayList;
 /**
  * Created by Scott on 4/5/2015.
  */
-//This class exists to keep Interested Rider handling code out of the updater.
 public class InterestedRiderHandler {
     MainActivity main;
     Driver driverInfo;

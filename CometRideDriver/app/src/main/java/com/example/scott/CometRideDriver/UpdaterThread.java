@@ -40,8 +40,32 @@ public class UpdaterThread extends Thread {
         this.main = main;
     }
 
+    public void setLoginReady() {
+        loginReady = true;
+    }
+
+    public void setUpdateReady(boolean b) {
+        updateReady = b;
+    }
+
+    public void setUsername(String u) {
+        driverInfo.setUsername(u);
+    }
+
+    public void setPassword(String p) {
+        driverInfo.setPassword(p);
+    }
+
+    public void setRoute(String name) {
+        driverInfo.setRouteName(name);
+        getRouteInfo = true;
+    }
+
+    public void setShuttle(int shuttle) {
+        driverInfo.setShuttleNum(shuttle);
+    }
+
     public void run() {
-        //Start by setting up the server connection
         running = true;
         try {
             serverConn = new Socket(Host, port);
@@ -55,11 +79,9 @@ public class UpdaterThread extends Thread {
         } catch (IOException e) {
             //login.bluetoothUpdate("IOException getting streams");
         }
-        //Get the route and shuttle list, set up the interested rider handler
         shuttleList = getShuttleList();
         routeNames = getRouteList();
         interestedRiders = new InterestedRiderHandler(serverConn,main, driverInfo);
-        //Loop. Use flags to decide what to do
         while(running) {
             if(loginReady) {
                 boolean status = validateLogin(driverInfo.getUsername(), driverInfo.getPassword());
@@ -69,7 +91,7 @@ public class UpdaterThread extends Thread {
                 else {
                     main.invalidLogin();
                 }
-                loginReady = false; //Unset login ready flag after checking login
+                loginReady = false;
             }
             else if(getRouteInfo) {
                 requestRouteInfo();
@@ -77,7 +99,7 @@ public class UpdaterThread extends Thread {
                 getRouteInfo = false;
             }
             else if(updateReady) {
-                if(!driverInfo.hasLocation()) { //If we somehow have this flag with no location, just keep alive to prevent null pointer errors
+                if(!driverInfo.hasLocation()) {
                     toServer.write("Keep alive\n");
                     continue;
                 }
@@ -85,7 +107,7 @@ public class UpdaterThread extends Thread {
                 main.updateCab(driverInfo.getLatitude(), driverInfo.getLongitude());
                 interestedRiders.handle();
             }
-            else { //If no flags, just keep alive.
+            else {
                 toServer.write("Keep alive\n");
             }
             try {
@@ -96,7 +118,6 @@ public class UpdaterThread extends Thread {
         }
     }
 
-    //Get the encoded lines/curves and the color for the route from the server.
     private void requestRouteInfo() {
         String routeName = driverInfo.getRouteName();
         toServer.write("route info\n");
@@ -114,7 +135,6 @@ public class UpdaterThread extends Thread {
         driverInfo.setRouteInfo(lines, curves, color);
     }
 
-    //Get the list of shuttle ID/Capacity pairs to send to the UI for selection
     private ArrayList<Shuttle> getShuttleList() {
         ArrayList<Shuttle> shuttles = new ArrayList<>();
         toServer.write("Get Shuttles\n");
@@ -145,7 +165,6 @@ public class UpdaterThread extends Thread {
         return shuttles;
     }
 
-    //Get the list of route names for user selection
     private ArrayList<String> getRouteList() {
         ArrayList<String> routeList = new ArrayList<>();
         toServer.write("Get Routes\n");
@@ -172,7 +191,6 @@ public class UpdaterThread extends Thread {
         return routeList;
     }
 
-    //Update the driver's info on the server.
     private void sendInfoToServer() {
         toServer.write("update\n");
         toServer.write(driverInfo.getShuttleNum() + "\n");
@@ -190,12 +208,11 @@ public class UpdaterThread extends Thread {
         }
     }
 
-    //Check the given username/password against the server
     private boolean validateLogin(String user, String pass) {
         boolean status = false;
         toServer.write("Login" + '\n');
         toServer.write(user + '\n');
-        String hashedPass = MD5(pass); //Hash the pass before sending it though.
+        String hashedPass = MD5(pass);
         toServer.write(hashedPass + '\n');
         toServer.flush();
 
@@ -210,7 +227,6 @@ public class UpdaterThread extends Thread {
         return status;
     }
 
-    //Close the connection and kill this thread
     public void kill() {
         running = false;
         try {
@@ -223,7 +239,6 @@ public class UpdaterThread extends Thread {
         }
     }
 
-    //Hash the given password with MD5
     private String MD5(String pwd)  {
         MessageDigest md = null;
         try {
@@ -246,7 +261,6 @@ public class UpdaterThread extends Thread {
         return md5_pass;
     }
 
-    //Getters and setters for various things.
     public ArrayList<String> getRouteNames() {
         return routeNames;
     }
@@ -255,39 +269,35 @@ public class UpdaterThread extends Thread {
         return shuttleList;
     }
 
-    public void setLoginReady() {
-        loginReady = true;
+    public void setDriverStatus(boolean status) {
+        driverInfo.setStatus(status);
     }
 
-    public void setUpdateReady(boolean b) { updateReady = b; }
-
-    public void setGetRouteInfo() { getRouteInfo = true; }
-
-
-    //These would be unnecessary if I gave MainActivity a direct reference to driverInfo, but eh.
-    public void setUsername(String u) {
-        driverInfo.setUsername(u);
+    public void setCapacity(int cap) {
+        driverInfo.setCapacity(cap);
     }
 
-    public void setPassword(String p) {
-        driverInfo.setPassword(p);
+    public void newRider() {
+        driverInfo.incrementNewRiders();
     }
 
-    public void setRoute(String name) { driverInfo.setRouteName(name); }
+    public void setNumRiders(int amount) {
+        driverInfo.setCurrentRiders(amount);
+    }
 
-    public void setShuttle(int shuttle) { driverInfo.setShuttleNum(shuttle); }
+    public void setLocation(Location location) {
+        driverInfo.setLoc(location);
+    }
 
-    public void setDriverStatus(boolean status) { driverInfo.setStatus(status); }
+    public double getLatitude() {
+        return driverInfo.getLatitude();
+    }
 
-    public void newRider() { driverInfo.incrementNewRiders(); }
+    public double getLongitude() {
+        return driverInfo.getLongitude();
+    }
 
-    public void setNumRiders(int amount) { driverInfo.setCurrentRiders(amount); }
-
-    public void setLocation(Location location) { driverInfo.setLoc(location); }
-
-    public double getLatitude() { return driverInfo.getLatitude(); }
-
-    public double getLongitude() { return driverInfo.getLongitude(); }
-
-    public boolean hasLocation() { return driverInfo.hasLocation(); }
+    public boolean hasLocation() {
+        return driverInfo.hasLocation();
+    }
 }
