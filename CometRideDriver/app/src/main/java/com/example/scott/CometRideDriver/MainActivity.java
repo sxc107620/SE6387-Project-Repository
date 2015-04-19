@@ -26,18 +26,14 @@ import java.util.Set;
 
 public class MainActivity extends Activity implements LocationListener {
 
-    private final static int REQUEST_ENABLE_BT = 1;
-    private boolean screenOn = true;
+    private final boolean debug = false;
+    private final static int REQUEST_ENABLE_BT = 1; //Used for android to enable bluetooth. All that matters is that it's nonzero
+    private boolean screenOn = true; //Keeps track of whether the screen is on
 
-    private LocationManager locMgr;
-    private String routeName;
-    private int shuttleNum;
+    private LocationManager locMgr; //Used to get location from the GPS
+    private WebView myBrowser; //Displays the web page UI
 
-    private WebView myBrowser;
-
-    private boolean loggedIn = false;
-
-    public static UpdaterThread updater;
+    private UpdaterThread updater; //A reference to the thread that handles server updates
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,9 +47,9 @@ public class MainActivity extends Activity implements LocationListener {
         final MyJavaScriptInterface myJavaScriptInterface = new MyJavaScriptInterface(this);
 
         myBrowser.addJavascriptInterface(myJavaScriptInterface, "AndroidFunction");
-        myBrowser.getSettings().setJavaScriptEnabled(true);
-        myBrowser.setKeepScreenOn(true);
-        myBrowser.setVerticalScrollBarEnabled(false);
+        myBrowser.getSettings().setJavaScriptEnabled(true); //Yes, we really need javascript support.
+        myBrowser.setKeepScreenOn(true); //Don't let the screen turn off
+        myBrowser.setVerticalScrollBarEnabled(false); //Don't show scrollbars
 
         setUpBluetooth();
         setUpGPS();
@@ -69,23 +65,15 @@ public class MainActivity extends Activity implements LocationListener {
         });
     }
 
-    public void setCapacity(int num) {
-        updater.setCapacity(num);
-        myBrowser.loadUrl("javascript:shuttleSeats('"+num+"')");
-    }
-
-
-    public void login(boolean code) {
-        loggedIn = code;
-    }
-
     @Override
     public void onLocationChanged(Location location) {
+        //If we don't have a location already, set it and start sending updates
         if(!updater.hasLocation()) {
             updater.setLocation(location);
             updater.setUpdateReady(true);
             return;
         }
+        //Prefer speed to determine whether we're in motion, since it's a lot more accurate
         if(location.hasSpeed()) {
             updater.setLocation(location);
             if(location.getSpeed() > 3.0) {
@@ -95,6 +83,7 @@ public class MainActivity extends Activity implements LocationListener {
                 blankScreen(false);
             }
         }
+        //If we can't get speed, fall back to a less accurate method
         else {
             float[] dist = new float[3];
             Location.distanceBetween(updater.getLatitude(), updater.getLongitude(), location.getLatitude(), location.getLongitude(), dist);
@@ -107,6 +96,7 @@ public class MainActivity extends Activity implements LocationListener {
         }
     }
 
+    //Tell the HTML page where to draw the cab marker
     public void updateCab(final double lat, final double lon) {
         this.runOnUiThread(new Runnable() {
             public void run() {
@@ -115,6 +105,7 @@ public class MainActivity extends Activity implements LocationListener {
         });
     }
 
+    //Send a list of interested riders for the HTML/JS to draw markers
     public void addInterested(final String ids, final String lats, final String lons) {
         this.runOnUiThread(new Runnable() {
             public void run() {
@@ -127,14 +118,15 @@ public class MainActivity extends Activity implements LocationListener {
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
-
+        //Intentionally left blank
     }
 
     @Override
     public void onProviderEnabled(String provider) {
-
+        //Intentionally left blank
     }
 
+    //If GPS goes off, tell the user to turn it back on
     @Override
     public void onProviderDisabled(String provider) {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -154,6 +146,7 @@ public class MainActivity extends Activity implements LocationListener {
         alert.show();
     }
 
+    //Check whether GPS is on. If it's off, tell the user to turn it on.
     private void setUpGPS() {
         locMgr = (LocationManager) getSystemService( Context.LOCATION_SERVICE );
         if ( !locMgr.isProviderEnabled( LocationManager.GPS_PROVIDER ) ) {
@@ -175,6 +168,8 @@ public class MainActivity extends Activity implements LocationListener {
         }
     }
 
+    //Build JSON strings for the route and shuttle list and send them to Javascript
+    //To populate the UI lists for the user to choose their route/shuttle
     public void setRoutesAndShuttles(ArrayList<Shuttle> shuttleList, ArrayList<String> routeNames) {
         String shuttleJSON = "[";
         for(Shuttle s : shuttleList) {
@@ -198,28 +193,30 @@ public class MainActivity extends Activity implements LocationListener {
         myBrowser.loadUrl("javascript:initRoutes(" + "\'" + routeJSON + "\'" + ")");
     }
 
+    //Called when the server tells us our login was valid
     public void validLogin() {
         this.runOnUiThread(new Runnable() {
             public void run() {
                 myBrowser.loadUrl("javascript:loginSuccess()");
-                updater.setRoute(routeName);
-                updater.setShuttle(shuttleNum);
+                updater.setGetRouteInfo();
                 locMgr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 0, MainActivity.this);
             }
         });
 
     }
 
+    //Called when the server tells us our login was invalid
     public void invalidLogin() {
         this.runOnUiThread(new Runnable() {
             public void run() {
                 myBrowser.loadUrl("javascript:loginFailure()");
-                routeName = "";
-                shuttleNum = -1;
+                updater.setRoute("");
+                updater.setShuttle(0);
             }
         });
     }
 
+    //Passes the route info (Encoded strings and a #RGB color) to Javascript for drawing on the map
     public void initRoute(final String[] info) {
         this.runOnUiThread(new Runnable() {
             public void run() {
@@ -231,6 +228,8 @@ public class MainActivity extends Activity implements LocationListener {
         });
     }
 
+    //Delete and redraw all interested rider markers
+    //There's no better way to account for riders that weren't cleared by other drivers than a total delete and redraw
     public void refreshInterested(final String ids, final String lats, final String lons) {
         this.runOnUiThread(new Runnable() {
             public void run() {
@@ -249,8 +248,8 @@ public class MainActivity extends Activity implements LocationListener {
 
         @JavascriptInterface
         public void currentCapacity(String cap) {
+            //Arg cap contains the current capacity in string form. Just gotta parse it out and send it
             int currentRiders = -1;
-            //Database connection goes here, variable cap has the current capacity
             try {
                 currentRiders = Integer.parseInt(cap);
             } catch(Exception e) {
@@ -262,6 +261,7 @@ public class MainActivity extends Activity implements LocationListener {
         }
         @JavascriptInterface
         public void currentStatus(String stat) {
+            //Arg stat contains the status in string form (0 = off duty, 1 = on duty)
             boolean status = true;
             int driverStatus = Integer.parseInt(stat);
             if(driverStatus == 0) {
@@ -275,30 +275,32 @@ public class MainActivity extends Activity implements LocationListener {
         }
         @JavascriptInterface
         public void incrementPressed() {
-            //Triggers whenever + is pressed
+            //Triggers whenever + is pressed. Signals a new rider getting on
             updater.newRider();
         }
         @JavascriptInterface
         public void credentials(String username, String pwd, String route, String cab) {
+            //Called when the user presses the Login button. Set the username, password, shuttle, and route and tell the updater to validate credentials with the server
             updater.setUsername(username);
             updater.setPassword(pwd);
             updater.setLoginReady();
-            routeName = updater.getRouteNames().get(Integer.parseInt(route));
-            shuttleNum = Integer.parseInt(cab);
+            String routeName = updater.getRouteNames().get(Integer.parseInt(route));
+            int shuttleNum = Integer.parseInt(cab);
+            updater.setRoute(routeName);
+            updater.setShuttle(shuttleNum);
         }
     }
 
-    private void setUpBluetooth() { //This method checks that the clicker exists and is paired
+    private void setUpBluetooth() {
+    //This method checks that the clicker exists and is paired. Also asks the user to enable bluetooth if it's not.
         final BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (!mBluetoothAdapter.isEnabled()) { //Ask to enable bluetooth if it's not
+        if (!mBluetoothAdapter.isEnabled()) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }
 
         Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
         if (pairedDevices.size() < 1) {
-            /*myText.setText("No Devices");
-            setContentView(myText);*/
             return;
         }
         BluetoothDevice clicker = null;
@@ -307,6 +309,10 @@ public class MainActivity extends Activity implements LocationListener {
                     && bd.getName().equals("POP Multimedia"))
                 clicker = bd;
         }
+        //If we have our clicker, attempt to pair with it.
+        if(clicker != null) {
+            clicker.createBond();
+        }
         mBluetoothAdapter.cancelDiscovery();
     }
 
@@ -314,11 +320,14 @@ public class MainActivity extends Activity implements LocationListener {
     public void bluetoothUpdate(final String text) {
         this.runOnUiThread(new Runnable() {
             public void run() {
-                Toast.makeText(getApplicationContext(), text, Toast.LENGTH_SHORT).show();
+                if(debug) {
+                    Toast.makeText(getApplicationContext(), text, Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
 
+    //Capture key events. Used to handle clicker button presses.
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
         int keyCode = event.getKeyCode();
@@ -359,6 +368,8 @@ public class MainActivity extends Activity implements LocationListener {
         }
     }
 
+    //Turn the screen on/off depending on its status and whether we're in motion
+    //(Motion detection is determined by the GPS - Check the Location Changed method
     private void blankScreen(boolean inMotion) {
         if (inMotion && screenOn) {
             //Turn off screen

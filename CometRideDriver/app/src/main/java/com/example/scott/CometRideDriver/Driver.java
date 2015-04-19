@@ -5,6 +5,9 @@ import android.location.Location;
 /**
  * Created by Scott on 4/19/2015.
  */
+
+//This class exists entirely to store the info you see in the fields and keep it out of the UpdaterThread
+//It's just getters and setters for that info.
 public class Driver {
     private String routeName = "";
     private String routeLines = "";
@@ -20,7 +23,6 @@ public class Driver {
 
     private int currentRiders = 0;
     private int newRiders = 0;
-    private int capacity = 0;
 
     public String[] getRouteInfo() {
         String[] info = new String[4];
@@ -88,19 +90,12 @@ public class Driver {
     public double getLongitude() {
         return loc.getLongitude();
     }
-
-    public void setCapacity(int capacity) {
-        this.capacity = capacity;
-    }
-
     public int getCurrentRiders() {
         return currentRiders;
     }
 
     public void setCurrentRiders(int amount) {
-        if(amount <= capacity) {
-            currentRiders = amount;
-        }
+        currentRiders = amount;
     }
 
     public void incrementNewRiders() {
