@@ -1,15 +1,23 @@
 package com.example.scott.CometRideDriver;
 
 import android.location.Location;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.Socket;
+import java.net.URL;
+import java.net.URLConnection;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 /**
  * Created by Scott on 3/27/2015.
@@ -19,24 +27,35 @@ public class UpdaterThread extends Thread {
     private BufferedReader fromServer;
     private Socket serverConn;
 
-    private final String Host = "104.154.93.11";
-    private final int port = 1500;
+    private String Host = "104.154.93.11";
+    private int port = 1500;
+    private String routeName = "";
 
     private boolean loginReady = false;
     private boolean updateReady = false;
+    private boolean selectRoutes = false;
+    private boolean selectShuttle = false;
+    private boolean getCapacity = false;
     private boolean getRouteInfo = false;
     private boolean running = true;
 
     private MainActivity main;
     private InterestedRiderHandler interestedRiders;
 
-    private Driver driverInfo;
-
     private ArrayList<String> routeNames;
     private ArrayList<Shuttle> shuttleList;
+    private String routeLines = "";
+    private String routeCurves = "";
+    private String routeColor = "";
+
+    private String username;
+    private String password;
+    private Integer ourShuttle;
+    private int shuttleCapacity;
+
+    public String getRouteName() { return routeName; }
 
     public UpdaterThread(MainActivity main) {
-        driverInfo = new Driver();
         this.main = main;
     }
 
@@ -49,21 +68,24 @@ public class UpdaterThread extends Thread {
     }
 
     public void setUsername(String u) {
-        driverInfo.setUsername(u);
+        username = u;
     }
 
     public void setPassword(String p) {
-        driverInfo.setPassword(p);
+        password = p;
     }
 
     public void setRoute(String name) {
-        driverInfo.setRouteName(name);
+        this.routeName = name;
+        interestedRiders.setRoute(name);
         getRouteInfo = true;
     }
 
     public void setShuttle(int shuttle) {
-        driverInfo.setShuttleNum(shuttle);
+        ourShuttle = shuttle;
     }
+
+    public int getShuttleCapacity() { return shuttleCapacity; }
 
     public void run() {
         running = true;
@@ -81,10 +103,10 @@ public class UpdaterThread extends Thread {
         }
         shuttleList = getShuttleList();
         routeNames = getRouteList();
-        interestedRiders = new InterestedRiderHandler(serverConn,main, driverInfo);
+        interestedRiders = new InterestedRiderHandler(serverConn,main);
         while(running) {
             if(loginReady) {
-                boolean status = validateLogin(driverInfo.getUsername(), driverInfo.getPassword());
+                boolean status = validateLogin(username,password);
                 if(status) {
                     main.validLogin();
                 }
@@ -95,16 +117,20 @@ public class UpdaterThread extends Thread {
             }
             else if(getRouteInfo) {
                 requestRouteInfo();
-                main.initRoute(driverInfo.getRouteInfo());
+                main.initRoute(routeColor, routeCurves, routeLines);
                 getRouteInfo = false;
             }
             else if(updateReady) {
-                if(!driverInfo.hasLocation()) {
+                int numRiders = main.getCurrentRiders();
+                int newRiders = main.getNewRiders();
+                Location currentLoc = main.getLocation();
+                if(currentLoc == null) {
                     toServer.write("Keep alive\n");
                     continue;
                 }
-                sendInfoToServer();
-                main.updateCab(driverInfo.getLatitude(), driverInfo.getLongitude());
+                boolean status = main.getStatus();
+                sendInfoToServer(numRiders, newRiders, currentLoc, status);
+                main.updateCab(currentLoc.getLatitude(), currentLoc.getLongitude());
                 interestedRiders.handle();
             }
             else {
@@ -119,20 +145,15 @@ public class UpdaterThread extends Thread {
     }
 
     private void requestRouteInfo() {
-        String routeName = driverInfo.getRouteName();
         toServer.write("route info\n");
         toServer.write(routeName + "\n");
         toServer.flush();
-        String lines = "";
-        String curves = "";
-        String color = "";
         try {
-            lines = fromServer.readLine();
-            curves = fromServer.readLine();
-            color = fromServer.readLine();
+            routeLines = fromServer.readLine();
+            routeCurves = fromServer.readLine();
+            routeColor = fromServer.readLine();
         }
-        catch (Exception e) { e.printStackTrace(); }
-        driverInfo.setRouteInfo(lines, curves, color);
+        catch (Exception e) {}
     }
 
     private ArrayList<Shuttle> getShuttleList() {
@@ -140,7 +161,7 @@ public class UpdaterThread extends Thread {
         toServer.write("Get Shuttles\n");
         toServer.flush();
         int numShuttles = 0;
-        String num;
+        String num = "";
         try {
             num = fromServer.readLine();
             numShuttles= Integer.parseInt(num);
@@ -166,11 +187,11 @@ public class UpdaterThread extends Thread {
     }
 
     private ArrayList<String> getRouteList() {
-        ArrayList<String> routeList = new ArrayList<>();
+        ArrayList<String> routeList = new ArrayList<String>();
         toServer.write("Get Routes\n");
         toServer.flush();
         int numRoutes = 0;
-        String num;
+        String num = "";
         try {
             num = fromServer.readLine();
             numRoutes = Integer.parseInt(num);
@@ -191,19 +212,19 @@ public class UpdaterThread extends Thread {
         return routeList;
     }
 
-    private void sendInfoToServer() {
+    private void sendInfoToServer(int currentRiders, int newRiders, Location loc, boolean status) {
         toServer.write("update\n");
-        toServer.write(driverInfo.getShuttleNum() + "\n");
-        toServer.write(driverInfo.getStatus() + "\n");
-        toServer.write(driverInfo.getLatitude() + "\n");
-        toServer.write(driverInfo.getLongitude() + "\n");
-        toServer.write(driverInfo.getRouteName() + "\n");
-        toServer.write(driverInfo.getCurrentRiders() + "\n");
-        toServer.write(driverInfo.getNewRiders() + "\n");
-        toServer.write(driverInfo.getUsername() + "\n");
+        toServer.write(ourShuttle + "\n");
+        toServer.write(status + "\n");
+        toServer.write(loc.getLatitude() + "\n");
+        toServer.write(loc.getLongitude() + "\n");
+        toServer.write(routeName + "\n");
+        toServer.write(currentRiders + "\n");
+        toServer.write(newRiders + "\n");
+        toServer.write(username + "\n");
         toServer.flush();
-        driverInfo.resetNewRiders();
-        if(!driverInfo.getStatus()) {
+        main.resetNewRiders();
+        if(!status) {
             setUpdateReady(false);
         }
     }
@@ -246,19 +267,26 @@ public class UpdaterThread extends Thread {
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
-        if (md != null) {
-            md.update(pwd.getBytes());
-        }
-        byte[] digest = new byte[0];
-        if (md != null) {
-            digest = md.digest();
-        }
-        StringBuilder sb = new StringBuilder();
+        md.update(pwd.getBytes());
+        byte[] digest = md.digest();
+        StringBuffer sb = new StringBuffer();
         for (byte b : digest) {
             sb.append(String.format("%02x", b & 0xff));
         }
         String md5_pass = sb.toString();
         return md5_pass;
+    }
+
+    public String getRouteLines() {
+        return routeLines;
+    }
+
+    public String getRouteCurves() {
+        return routeCurves;
+    }
+
+    public String getRouteColor() {
+        return routeColor;
     }
 
     public ArrayList<String> getRouteNames() {
@@ -267,37 +295,5 @@ public class UpdaterThread extends Thread {
 
     public ArrayList<Shuttle> getShuttles() {
         return shuttleList;
-    }
-
-    public void setDriverStatus(boolean status) {
-        driverInfo.setStatus(status);
-    }
-
-    public void setCapacity(int cap) {
-        driverInfo.setCapacity(cap);
-    }
-
-    public void newRider() {
-        driverInfo.incrementNewRiders();
-    }
-
-    public void setNumRiders(int amount) {
-        driverInfo.setCurrentRiders(amount);
-    }
-
-    public void setLocation(Location location) {
-        driverInfo.setLoc(location);
-    }
-
-    public double getLatitude() {
-        return driverInfo.getLatitude();
-    }
-
-    public double getLongitude() {
-        return driverInfo.getLongitude();
-    }
-
-    public boolean hasLocation() {
-        return driverInfo.hasLocation();
     }
 }

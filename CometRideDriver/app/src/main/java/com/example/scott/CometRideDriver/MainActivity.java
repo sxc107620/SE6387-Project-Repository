@@ -30,8 +30,13 @@ public class MainActivity extends Activity implements LocationListener {
     private boolean screenOn = true;
 
     private LocationManager locMgr;
+    private Location lastLoc = null;
+    private int currentRiders = 0;
+    private int newRiders = 0;
+    private int capacity = 0;
     private String routeName;
     private int shuttleNum;
+    boolean status = true; //Start on duty
 
     private WebView myBrowser;
 
@@ -70,40 +75,45 @@ public class MainActivity extends Activity implements LocationListener {
     }
 
     public void setCapacity(int num) {
-        updater.setCapacity(num);
-        myBrowser.loadUrl("javascript:shuttleSeats('"+num+"')");
+        capacity = num;
+        myBrowser.loadUrl("javascript:shuttleSeats('"+capacity+"')");
     }
 
+    public Location getLastLoc() { return lastLoc; }
 
     public void login(boolean code) {
         loggedIn = code;
     }
 
+    public void resetNewRiders() { newRiders = 0; }
+
     @Override
     public void onLocationChanged(Location location) {
-        if(!updater.hasLocation()) {
-            updater.setLocation(location);
+        if(lastLoc == null) {
+            lastLoc = location;
             updater.setUpdateReady(true);
             return;
         }
         if(location.hasSpeed()) {
-            updater.setLocation(location);
             if(location.getSpeed() > 3.0) {
+                lastLoc = location;
                 blankScreen(true);
             }
             else {
+                lastLoc = location;
                 blankScreen(false);
             }
         }
         else {
             float[] dist = new float[3];
-            Location.distanceBetween(updater.getLatitude(), updater.getLongitude(), location.getLatitude(), location.getLongitude(), dist);
+            Location.distanceBetween(lastLoc.getLatitude(), lastLoc.getLongitude(), location.getLatitude(), location.getLongitude(), dist);
             if ((dist[0] > 6.0)) { //Moved at least 6 meters in the last two seconds - In motion
+                lastLoc = location;
                 blankScreen(true);
             } else {
+                lastLoc = location;
                 blankScreen(false);
             }
-            updater.setLocation(location);
         }
     }
 
@@ -220,12 +230,12 @@ public class MainActivity extends Activity implements LocationListener {
         });
     }
 
-    public void initRoute(final String[] info) {
+    public void initRoute(final String color, final String curves, final String lines) {
         this.runOnUiThread(new Runnable() {
             public void run() {
-                String line = info[1].replace("\\", "\\\\");
-                String curve = info[2].replace("\\", "\\\\");
-                String args = "\"" + line + "\"" + "," + "\"" + curve + "\"" + "," + "\"" + info[3] + "\"";
+                String line = lines.replace("\\", "\\\\");
+                String curve = curves.replace("\\", "\\\\");
+                String args = "\"" + line + "\"" + "," + "\"" + curve + "\"" + "," + "\"" + color + "\"";
                 myBrowser.loadUrl("javascript:initRoute(" + args + ")");
             }
         });
@@ -249,20 +259,15 @@ public class MainActivity extends Activity implements LocationListener {
 
         @JavascriptInterface
         public void currentCapacity(String cap) {
-            int currentRiders = -1;
             //Database connection goes here, variable cap has the current capacity
             try {
                 currentRiders = Integer.parseInt(cap);
             } catch(Exception e) {
                 //Silently ignore failed parses
             }
-            if(currentRiders > 0) {
-                updater.setNumRiders(currentRiders);
-            }
         }
         @JavascriptInterface
         public void currentStatus(String stat) {
-            boolean status = true;
             int driverStatus = Integer.parseInt(stat);
             if(driverStatus == 0) {
                 status = false;
@@ -271,12 +276,11 @@ public class MainActivity extends Activity implements LocationListener {
                 status = true;
                 updater.setUpdateReady(true);
             }
-            updater.setDriverStatus(status);
         }
         @JavascriptInterface
         public void incrementPressed() {
             //Triggers whenever + is pressed
-            updater.newRider();
+            newRiders++;
         }
         @JavascriptInterface
         public void credentials(String username, String pwd, String route, String cab) {
@@ -317,6 +321,10 @@ public class MainActivity extends Activity implements LocationListener {
                 Toast.makeText(getApplicationContext(), text, Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    public boolean getStatus() {
+        return status;
     }
 
     @Override
@@ -417,5 +425,15 @@ public class MainActivity extends Activity implements LocationListener {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public int getCurrentRiders() {
+        return currentRiders;
+    }
+
+    public int getNewRiders() { return newRiders; }
+
+    public Location getLocation() {
+        return lastLoc;
     }
 }

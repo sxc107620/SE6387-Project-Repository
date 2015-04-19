@@ -14,17 +14,15 @@ import java.util.ArrayList;
  */
 public class InterestedRiderHandler {
     MainActivity main;
-    Driver driverInfo;
     private PrintWriter toServer;
     private BufferedReader fromServer;
     private Socket serverConn;
-
+    private String route;
     ArrayList<InterestedRider> interestedList;
     ArrayList<InterestedRider> clearedEntries;
 
-    public InterestedRiderHandler(Socket conn, MainActivity m, Driver d) {
+    public InterestedRiderHandler(Socket conn, MainActivity m) {
         main = m;
-        driverInfo = d;
         interestedList = new ArrayList<>();
         clearedEntries = new ArrayList<>();
         serverConn = conn;
@@ -34,6 +32,10 @@ public class InterestedRiderHandler {
         } catch (IOException e) {
             //login.bluetoothUpdate("IOException getting streams");
         }
+    }
+
+    public void setRoute(String r) {
+        this.route = r;
     }
 
     public void handle() {
@@ -64,7 +66,7 @@ public class InterestedRiderHandler {
     private void populateInterestedList() {
         interestedList.clear();
         toServer.write("get interested\n");
-        toServer.write(driverInfo.getRouteName() + "\n");
+        toServer.write(route + "\n");
         toServer.flush();
         String line = "";
         try {
@@ -98,11 +100,10 @@ public class InterestedRiderHandler {
 
     private void removeEntries() {
         clearedEntries.clear();
-        double lat = driverInfo.getLatitude();
-        double lon = driverInfo.getLongitude();
+        Location loc = main.getLastLoc();
         for(InterestedRider r : interestedList) {
             float[] dist = new float[3];
-            Location.distanceBetween(lat, lon, r.latitude, r.longitude, dist);
+            Location.distanceBetween(loc.getLatitude(), loc.getLongitude(), r.latitude, r.longitude, dist);
             if(dist[0] < 5.0) {
                 clearedEntries.add(r);
                 interestedList.remove(r);
