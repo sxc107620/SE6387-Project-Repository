@@ -129,13 +129,6 @@
 
 body {
   margin: 0 auto;
-  background-image: -webkit-linear-gradient(top,#3c3c3c 0,#222 100%);
-  background-image: -o-linear-gradient(top,#3c3c3c 0,#222 100%);
-  /* background-image: -webkit-gradient(linear,left top,left bottom,from(#3c3c3c),to(#222)); */
-  /* background-image: linear-gradient(to bottom,#3c3c3c 0,#222 100%); */
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff3c3c3c', endColorstr='#ff222222', GradientType=0);
-  filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
-  background-repeat: repeat-x;
 }
 
 #routeList {
@@ -178,9 +171,24 @@ body {
   margin-bottom: 0;
   border-width: 1px 0 0;
   text-align: center;
-    margin-top: -50px;
+  margin-top: -50px;
   z-index: 100;
   position: relative;
+}
+
+.gm-style > div:first-child > div + div > div:last-child > div > div:first-child > div
+{
+    /* we have to use !important because we are overwritng inline styles */
+    background-color: rgba(227, 227, 227, 0.52) !important;
+    
+  
+}
+
+/* arrow colour */
+.gm-style > div:first-child > div + div > div:last-child > div > div:first-child > div > div > div
+{
+    background-color: rgba(227, 227, 227, 0.52) !important; 
+	box-shadow: none !important;
 }
 
 
