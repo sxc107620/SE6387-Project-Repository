@@ -6,6 +6,7 @@ $(document).ready(function() {
 		var status = [];
 		var route = [];
 		var runList = [];
+		$(this).text("Running");
 		
 		$.each($('.cabList'), function() {
 			cab.push($(this).val());
@@ -29,6 +30,7 @@ $(document).ready(function() {
 	});
 	
 	$("#stop").click(function() {
+		$("#run").text("Run");
 		clearInterval(runner);
 	});
 });
