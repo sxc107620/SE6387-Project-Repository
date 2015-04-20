@@ -28,10 +28,26 @@
 	width: 95%;
 }
 
+
+.gm-style > div:first-child > div + div > div:last-child > div > div:first-child > div
+{
+    /* we have to use !important because we are overwritng inline styles */
+    background-color: rgba(227, 227, 227, 0.52) !important;
+    
+  
+}
+
+/* arrow colour */
+.gm-style > div:first-child > div + div > div:last-child > div > div:first-child > div > div > div
+{
+    background-color: rgba(227, 227, 227, 0.52) !important; 
+	box-shadow: none !important;
+}
+
 .toolBar {
 	position: absolute;
 	top: 30px;
-	left: 95%;
+	left: 97%;
 	height: 31px;
 	z-index: 10;
 }
