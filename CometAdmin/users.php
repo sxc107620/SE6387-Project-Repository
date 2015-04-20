@@ -98,7 +98,7 @@
 								<?php 
 									if($_SESSION['type'] == 'superadmin') {
 								?>
-								<a data-toggle='modal' href="#modalCreate" data-type='superadmin' id='cAdmin' class="btn pull-right">Create New Admin</a>
+								<a data-toggle='modal' href="#modalCreate" data-type='admin' id='cAdmin' class="btn pull-right">Create New Admin</a>
 								<?php 
 									}
 								?>
