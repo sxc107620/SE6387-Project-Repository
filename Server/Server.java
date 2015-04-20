@@ -274,7 +274,7 @@ public class Server {
 				String username = line;
 				String statusLine = "off-duty";
 				if(Status) statusLine = "on-duty";
-				Database.setShuttleInfo(shuttle, statusLine, lat, lon, currentRiders, newRiders, username);
+				Database.setShuttleInfo(shuttle, statusLine, lat, lon, currentRiders, newRiders, username, routeName);
 			}
 			if(str.equalsIgnoreCase("get interested")) {
 				String route = "";

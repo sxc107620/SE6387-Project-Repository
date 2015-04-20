@@ -85,7 +85,7 @@ public class DAO
             ResultSet rs = preparedStatement.getResultSet();
             while (rs.next())
             {
-                int id = rs.getInt("rname");
+                int id = rs.getInt("routeid");
                 closeConnection(con);
                 return id;
             }
@@ -149,24 +149,27 @@ public class DAO
         return null;
     }
 	
-	public boolean setShuttleInfo(int shuttle_number, String status, double latitude, double longitude, int capacity, int newRiders, String user_name) {
+	public boolean setShuttleInfo(int shuttle_number, String status, double latitude, double longitude, int capacity, int newRiders, String user_name, String routeName) {
 		Connection con = DAOConnection.getConnection(); 
         try
         {
+			Integer route = getRouteIdFromName(routeName);
             String query = "UPDATE shuttles SET "
             		+ "status =? "
             		+ ",latitude =? "
             		+ ",longitude =? "
             		+ ",capacity =? "
-			+ ",totalPassengers = totalPassengers+? "
+					+ ",routeid =? "
+					+ ",totalPassengers = totalPassengers+? "
             		+ "WHERE number =?";
             PreparedStatement preparedStatement = con.prepareStatement(query);
             preparedStatement.setString(1, status);
             preparedStatement.setDouble(2, latitude);
             preparedStatement.setDouble(3, longitude);
             preparedStatement.setInt(4, capacity);
-	    preparedStatement.setInt(5, newRiders);
-            preparedStatement.setInt(6, shuttle_number);
+	    preparedStatement.setInt(5, route);
+	    preparedStatement.setInt(6, newRiders);
+            preparedStatement.setInt(7, shuttle_number);
             preparedStatement.executeUpdate();
             closeConnection(con);
             
