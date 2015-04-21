@@ -25,7 +25,7 @@ public class DAO
         Connection con = DAOConnection.getConnection();
         try
         {
-            String query = "SELECT upass FROM users WHERE uname =?;";
+            String query = "SELECT upass FROM users WHERE uname =? AND type = 'driver';";
             PreparedStatement preparedStatement = con.prepareStatement(query);
             preparedStatement.setString(1, uname);
             preparedStatement.executeQuery();
