@@ -293,7 +293,7 @@ Custom Code
 				success: function(data)   // A function to be called if request succeeds
 				{
 					//console.log("Done");
-					//location.reload();
+					location.reload();
 				}
 			});
 		}
