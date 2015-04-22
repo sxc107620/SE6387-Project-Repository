@@ -1,6 +1,4 @@
-$(document).ready(function() {
-	var runner;
-	
+
 	$("#run").click(function() {
 		var cab = [];
 		var status = [];
@@ -23,14 +21,17 @@ $(document).ready(function() {
 		
 		$.post("php/status.php",{ c: cab, s: status, r: route });
 		
-		runner = setInterval(function(){
-			$.post("php/run.php",{ r: runList });
-		}, 10);
+		var runner = setInterval(function(){
+			$.post("php/run.php",{ r: runList }, function() {
+				//console.log(runner);
+				if($("#run").text() == "Run") clearInterval(runner);
+			});
+			
+		}, 1000);
 		
 	});
 	
 	$("#stop").click(function() {
 		$("#run").text("Run");
-		clearInterval(runner);
+		
 	});
-});
