@@ -7,6 +7,13 @@
 			</div>
 			<div class="errorMessage">
 			</div>
+			<?php
+				require_once 'google/appengine/api/cloud_storage/CloudStorageTools.php';
+				use google\appengine\api\cloud_storage\CloudStorageTools;
+
+				$options = [ 'gs_bucket_name' => 'my_bucket' ];
+				$upload_url = CloudStorageTools::createUploadUrl('./uploadimage.php', $options);
+			?>
 			<form id="imgInfo"  method="post" enctype="multipart/form-data">
 			<div class="modal-body">
 				<table class="tile table table-bordered table-striped">
