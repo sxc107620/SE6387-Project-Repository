@@ -28,6 +28,11 @@
 	width: 95%;
 }
 
+.dropdown-menu>li>a:hover, .dropdown-menu>li>a:focus {
+	    background: none !important;
+		color: white;
+}
+
 
 .gm-style > div:first-child > div + div > div:last-child > div > div:first-child > div
 {
@@ -47,7 +52,7 @@
 .toolBar {
 	position: absolute;
 	top: 30px;
-	left: 97%;
+	left: 95%;
 	height: 31px;
 	z-index: 10;
 }

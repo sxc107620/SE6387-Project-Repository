@@ -26,6 +26,11 @@
 		
         
         <section id="main" class="p-relative" role="main">
+		
+		<!-- Modal Default -->
+		<?php 
+			include('modal_edit_profile.php'); 
+		?>
             
             <!-- Sidebar -->
             <aside id="sidebar">

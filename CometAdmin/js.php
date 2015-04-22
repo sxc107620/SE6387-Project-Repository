@@ -20,7 +20,7 @@
         <!-- Other -->
         <script src="js/calendar.min.js"></script> <!-- Calendar -->
         <script src="js/feeds.min.js"></script> <!-- News Feeds -->
-		<!--script src="js/jquery-clockpicker.min.js"></script> <!-- Clock -->
+		<script src="js/fileupload.min.js"></script> <!-- File Upload -->
         
         
         <!-- All JS functions -->

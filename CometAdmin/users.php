@@ -50,6 +50,9 @@
 				include ("modal_box.php"); 
 			?>
 		</div>
+		<?php 
+			include('modal_edit_profile.php'); 
+		?>
             
             <!-- Sidebar -->
             <aside id="sidebar">

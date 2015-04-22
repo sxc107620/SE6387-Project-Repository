@@ -36,6 +36,7 @@ if(isset($_POST['submit'])){
 	session_start();
 	$_SESSION['uName'] = $userid;
 	$_SESSION['type'] = $type;
+	$_SESSION['email'] = getEmail($userid);
 	header('Location: dashboard.php');
 	updateAttempt($userid, 0);
 	} else {

@@ -1,15 +1,19 @@
 <div class="side-widgets overflow" tabindex="5000" style="overflow: hidden; outline: none;">
                     <!-- Profile Menu -->
                     <div class="text-center s-widget m-b-25 dropdown open" id="profile-menu">
-                        
-                            <img class="profile-pic" src="img/profile-pic.jpg" alt="">
-                        
-                        <ul class="dropdown-menu profile-menu">
-                            <li><a href="#">
-							<?php
+                        <?php
 							if (!isset($_SESSION)) {
 								session_start();
 							}
+							$src = "./uploads/".$_SESSION['uName']."/profilePic.jpg";
+							if(!file_exists($src)) $src = "img/profile-pic.jpg";
+						?>
+                            <img class="profile-pic" src=<?php echo $src; ?> alt="">
+                        
+                        <ul class="dropdown-menu profile-menu">
+                            <li><a data-toggle='modal' href="#modalEditProfile">
+							<?php
+							
 							if(isset($_SESSION['uName'])) 
 							echo ucfirst($_SESSION['uName'])."'s";
 						?>

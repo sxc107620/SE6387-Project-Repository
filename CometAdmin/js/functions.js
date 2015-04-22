@@ -270,6 +270,35 @@ Date Time Widget
 Custom Code
 -----------------------------------------------------------*/
 
+	//Edit Profile
+	$("#imgInfo").on('submit',(function(e) {
+		e.preventDefault();
+		errorList = '';
+		pass = $("#newPassChange").val();
+		rpass = $("#newCPassChange").val();
+		imgtType = $('#displayPic')[0].files[0];
+		if(typeof(imgtType) != 'undefined')
+		if(imgtType.type != 'image/jpeg' && imgtType.type != 'image/png' && imgtType.type != 'image/gif') errorList = errorList + "<li>Upload a proper image.</li>";
+		if(pass != rpass) errorList = errorList + "<li>Passwords don't match </li>";
+		if(errorList != '') {
+			$('.errorMessage').html("<div class='alert alert-danger' role='alert'><button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;</button> <strong><ul>"+errorList+"</ul></strong><br/></div>");
+		} else {
+			$.ajax({
+				url: "uploadimage.php", // Url to which the request is send
+				type: "POST",             // Type of request to be send, called as method
+				data: new FormData(this), // Data sent to server, a set of key/value pairs (i.e. form fields and values)
+				contentType: false,       // The content type used when sending data to the server.
+				cache: false,             // To unable request pages to be cached
+				processData:false,        // To send DOMDocument or non processed data file it is set to false
+				success: function(data)   // A function to be called if request succeeds
+				{
+					//console.log("Done");
+					location.reload();
+				}
+			});
+		}
+	}));
+
 	//Cookies
 	function createCookie(name,value,days) {
 		var days = 365;
