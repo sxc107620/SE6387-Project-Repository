@@ -17,7 +17,7 @@ if(isset($_SESSION['uName'])) header('Location: dashboard.php');
                 <p>Please login using your credentials.</p>
             </header>
 <?php
-error_reporting(0);
+//error_reporting(0);
 function rand_string( $length ) {
     $chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     return substr(str_shuffle($chars),0,$length);
@@ -53,7 +53,7 @@ if(isset($_POST['submit'])){
 	$randomPass = rand_string(8);
 	changePass($userid, md5($randomPass));
 	$to = getEmail($userid);
-	$subject = "Your new password for SHAS";
+	$subject = "Your new password for Comet Admin";
 	mail($to,$subject,$randomPass);
 	$attempts = 0;
 	updateAttempt($userid, $attempts);
@@ -72,6 +72,21 @@ if(isset($_POST['submit'])){
 	</div>
 	<?php
 }
+}
+if(isset($_REQUEST['mail']) && $_REQUEST['mail']!="") {
+	include ("./php/includes/settings.inc.php");        // database settings
+	include ("./php/includes/connectdb.inc.php"); 
+	include ("./php/includes/sql.php"); 
+	$randomPass = rand_string(8);
+	$subject = "Your new password for Comet Admin";
+	mail($_REQUEST['mail'],$subject,$randomPass);
+	forgetPass($_REQUEST['mail'], md5($randomPass));
+	?>
+	<div class="alert alert-info alert-danger">
+		<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+		<i class="fa fa-info-circle"></i>  <strong>New password has been mailed to <?php echo $_REQUEST['mail']; ?></strong><br/><?php echo "For demo purpose your new password is ".$randomPass; ?>
+	</div>
+	<?php
 }
 ?>
         
@@ -93,11 +108,13 @@ if(isset($_POST['submit'])){
             
             <!-- Forgot Password -->
             <form class="box animated tile" id="box-reset">
+			<div class="errorMessage">
+			</div>
                 <h2 class="m-t-0 m-b-15">Reset Password</h2>
                 <p>Please enter the email address which was used to create the account.</p>
-                <input type="email" class="login-control m-b-20" placeholder="Email Address">    
+                <input type="email" class="login-control m-b-20" placeholder="Email Address" id="resetEmail">    
 
-                <button class="btn btn-sm m-r-5">Reset Password</button>
+                <button class="btn btn-sm m-r-5" id="resPass" >Reset Password</button>
 
                 <small><a class="box-switcher" data-switch="box-login" href="#">Already have an Account?</a></small>
             </form>

@@ -91,6 +91,7 @@ $(document).ready(function(){
 	    var box = $(this).attr('data-switch');
 	    $(this).closest('.box').toggleClass('active');
 	    $('#'+box).closest('.box').addClass('active'); 
+		$('.errorMessage').html("");
 	});
     })();
 	 
@@ -270,6 +271,23 @@ Date Time Widget
 Custom Code
 -----------------------------------------------------------*/
 
+	//Forget Password
+	$("#resPass").click(function(e) {
+		e.preventDefault();
+		regex = /^([a-zA-Z0-9_.+-])+\@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+		email = $("#resetEmail").val();
+		errorList = '';
+		if(regex.test(email) == 0) errorList = errorList + "Invalid email address";
+		if(errorList != '') {
+			$('.errorMessage').html("<div class='alert alert-danger' role='alert'><button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;</button> <strong>"+errorList+"</strong><br/></div>");
+		} else {
+			$.post("index.php",{ mail: email }, function(){
+				location.reload();
+			});
+		}
+		
+	})
+	
 	//Edit Profile
 	$("#imgInfo").on('submit',(function(e) {
 		e.preventDefault();

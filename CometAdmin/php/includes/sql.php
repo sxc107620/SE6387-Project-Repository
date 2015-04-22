@@ -31,6 +31,10 @@
 		mysql_query("UPDATE `users` SET `upass`='$pwd' WHERE `uname` = '".$userid."'");
 	}
 	
+	function forgetPass($email, $pwd) {
+		mysql_query("UPDATE `users` SET `upass`='$pwd' WHERE `email` = '".$email."'");
+	}
+	
 	function getUsers($type) { 
 		$result = array();
 		$getList = mysql_query("SELECT uname, email, joindate FROM `users` WHERE `type` = '".$type."'");
