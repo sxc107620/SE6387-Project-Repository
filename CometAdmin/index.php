@@ -17,7 +17,7 @@ if(isset($_SESSION['uName'])) header('Location: dashboard.php');
                 <p>Please login using your credentials.</p>
             </header>
 <?php
-//error_reporting(0);
+error_reporting(0);
 function rand_string( $length ) {
     $chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     return substr(str_shuffle($chars),0,$length);
