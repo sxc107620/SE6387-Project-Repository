@@ -1,6 +1,6 @@
    var TheUploadURL = "#";
 
-    $.post("/gcsprocess",'',function(uploadurl){
+    $.post("gcsprocess.php",'',function(uploadurl){
 		
 		 TheUploadURL = ""+uploadurl+"";
     });
