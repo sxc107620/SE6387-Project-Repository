@@ -1,5 +1,5 @@
 <a href="#" id="menu-toggle"></a> 
-            <a class="logo pull-left" href="index-2.html">Admin Portal</a>
+            <a class="logo pull-left" href="#"><?php echo ucfirst($_SESSION['type']); ?> Portal</a>
             
             <div class="media-body">
                 <div class="media" id="top-menu">

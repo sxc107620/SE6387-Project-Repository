@@ -105,6 +105,12 @@
 		return $result;
 	}
 	
+	function getDriverHoursPersonal($mon, $year, $uname) {
+		$getList = mysql_query("SELECT SUM( totaltime /3600000 ) AS totaltime FROM statistics_driver_time WHERE YEAR(date) = '$year' AND MONTH(date) = '$mon' AND username = '$uname'");
+		$result = mysql_fetch_row($getList, 0) or trigger_error(mysql_error().$getList);
+		return $result[0];
+	}
+	
 	function getShuttleUsage() {
 		$result = array();
 		$getList = mysql_query("SELECT number, totalpassengers FROM shuttles");

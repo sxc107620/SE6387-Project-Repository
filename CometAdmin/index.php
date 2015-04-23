@@ -29,7 +29,7 @@ if(isset($_POST['submit'])){
 	$userid = $_POST['uid'];
     $pwd = $_POST['passwd'];
 	$type = getUserType($userid);
-	if($type == "admin" || $type == "superadmin") {
+	if($type == "admin" || $type == "superadmin" || $type == "driver") {
 	$attempts = getAttempts($userid);
 	if($attempts < 2) {
 	if(md5($pwd) == getPwd($userid)) {
@@ -37,7 +37,8 @@ if(isset($_POST['submit'])){
 	$_SESSION['uName'] = $userid;
 	$_SESSION['type'] = $type;
 	$_SESSION['email'] = getEmail($userid);
-	header('Location: dashboard.php');
+	if($type == "admin" || $type == "superadmin") header('Location: dashboard.php');
+	if($type == "driver") header('Location: driver.php');
 	updateAttempt($userid, 0);
 	} else {
 	$attempts = $attempts + 1;

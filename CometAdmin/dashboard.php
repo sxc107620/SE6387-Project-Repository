@@ -53,10 +53,11 @@
 				?>
                 
                 <article id="paragraph" class="block-area">
-                    <h3 class="block-title">Paragraph</h3>
-                    <p>Pellentesque lacinia sagittis libero et feugiat. Etiam volutpat adipiscing tortor non luctus. Vivamus venenatis vitae metus et aliquet. Praesent vitae justo purus. In hendrerit lorem nisl, ac lacinia urna aliquet non. Quisque nisi tellus, rhoncus quis est sit amet, lacinia euismod nunc. Aenean nec nibh velit. Fusce quis ante in nisl molestie fringilla. Nunc vitae ante id magna feugiat condimentum. Maecenas sit amet urna massa.</p>
-                    <p>Integer eu lectus sollicitudin, hendrerit est ac, sollicitudin nisl. Quisque viverra sodales lectus nec ultrices. Fusce elit dolor, dignissim a nunc id, varius suscipit turpis. Cras porttitor turpis vitae leo accumsan molestie. Morbi vitae luctus leo. Sed nec scelerisque magna, et adipiscing est. Proin lobortis lectus eu sem ullamcorper, commodo malesuada quam fringilla. Curabitur ac nunc dui. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Fusce sagittis enim eu est lacinia, ut egestas ligula imperdiet.</p>
-                    <br>
+                    <h3 class="block-title">Comet Admin</h3>
+                    <p>Comet Admin is a system that can be used to maintain the users of the Transport Department. The admin can create new routes and delete exisiting once based on the need. The statistics page lets the admin to keep 
+					track of how many hours a driver has served and what routes have been frequently been used. The tracking page lets the admin to find out the location of a cab in real time, whether its on-duty or not.</p>
+					<p>The following demo shows the admin how to use the portal.</p>
+					<br>
                 </article> 
                 <hr class="whiter m-t-20 m-b-20" />
             </section>
