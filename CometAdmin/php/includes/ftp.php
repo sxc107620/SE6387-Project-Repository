@@ -3,6 +3,8 @@ $ftp_server = "ftp.danmat.us";
 $ftp_user_name = "cometdev";
 $ftp_user_pass = "cometride1!";
 
+putenv('TMPDIR=gs://tempprofilepic/');
+
 // set up basic connection
 $conn_id = ftp_connect($ftp_server);
 ftp_pasv($conn_id, true); 
