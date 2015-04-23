@@ -3,7 +3,7 @@ ini_set('display_errors', TRUE);
 
 use google\appengine\api\cloud_storage\CloudStorageTools;
 
-const BUCKET = 'boombatower-drupal.appspot.com';
+const BUCKET = 'effective-time-87319.appspot.com';
 $file_name = 'gs://' . BUCKET . '/profilePic.jpg';
 $some_text = !empty($_POST['some_text']) ? $_POST['some_text'] : '';
 
