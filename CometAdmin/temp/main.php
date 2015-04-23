@@ -38,7 +38,7 @@
 
 		                $("#notice").html("File Uploaded: "+uploaded_files.name+" ");
 		     
-		                $.post("/gcsprocess",{"Require":"UploadURL"},function(uploadurl){
+		                $.post("gcsprocess.php",{"Require":"UploadURL"},function(uploadurl){
 
 							DropzoneOptions.url = ""+uploadurl+"";
 

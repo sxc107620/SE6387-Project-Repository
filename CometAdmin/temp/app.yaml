@@ -18,7 +18,6 @@ handlers:
 - url: /SendQueue
   script: SendQueue.php
 
-- url: /gcsprocess
-  script: gcsprocess.php
+
 
  
