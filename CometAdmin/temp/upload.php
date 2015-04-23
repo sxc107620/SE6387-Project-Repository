@@ -1,12 +1,13 @@
 <?php
 ini_set('display_errors', TRUE);
 
+use google\appengine\api\cloud_storage\CloudStorageTools;
+
 const BUCKET = 'boombatower-drupal.appspot.com';
 $file_name = 'gs://' . BUCKET . '/profilePic.jpg';
 $some_text = !empty($_POST['some_text']) ? $_POST['some_text'] : '';
 
-require_once 'google/appengine/api/cloud_storage/CloudStorageTools.php';
-use google\appengine\api\cloud_storage\CloudStorageTools;
+
 
 $options = [ 'gs_bucket_name' => BUCKET ];
 $upload_url = CloudStorageTools::createUploadUrl('/upload.php', $options);
