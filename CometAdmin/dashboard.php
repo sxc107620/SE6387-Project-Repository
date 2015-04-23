@@ -9,6 +9,7 @@
     <body>
 	<?php
 				session_start();
+				if($_SESSION['type'] == 'driver') header('Location: driver.php');
 				if(isset($_SESSION['uName'])) {
 		?>
         <header id="header" class="media">

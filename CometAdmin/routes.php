@@ -9,6 +9,7 @@
     <body>
 	<?php
 		session_start();
+		if($_SESSION['type'] == 'driver') header('Location: driver.php');
 		if(isset($_SESSION['uName'])) {
 			include ("./php/includes/settings.inc.php");        // database settings
 			include ("./php/includes/connectdb.inc.php"); 

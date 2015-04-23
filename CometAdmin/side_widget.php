@@ -5,9 +5,8 @@
 							if (!isset($_SESSION)) {
 								session_start();
 							}
-							$src = "http://danmat.us/CometRide/uploads/".$_SESSION['uName']."/profilePic.jpg";
-							$file_headers = @get_headers($src);
-							if($file_headers[0] != 'HTTP/1.0 200 OK')  $src = "img/profile-pic.jpg";
+							$src = "./uploads/".$_SESSION['uName']."/profilePic.jpg";
+							if(!file_exists($src)) $src = "img/profile-pic.jpg";
 							
 						?>
                             <img class="profile-pic" src=<?php echo $src; ?> alt="">
