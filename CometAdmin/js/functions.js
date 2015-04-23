@@ -351,6 +351,7 @@ Custom Code
 	
 	//load details in modal box - admin, driver
 	$('#modalDetails').on('show.bs.modal', function(e) {
+		$('.errorMessage').html("");
 		var name = $(e.relatedTarget).html();
 		var email = $(e.relatedTarget).data('email');
 		var type = $(e.relatedTarget).data('type');
@@ -384,6 +385,7 @@ Custom Code
 	
 	//load create modal box - admin, driver
 	$('#modalCreate').on('show.bs.modal', function(e) {
+		$('.errorMessage').html("");
 		var type = $(e.relatedTarget).data('type');
 		var num = $(e.relatedTarget).data('name');
 		if(type == "admin" || type == "driver") {
@@ -437,17 +439,17 @@ Custom Code
 		email = $("#newMail").val();
 		pass = $("#newPass").val();
 		rpass = $("#newCPass").val();
-		if(type == 'admin') {
+		//if(type == 'admin') {
 			$("#adminList a").each(function() {
 				eList.push($(this).data('email'));
 				uList.push($(this).data('name'));
 			});
-		} else {
+		//} else {
 			$("#driverList a").each(function() {
 				eList.push($(this).data('email'));
 				uList.push($(this).data('name'));
 			});
-		}
+		//}
 			if(jQuery.inArray(username, uList)!==-1) errorList = errorList + "<li>Username already exists</li>";
 			if(jQuery.inArray(email, eList)!==-1) errorList = errorList + "<li>Email already exists</li>";
 			if(regex.test(email) == 0) errorList = errorList + "<li>Invalid email address</li>";
