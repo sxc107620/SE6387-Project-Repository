@@ -1,7 +1,9 @@
-<?
+<?php
+
 require_once 'google/appengine/api/cloud_storage/CloudStorageTools.php';
 use google\appengine\api\cloud_storage\CloudStorageTools;
-$options = [ 'gs_bucket_name' => 'gs://tempprofilepic/' ];
+
+$options = [ 'gs_bucket_name' => 'tempprofilepic' ];
 $upload_url = CloudStorageTools::createUploadUrl('/upload_handler.php', $options);
 
 ?>
