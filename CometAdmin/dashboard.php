@@ -59,6 +59,9 @@
 					track of how many hours a driver has served and what routes have been frequently been used. The tracking page lets the admin to find out the location of a cab in real time, whether its on-duty or not.</p>
 					<p>The following demo shows the admin how to use the portal.</p>
 					<br>
+					<div class="embed-responsive embed-responsive-16by9">
+					  <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/V5g0ZYhwiB0" frameborder="0" allowfullscreen></iframe>
+					</div>
                 </article> 
                 <hr class="whiter m-t-20 m-b-20" />
             </section>
